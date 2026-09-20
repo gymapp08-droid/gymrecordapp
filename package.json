@@ -1,0 +1,24 @@
+{
+  "name": "alpha-personal-performance-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ALPHA - Your Higher Self: Personal Performance OS",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run --workspaces --if-present build",
+    "test": "npm run --workspaces --if-present test",
+    "lint": "npm run --workspaces --if-present lint",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "prisma:generate": "npm run --workspace=@alpha/database generate",
+    "prisma:migrate": "npm run --workspace=@alpha/database migrate"
+  },
+  "devDependencies": {
+    "@types/react-dom": "^18.3.7",
+    "prettier": "^3.3.3",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3"
+  }
+}

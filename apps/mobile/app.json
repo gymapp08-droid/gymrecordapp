@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "ALPHA",
+    "slug": "alpha-performance-os",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "alpha",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#05070B",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.alpha.performance.os",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "ALPHA accesses your steps, heart rate, and workouts to personalize your recovery and coaching recommendations.",
+        "NSHealthUpdateUsageDescription": "ALPHA writes your workout sessions and active calories to Apple Health.",
+        "NSCameraUsageDescription": "ALPHA uses your camera to capture progress photos.",
+        "NSPhotoLibraryUsageDescription": "ALPHA accesses your photo library to select progress photos.",
+        "NSLocationWhenInUseUsageDescription": "ALPHA uses your location during outdoor cardio activities to record routes."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#05070B"
+      },
+      "package": "com.alpha.performance.os",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_HEART_RATE",
+        "android.permission.health.READ_SLEEP",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.READ_MEDIA_IMAGES"
+      ]
+    }
+  }
+}

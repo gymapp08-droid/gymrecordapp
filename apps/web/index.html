@@ -1,0 +1,492 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALPHA — Personal Performance OS</title>
+  <style>
+    :root {
+      --bg-primary: #07090E;
+      --bg-secondary: #0C1018;
+      --bg-card: rgba(13, 17, 26, 0.85);
+      --bg-card-elevated: rgba(18, 24, 38, 0.95);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(0, 240, 255, 0.4);
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --accent-cyan: #00F0FF;
+      --accent-violet: #7928CA;
+      --accent-emerald: #10B981;
+      --accent-amber: #F59E0B;
+      --accent-crimson: #EF4444;
+      --font-mono: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .brand-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #000;
+      font-size: 16px;
+    }
+    .brand-title { font-size: 14px; font-weight: 700; letter-spacing: 0.05em; }
+    .brand-subtitle { font-size: 9px; font-family: var(--font-mono); color: var(--accent-cyan); letter-spacing: 0.1em; }
+    .nav-list { list-style: none; padding: 16px 10px; display: flex; flex-direction: column; gap: 4px; }
+    .nav-item {
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+    }
+    .nav-item:hover { background-color: var(--bg-card); color: var(--text-primary); }
+    .nav-item.active { background-color: var(--bg-card); color: var(--accent-cyan); border-left: 3px solid var(--accent-cyan); }
+    
+    /* Main Layout */
+    .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+    .top-header {
+      height: 60px;
+      border-bottom: 1px solid var(--border-subtle);
+      background-color: rgba(12, 16, 24, 0.8);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .view-container { padding: 28px; display: none; flex-direction: column; gap: 20px; }
+    .view-container.active { display: flex; }
+    
+    /* Reusable Cards & Grids */
+    .card-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; }
+    .panel-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    /* Badges & Buttons */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px;
+      font-size: 11px; font-family: var(--font-mono); background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background-color: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); }
+    .action-btn {
+      background: linear-gradient(135deg, var(--accent-cyan), #0070F3);
+      color: #000; border: none; padding: 7px 14px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;
+    }
+    .secondary-btn {
+      background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid var(--border-subtle);
+      padding: 7px 14px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { text-align: left; padding: 10px 14px; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); font-weight: 600; text-transform: uppercase; }
+    td { padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: var(--text-secondary); }
+    tr:hover td { background-color: rgba(255, 255, 255, 0.02); color: var(--text-primary); }
+
+    /* Phone Mockup for Mobile Preview */
+    .phone-wrapper { display: flex; justify-content: center; align-items: center; padding: 20px 0; }
+    .phone-frame {
+      width: 360px; height: 720px; background: #05070B; border: 10px solid #1A202C; border-radius: 40px;
+      display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(0,240,255,0.2);
+    }
+    .phone-screen { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .phone-nav {
+      height: 56px; background: #07090E; border-top: 1px solid var(--border-subtle);
+      display: flex; justify-content: space-around; align-items: center;
+    }
+    .phone-nav-btn { background: none; border: none; color: var(--text-muted); font-size: 10px; font-weight: 700; cursor: pointer; }
+    .phone-nav-btn.active { color: var(--accent-cyan); }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand-section">
+      <div class="brand-logo">A</div>
+      <div>
+        <div class="brand-title">ALPHA PORTAL</div>
+        <div class="brand-subtitle">YOUR HIGHER SELF</div>
+      </div>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item active" onclick="showView('analytics', this)">📊 Analytics & Intelligence</li>
+      <li class="nav-item" onclick="showView('clients', this)">👥 Clients & Roster</li>
+      <li class="nav-item" onclick="showView('programs', this)">🏋️ Programs & Splits</li>
+      <li class="nav-item" onclick="showView('mobile', this)">📱 Mobile Athlete App</li>
+      <li class="nav-item" onclick="showView('reports', this)">📑 Reports & Exports</li>
+      <li class="nav-item" onclick="showView('messages', this)">💬 Coach Messages</li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <div class="top-header">
+      <span id="pageTitle" style="font-size: 14px; font-weight: 700; letter-spacing: 0.05em;">ANALYTICS & INTELLIGENCE</span>
+      <div class="status-badge">
+        <span class="pulse-dot"></span>
+        <span>ALPHA OS ONLINE (PORT 3000)</span>
+      </div>
+    </div>
+
+    <!-- 1. ANALYTICS VIEW -->
+    <div id="view-analytics" class="view-container active">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; gap: 8px;">
+          <button class="action-btn" onclick="setAnalyticsMode('COACH')">Coach Mode (L2)</button>
+          <button class="secondary-btn" onclick="setAnalyticsMode('ORG')">Org Executive (L3)</button>
+        </div>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-cyan);">FRESHNESS: LIVE SYNC</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+        <div class="card-panel">
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">ACTIVE ATHLETES</span>
+          <span id="kpi1" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono);">18</span>
+          <span style="font-size: 10px; color: var(--accent-emerald);">▲ +2 vs prev 30 days</span>
+        </div>
+        <div class="card-panel">
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">WORKOUT ADHERENCE</span>
+          <span id="kpi2" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono); color: var(--accent-cyan);">84.6%</span>
+          <span style="font-size: 10px; color: var(--accent-emerald);">▲ +4.2 pp vs prev</span>
+        </div>
+        <div class="card-panel">
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">NUTRITION COMPLIANCE</span>
+          <span id="kpi3" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono);">78.2%</span>
+          <span style="font-size: 10px; color: var(--accent-emerald);">▲ +1.8 pp vs prev</span>
+        </div>
+        <div class="card-panel">
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">AT-RISK CLIENTS</span>
+          <span id="kpi4" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono); color: var(--accent-crimson);">2</span>
+          <span style="font-size: 10px; color: var(--accent-crimson);">▼ Requires review</span>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="panel-header">
+          <span class="panel-title">Progressive Overload & Volume Curve (30-Day Aggregation)</span>
+          <span style="font-size: 11px; font-family: var(--font-mono); color: var(--accent-cyan);">VOLUME: 24,580 KG</span>
+        </div>
+        <svg width="100%" height="150" viewBox="0 0 800 150" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M 0,130 Q 200,110 400,80 T 800,20 L 800,150 L 0,150 Z" fill="url(#grad)" />
+          <path d="M 0,130 Q 200,110 400,80 T 800,20" fill="none" stroke="#00F0FF" stroke-width="3" />
+        </svg>
+      </div>
+
+      <div class="card-panel">
+        <span class="panel-title">Client Adherence & Risk Triage</span>
+        <table>
+          <thead>
+            <tr><th>Athlete</th><th>Workout Adherence</th><th>Nutrition Score</th><th>Last Active</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td style="font-weight: 600; color: #fff;">Marcus Vance</td><td style="color: var(--accent-emerald);">92.4% (14/15)</td><td style="color: var(--accent-emerald);">88.5%</td><td>Today, 07:15</td><td><span class="status-badge">OPTIMAL</span></td></tr>
+            <tr><td style="font-weight: 600; color: #fff;">Elena Rostova</td><td style="color: var(--accent-emerald);">86.0% (12/14)</td><td style="color: var(--accent-emerald);">91.2%</td><td>Yesterday</td><td><span class="status-badge">OPTIMAL</span></td></tr>
+            <tr><td style="font-weight: 600; color: #fff;">David Chen</td><td style="color: var(--accent-crimson);">38.2% (3/8)</td><td style="color: var(--accent-crimson);">42.0%</td><td>5 days ago</td><td><span style="color: var(--accent-crimson); font-weight: 700;">AT RISK</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. CLIENTS VIEW -->
+    <div id="view-clients" class="view-container">
+      <div class="panel-header">
+        <span class="panel-title">Active Athlete Roster</span>
+        <button class="action-btn" onclick="alert('Invitation modal opened')">+ INVITE ATHLETE</button>
+      </div>
+      <div class="card-panel">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Assigned Program</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <tr><td style="font-weight: 700; color: #fff;">Marcus Vance</td><td>marcus@alpha.local</td><td>Hypertrophy Power Split V1</td><td><span class="status-badge">ACTIVE</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">VIEW DOSSIER</button></td></tr>
+            <tr><td style="font-weight: 700; color: #fff;">Elena Rostova</td><td>elena@alpha.local</td><td>Endurance Protocol A</td><td><span class="status-badge">ACTIVE</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">VIEW DOSSIER</button></td></tr>
+            <tr><td style="font-weight: 700; color: #fff;">David Chen</td><td>david@alpha.local</td><td>Foundation Strength</td><td><span style="color: var(--accent-amber);">CHECK-IN DUE</span></td><td><button class="secondary-btn" style="padding: 4px 8px; font-size: 10px;">MESSAGE</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. PROGRAMS VIEW -->
+    <div id="view-programs" class="view-container">
+      <div class="panel-header">
+        <span class="panel-title">Training Programs & Periodization Splits</span>
+        <button class="action-btn" onclick="alert('Program Builder opened')">+ NEW PROGRAM</button>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+        <div class="card-panel">
+          <div class="panel-header">
+            <span style="font-weight: 700; color: #fff; font-size: 15px;">Hypertrophy Power Split V1</span>
+            <span class="status-badge">PUBLISHED</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary);">4-Day undulating periodization for maximum muscle accrual and foundation strength.</p>
+          <div style="font-size: 11px; font-family: var(--font-mono); color: var(--accent-cyan);">8 WEEKS • 4 SESSIONS/WK • 14 ATHLETES ENROLLED</div>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button class="secondary-btn" style="flex: 1;">EDIT SPLIT</button>
+            <button class="action-btn" style="flex: 1;">ASSIGN</button>
+          </div>
+        </div>
+        <div class="card-panel">
+          <div class="panel-header">
+            <span style="font-weight: 700; color: #fff; font-size: 15px;">Endurance & VO2 Peak</span>
+            <span class="status-badge">PUBLISHED</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary);">Cardiovascular conditioning and threshold running programming.</p>
+          <div style="font-size: 11px; font-family: var(--font-mono); color: var(--accent-cyan);">6 WEEKS • 3 SESSIONS/WK • 6 ATHLETES ENROLLED</div>
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button class="secondary-btn" style="flex: 1;">EDIT SPLIT</button>
+            <button class="action-btn" style="flex: 1;">ASSIGN</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. MOBILE ATHLETE APP PREVIEW -->
+    <div id="view-mobile" class="view-container">
+      <div class="phone-wrapper">
+        <div class="phone-frame">
+          <div style="padding: 10px 16px; background: #07090E; display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">
+            <span>09:41</span>
+            <span>ALPHA 5G • 100%</span>
+          </div>
+          <div class="phone-screen" id="phoneContent">
+            <!-- Mobile Screen: Live Workout Tracking -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan);">TODAY'S WORKOUT</span>
+                <h4 style="color: #fff; font-size: 16px;">Lower Body Focus A</h4>
+              </div>
+              <span class="status-badge" style="font-size: 9px;">ACTIVE SESSION</span>
+            </div>
+
+            <!-- Set Card -->
+            <div style="background: rgba(13, 17, 26, 0.9); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 12px; font-weight: 700; color: #fff;">Exercise 1: Barbell Back Squat</span>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+                <span>SET 1</span>
+                <span>100 KG × 8 REPS</span>
+                <span style="color: var(--accent-emerald);">✓ COMPLETED</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+                <span>SET 2</span>
+                <span>105 KG × 8 REPS</span>
+                <span style="color: var(--accent-emerald);">✓ COMPLETED</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700;">
+                <span>SET 3 (CURRENT)</span>
+                <span>110 KG × 6 REPS</span>
+                <span style="color: var(--accent-cyan);">LOG SET</span>
+              </div>
+            </div>
+
+            <!-- Rest Timer -->
+            <div style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-cyan); border-radius: 10px; padding: 12px; text-align: center;">
+              <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan);">REST INTERVAL</span>
+              <div style="font-size: 24px; font-weight: 800; font-family: var(--font-mono); color: #fff;">01:18</div>
+            </div>
+
+            <button class="action-btn" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="alert('Set 3 logged in session!')">✓ LOG SET 3 (110 KG)</button>
+          </div>
+
+          <!-- Bottom Mobile Tabs -->
+          <div class="phone-nav">
+            <button class="phone-nav-btn active" onclick="setMobileScreen('WORKOUT', this)">WORKOUT</button>
+            <button class="phone-nav-btn" onclick="setMobileScreen('PROGRESS', this)">PROGRESS</button>
+            <button class="phone-nav-btn" onclick="setMobileScreen('AI', this)">AI COACH</button>
+            <button class="phone-nav-btn" onclick="setMobileScreen('ALERTS', this)">ALERTS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. REPORTS VIEW -->
+    <div id="view-reports" class="view-container">
+      <div class="panel-header">
+        <span class="panel-title">Generated Executive Reports</span>
+        <button class="action-btn" onclick="alert('Compiling export report...')">+ COMPILE NEW REPORT</button>
+      </div>
+      <div class="card-panel">
+        <table>
+          <thead>
+            <tr><th>Report Title</th><th>Scope</th><th>Format</th><th>Generated Date</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td style="font-weight: 600; color: #fff;">30-Day Client Performance Audit</td><td>CLIENT</td><td>CSV</td><td>Today, 09:15</td><td><span class="status-badge">READY</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">DOWNLOAD</button></td></tr>
+            <tr><td style="font-weight: 600; color: #fff;">Executive Organization Adherence</td><td>ORGANIZATION</td><td>JSON</td><td>Today, 08:30</td><td><span class="status-badge">READY</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">DOWNLOAD</button></td></tr>
+            <tr><td style="font-weight: 600; color: #fff;">Coach Workload & Attrition Benchmark</td><td>COACH</td><td>PDF</td><td>Yesterday</td><td><span class="status-badge">READY</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">DOWNLOAD</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 6. MESSAGES VIEW -->
+    <div id="view-messages" class="view-container">
+      <div class="card-panel">
+        <div class="panel-header">
+          <span class="panel-title">Coach-Client Channel (Marcus Vance)</span>
+          <span style="font-size: 11px; color: var(--accent-emerald);">● ATHLETE ONLINE</span>
+        </div>
+        <div style="height: 240px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+          <div style="align-self: flex-start; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; max-width: 60%;">
+            <span style="font-size: 11px; color: #fff;">Coach, hit 110kg on back squat today for 6 clean reps!</span>
+          </div>
+          <div style="align-self: flex-end; background: rgba(0,240,255,0.15); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 8px; max-width: 60%;">
+            <span style="font-size: 11px; color: #fff;">Huge work Marcus. Progressive overload target met. Take 2 mins rest before RDLs.</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" placeholder="Type instructions or feedback..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px; color: #fff; font-size: 12px;">
+          <button class="action-btn">SEND</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function showView(viewId, el) {
+      document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('view-' + viewId).classList.add('active');
+      if (el) el.classList.add('active');
+
+      const titles = {
+        analytics: 'ANALYTICS & EXECUTIVE INTELLIGENCE',
+        clients: 'CLIENTS & ROSTER MANAGEMENT',
+        programs: 'TRAINING PROGRAMS & SPLITS',
+        mobile: 'MOBILE ATHLETE APP (INTERACTIVE RUNTIME)',
+        reports: 'EXECUTIVE REPORTS & EXPORTS',
+        messages: 'SECURE COACH-CLIENT MESSAGING'
+      };
+      document.getElementById('pageTitle').innerText = titles[viewId] || 'ALPHA OS';
+    }
+
+    function setAnalyticsMode(mode) {
+      if (mode === 'COACH') {
+        document.getElementById('kpi1').innerText = '18';
+        document.getElementById('kpi2').innerText = '84.6%';
+        document.getElementById('kpi3').innerText = '78.2%';
+        document.getElementById('kpi4').innerText = '2';
+      } else {
+        document.getElementById('kpi1').innerText = '142';
+        document.getElementById('kpi2').innerText = '81.4%';
+        document.getElementById('kpi3').innerText = '75.9%';
+        document.getElementById('kpi4').innerText = '11';
+      }
+    }
+
+    function setMobileScreen(screen, btn) {
+      document.querySelectorAll('.phone-nav-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      const content = document.getElementById('phoneContent');
+      if (screen === 'WORKOUT') {
+        content.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div><span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan);">TODAY'S WORKOUT</span><h4 style="color: #fff; font-size: 16px;">Lower Body Focus A</h4></div>
+            <span class="status-badge" style="font-size: 9px;">ACTIVE SESSION</span>
+          </div>
+          <div style="background: rgba(13, 17, 26, 0.9); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: 12px; font-weight: 700; color: #fff;">Exercise 1: Barbell Back Squat</span>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);"><span>SET 1</span><span>100 KG × 8 REPS</span><span style="color: var(--accent-emerald);">✓ COMPLETED</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);"><span>SET 2</span><span>105 KG × 8 REPS</span><span style="color: var(--accent-emerald);">✓ COMPLETED</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700;"><span>SET 3 (CURRENT)</span><span>110 KG × 6 REPS</span><span style="color: var(--accent-cyan);">LOG SET</span></div>
+          </div>
+          <div style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-cyan); border-radius: 10px; padding: 12px; text-align: center;">
+            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan);">REST INTERVAL</span>
+            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-mono); color: #fff;">01:18</div>
+          </div>
+          <button class="action-btn" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="alert('Set logged!')">✓ LOG SET 3 (110 KG)</button>
+        `;
+      } else if (screen === 'PROGRESS') {
+        content.innerHTML = `
+          <h4 style="color: #fff; font-size: 16px;">Biometrics & Progression</h4>
+          <div style="background: rgba(13, 17, 26, 0.9); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px;">
+            <span style="font-size: 10px; color: var(--text-muted);">BODY WEIGHT</span>
+            <div style="font-size: 22px; font-weight: 800; color: var(--accent-cyan); font-family: var(--font-mono);">82.4 KG</div>
+            <span style="font-size: 10px; color: var(--accent-emerald);">▼ -1.8 kg over 30 days (Optimal Cut)</span>
+          </div>
+          <div style="background: rgba(13, 17, 26, 0.9); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; margin-top: 10px;">
+            <span style="font-size: 10px; color: var(--text-muted);">PERSONAL RECORDS (ALL-TIME)</span>
+            <div style="font-size: 12px; margin-top: 6px; color: #fff;">• Back Squat: 140 KG</div>
+            <div style="font-size: 12px; margin-top: 4px; color: #fff;">• Deadlift: 180 KG</div>
+            <div style="font-size: 12px; margin-top: 4px; color: #fff;">• Bench Press: 115 KG</div>
+          </div>
+        `;
+      } else if (screen === 'AI') {
+        content.innerHTML = `
+          <h4 style="color: #fff; font-size: 16px;">AI Performance Intelligence</h4>
+          <div style="background: rgba(121, 40, 202, 0.15); border: 1px solid var(--accent-violet); border-radius: 12px; padding: 14px;">
+            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-violet);">COACH AI INSIGHT</span>
+            <p style="font-size: 12px; color: #fff; margin-top: 6px;">Your squat volume is up 8% this week with stable RPE. You are ready to attempt a 2.5kg overload on next cycle.</p>
+          </div>
+          <button class="action-btn" style="width: 100%; padding: 10px; margin-top: 12px;" onclick="alert('AI Coach Analysis Requested')">ANALYZE RECOVERY</button>
+        `;
+      } else if (screen === 'ALERTS') {
+        content.innerHTML = `
+          <h4 style="color: #fff; font-size: 16px;">Notification Center</h4>
+          <div style="background: rgba(13, 17, 26, 0.9); border-left: 3px solid var(--accent-cyan); border-radius: 8px; padding: 12px; margin-top: 6px;">
+            <span style="font-size: 11px; font-weight: 700; color: #fff;">Workout Scheduled</span>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Lower Body Focus A scheduled for today at 17:00.</p>
+          </div>
+          <div style="background: rgba(13, 17, 26, 0.9); border-left: 3px solid var(--accent-emerald); border-radius: 8px; padding: 12px; margin-top: 6px;">
+            <span style="font-size: 11px; font-weight: 700; color: #fff;">Nutrition Target Met</span>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Protein goal (160g) achieved for yesterday.</p>
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
