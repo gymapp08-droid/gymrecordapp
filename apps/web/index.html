@@ -1,491 +1,1891 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALPHA — Personal Performance OS</title>
+  <title>ALPHA Performance OS — Coach & Athlete Operating System</title>
+  
+  <!-- Typography: Plus Jakarta Sans (UI) + Outfit (Metrics/Display) + JetBrains Mono (Telemetry) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --bg-primary: #07090E;
-      --bg-secondary: #0C1018;
-      --bg-card: rgba(13, 17, 26, 0.85);
-      --bg-card-elevated: rgba(18, 24, 38, 0.95);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-active: rgba(0, 240, 255, 0.4);
+      /* Foundation Palette */
+      --bg-base: #05070B;
+      --bg-sidebar: #080B10;
+      --bg-header: rgba(8, 11, 16, 0.82);
+      --bg-surface: #0D1118;
+      --bg-surface-elevated: #11161F;
+      --bg-surface-active: #161D29;
+      --bg-surface-overlay: rgba(5, 7, 11, 0.75);
+
+      /* Borders */
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-default: rgba(255, 255, 255, 0.1);
+      --border-accent: rgba(0, 240, 255, 0.35);
+      --border-accent-strong: #00F0FF;
+
+      /* Typography & Content Colors */
       --text-primary: #F8FAFC;
       --text-secondary: #94A3B8;
       --text-muted: #64748B;
+      --text-faint: #334155;
+
+      /* Semantic Accents */
       --accent-cyan: #00F0FF;
-      --accent-violet: #7928CA;
+      --accent-cyan-subtle: rgba(0, 240, 255, 0.08);
+      --accent-cyan-border: rgba(0, 240, 255, 0.25);
+      
       --accent-emerald: #10B981;
+      --accent-emerald-subtle: rgba(16, 185, 129, 0.1);
+      --accent-emerald-border: rgba(16, 185, 129, 0.25);
+
       --accent-amber: #F59E0B;
+      --accent-amber-subtle: rgba(245, 158, 11, 0.1);
+      --accent-amber-border: rgba(245, 158, 11, 0.25);
+
       --accent-crimson: #EF4444;
-      --font-mono: 'SF Mono', 'Fira Code', Menlo, Consolas, monospace;
-      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --accent-crimson-subtle: rgba(239, 68, 68, 0.1);
+      --accent-crimson-border: rgba(239, 68, 68, 0.25);
+
+      --accent-violet: #8B5CF6;
+      --accent-violet-subtle: rgba(139, 92, 246, 0.1);
+      --accent-violet-border: rgba(139, 92, 246, 0.25);
+
+      /* Typography Stacks */
+      --font-ui: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Outfit', var(--font-ui);
+      --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+      /* Transitions & Radii */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 18px;
+      --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      font-family: var(--font-sans);
-      min-height: 100vh;
-      display: flex;
-    }
-    /* Sidebar */
-    .sidebar {
-      width: 250px;
-      background-color: var(--bg-secondary);
+
+    /* Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; background-color: var(--bg-base); color: var(--text-primary); font-family: var(--font-ui); font-size: 13px; line-height: 1.5; overflow: hidden; -webkit-font-smoothing: antialiased; }
+    button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+    a { color: inherit; text-decoration: none; }
+
+    /* App Shell Layout */
+    .app-shell { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
+
+    /* Sidebar Navigation */
+    .app-sidebar {
+      width: 260px;
+      background-color: var(--bg-sidebar);
       border-right: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
+      z-index: 20;
+      user-select: none;
     }
-    .brand-section {
-      padding: 20px;
+
+    .brand-header {
+      height: 64px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-glyph {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #00F0FF, #0070F3);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #05070B;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 18px;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+    }
+
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-title { font-family: var(--font-display); font-size: 14px; font-weight: 800; letter-spacing: 0.06em; color: #FFF; }
+    .brand-tagline { font-family: var(--font-mono); font-size: 9px; color: var(--accent-cyan); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .nav-section { flex: 1; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+    .nav-label { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 12px 6px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 13px;
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+
+    .nav-item:hover {
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background-color: var(--bg-surface-elevated);
+      color: var(--accent-cyan);
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px var(--border-accent);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      width: 3px;
+      height: 20px;
+      border-radius: 0 4px 4px 0;
+      background-color: var(--accent-cyan);
+      box-shadow: 0 0 12px var(--accent-cyan);
+    }
+
+    .nav-item svg { width: 18px; height: 18px; stroke-width: 1.75; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; border-radius: 10px; background: var(--accent-cyan-subtle); color: var(--accent-cyan); font-weight: 700; }
+
+    /* Sidebar Footer / User Profile */
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border-subtle);
+      background-color: rgba(5, 7, 11, 0.4);
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .brand-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #1E293B, #0F172A);
+      border: 1px solid var(--border-default);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 900;
-      color: #000;
-      font-size: 16px;
-    }
-    .brand-title { font-size: 14px; font-weight: 700; letter-spacing: 0.05em; }
-    .brand-subtitle { font-size: 9px; font-family: var(--font-mono); color: var(--accent-cyan); letter-spacing: 0.1em; }
-    .nav-list { list-style: none; padding: 16px 10px; display: flex; flex-direction: column; gap: 4px; }
-    .nav-item {
-      padding: 10px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      font-family: var(--font-display);
       font-size: 13px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      transition: all 0.15s ease;
+      position: relative;
     }
-    .nav-item:hover { background-color: var(--bg-card); color: var(--text-primary); }
-    .nav-item.active { background-color: var(--bg-card); color: var(--accent-cyan); border-left: 3px solid var(--accent-cyan); }
-    
-    /* Main Layout */
-    .main-content { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
-    .top-header {
-      height: 60px;
+
+    .user-avatar::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-emerald);
+      border: 2px solid var(--bg-sidebar);
+      border-radius: 50%;
+    }
+
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 12px; font-weight: 700; color: #FFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
+
+    /* Main Content Area */
+    .app-main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; background-color: var(--bg-base); position: relative; }
+
+    /* Top Bar Header */
+    .top-bar {
+      height: 64px;
+      padding: 0 32px;
+      background-color: var(--bg-header);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-subtle);
-      background-color: rgba(12, 16, 24, 0.8);
-      backdrop-filter: blur(12px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
       position: sticky;
       top: 0;
       z-index: 10;
     }
-    .view-container { padding: 28px; display: none; flex-direction: column; gap: 20px; }
-    .view-container.active { display: flex; }
-    
-    /* Reusable Cards & Grids */
-    .card-panel {
-      background: var(--bg-card);
+
+    .breadcrumb-area { display: flex; align-items: center; gap: 8px; }
+    .breadcrumb-root { font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
+    .breadcrumb-sep { color: var(--text-faint); font-size: 11px; }
+    .breadcrumb-current { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+
+    .top-actions { display: flex; align-items: center; gap: 14px; }
+
+    /* Search Quick Launcher */
+    .search-launcher {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: var(--radius-md);
+      padding: 7px 14px;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      width: 240px;
+    }
+
+    .search-launcher:hover { border-color: var(--border-default); color: var(--text-secondary); background: var(--bg-surface-elevated); }
+    .search-launcher kbd { font-family: var(--font-mono); font-size: 10px; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-muted); margin-left: auto; }
+
+    /* System Status Indicator */
+    .system-status-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: var(--accent-emerald-subtle);
+      border: 1px solid var(--accent-emerald-border);
+      color: var(--accent-emerald);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+      animation: pulseGlow 2.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.9); }
+    }
+
+    /* Scrollable View Containers */
+    .content-body { flex: 1; overflow-y: auto; padding: 32px; display: flex; flex-direction: column; gap: 28px; }
+    .view-pane { display: none; flex-direction: column; gap: 24px; animation: fadeInPane var(--transition-smooth); }
+    .view-pane.active { display: flex; }
+
+    @keyframes fadeInPane {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Standardized Page Headers */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 20px;
+    }
+
+    .page-title-group { display: flex; flex-direction: column; gap: 4px; }
+    .page-heading { font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #FFF; letter-spacing: -0.01em; }
+    .page-subheading { font-size: 13px; color: var(--text-secondary); line-height: 1.4; max-width: 650px; }
+    .page-actions-group { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+    /* Button Design System */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      transition: all var(--transition-fast);
+      height: 38px;
+      white-space: nowrap;
+    }
+
+    .btn svg { width: 15px; height: 15px; stroke-width: 2; }
+
+    .btn-primary {
+      background: var(--accent-cyan);
+      color: #05070B;
+      font-weight: 700;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+    }
+    .btn-primary:hover {
+      background: #33F3FF;
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+    }
+    .btn-secondary:hover {
+      background: var(--bg-surface-elevated);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #FFF;
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+    .btn-ghost:hover {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    .btn-sm { height: 30px; padding: 5px 12px; font-size: 11px; }
+
+    /* Summary Metric Cards Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--transition-fast);
+    }
+
+    .metric-card:hover { border-color: var(--border-default); }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .metric-val {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      color: #FFF;
+      line-height: 1.1;
+    }
+
+    .metric-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .delta-up { color: var(--accent-emerald); }
+    .delta-neutral { color: var(--accent-cyan); }
+    .delta-down { color: var(--accent-crimson); }
+
+    /* Cards & Panels */
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .panel-heading { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #FFF; }
+    .panel-subheading { font-size: 12px; color: var(--text-muted); }
+
+    /* Filter & Search Toolbar */
+    .toolbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 14px;
+      flex-wrap: wrap;
     }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; }
-    .panel-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-    
-    /* Badges & Buttons */
+
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 380px;
+      min-width: 240px;
+    }
+
+    .search-input-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .input-control {
+      width: 100%;
+      height: 38px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 0 14px 0 36px;
+      color: #FFF;
+      font-size: 12px;
+      transition: all var(--transition-fast);
+    }
+
+    .input-control:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15);
+      background: var(--bg-surface-elevated);
+    }
+
+    .pill-group {
+      display: flex;
+      background: var(--bg-surface);
+      padding: 3px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .pill-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+    }
+
+    .pill-btn:hover { color: var(--text-primary); }
+    .pill-btn.active {
+      background: var(--bg-surface-active);
+      color: var(--accent-cyan);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+
+    /* Program Cards Grid */
+    .programs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .program-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: all var(--transition-smooth);
+      position: relative;
+    }
+
+    .program-card:hover {
+      border-color: rgba(0, 240, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .card-category { font-family: var(--font-mono); font-size: 10px; color: var(--accent-cyan); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+    .card-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #FFF; line-height: 1.25; }
+    .card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; min-height: 38px; }
+
+    /* Metadata Badge Row */
+    .meta-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
     .status-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px;
-      font-size: 11px; font-family: var(--font-mono); background: rgba(16, 185, 129, 0.15);
-      color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
     }
-    .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background-color: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); }
-    .action-btn {
-      background: linear-gradient(135deg, var(--accent-cyan), #0070F3);
-      color: #000; border: none; padding: 7px 14px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;
-    }
-    .secondary-btn {
-      background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid var(--border-subtle);
-      padding: 7px 14px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;
+
+    .status-published { background: var(--accent-emerald-subtle); color: var(--accent-emerald); border: 1px solid var(--accent-emerald-border); }
+    .status-draft { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-subtle); }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
     }
 
     /* Tables */
-    table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th { text-align: left; padding: 10px 14px; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); font-weight: 600; text-transform: uppercase; }
-    td { padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: var(--text-secondary); }
-    tr:hover td { background-color: rgba(255, 255, 255, 0.02); color: var(--text-primary); }
+    .table-container { width: 100%; overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+    .data-table th {
+      padding: 12px 18px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(5, 7, 11, 0.2);
+    }
+    .data-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+    .data-table tr:hover td { background-color: rgba(255, 255, 255, 0.02); color: var(--text-primary); }
 
-    /* Phone Mockup for Mobile Preview */
-    .phone-wrapper { display: flex; justify-content: center; align-items: center; padding: 20px 0; }
-    .phone-frame {
-      width: 360px; height: 720px; background: #05070B; border: 10px solid #1A202C; border-radius: 40px;
-      display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(0,240,255,0.2);
+    /* Progress Bar */
+    .progress-bar-wrap { width: 90px; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+    .progress-fill { height: 100%; border-radius: 3px; background: var(--accent-emerald); }
+
+    /* Empty State */
+    .empty-state {
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 12px;
+      color: var(--text-muted);
     }
-    .phone-screen { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-    .phone-nav {
-      height: 56px; background: #07090E; border-top: 1px solid var(--border-subtle);
-      display: flex; justify-content: space-around; align-items: center;
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-surface-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      margin-bottom: 6px;
     }
-    .phone-nav-btn { background: none; border: none; color: var(--text-muted); font-size: 10px; font-weight: 700; cursor: pointer; }
-    .phone-nav-btn.active { color: var(--accent-cyan); }
+
+    /* Interactive Phone Mockup */
+    .phone-center { display: flex; justify-content: center; align-items: center; padding: 10px 0; }
+    .phone-chassis {
+      width: 375px;
+      height: 740px;
+      background: #000;
+      border: 8px solid #1E293B;
+      border-radius: 46px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 240, 255, 0.15);
+      position: relative;
+    }
+
+    .phone-notch {
+      height: 28px;
+      background: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      z-index: 10;
+    }
+
+    .dynamic-island { width: 90px; height: 18px; background: #0A0D14; border-radius: 10px; margin: 0 auto; }
+
+    .phone-screen-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: #05070B; }
+    .phone-tab-bar {
+      height: 60px;
+      background: #090C12;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-bottom: 4px;
+    }
+
+    .phone-tab-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: var(--text-muted);
+      font-size: 9px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      transition: all var(--transition-fast);
+    }
+
+    .phone-tab-btn svg { width: 18px; height: 18px; stroke-width: 2; }
+    .phone-tab-btn.active { color: var(--accent-cyan); }
+
+    /* Modal System */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg-surface-overlay);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-box {
+      width: 100%;
+      max-width: 520px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 240, 255, 0.1);
+      overflow: hidden;
+      animation: modalSlide var(--transition-smooth);
+    }
+
+    @keyframes modalSlide {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #FFF; }
+    .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-subtle); background: var(--bg-sidebar); display: flex; justify-content: flex-end; gap: 10px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; font-family: var(--font-mono); }
+    .form-input {
+      height: 38px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 0 12px;
+      color: #FFF;
+      font-size: 13px;
+    }
+    .form-input:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15); }
+
+    /* Toast Notification */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+    .toast-msg {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--accent-cyan-border);
+      border-left: 3px solid var(--accent-cyan);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      color: #FFF;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Responsive Breakdown */
+    @media (max-width: 1024px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .programs-grid { grid-template-columns: 1fr; }
+      .app-sidebar { width: 72px; }
+      .brand-text, .nav-label, .nav-item span, .user-info, .nav-badge { display: none; }
+      .brand-header, .sidebar-footer { justify-content: center; padding: 0; }
+      .nav-item { justify-content: center; padding: 12px; }
+    }
   </style>
 </head>
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="brand-section">
-      <div class="brand-logo">A</div>
-      <div>
-        <div class="brand-title">ALPHA PORTAL</div>
-        <div class="brand-subtitle">YOUR HIGHER SELF</div>
-      </div>
-    </div>
-    <ul class="nav-list">
-      <li class="nav-item active" onclick="showView('analytics', this)">📊 Analytics & Intelligence</li>
-      <li class="nav-item" onclick="showView('clients', this)">👥 Clients & Roster</li>
-      <li class="nav-item" onclick="showView('programs', this)">🏋️ Programs & Splits</li>
-      <li class="nav-item" onclick="showView('mobile', this)">📱 Mobile Athlete App</li>
-      <li class="nav-item" onclick="showView('reports', this)">📑 Reports & Exports</li>
-      <li class="nav-item" onclick="showView('messages', this)">💬 Coach Messages</li>
-    </ul>
-  </div>
-
-  <div class="main-content">
-    <div class="top-header">
-      <span id="pageTitle" style="font-size: 14px; font-weight: 700; letter-spacing: 0.05em;">ANALYTICS & INTELLIGENCE</span>
-      <div class="status-badge">
-        <span class="pulse-dot"></span>
-        <span>ALPHA OS ONLINE (PORT 3000)</span>
-      </div>
-    </div>
-
-    <!-- 1. ANALYTICS VIEW -->
-    <div id="view-analytics" class="view-container active">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; gap: 8px;">
-          <button class="action-btn" onclick="setAnalyticsMode('COACH')">Coach Mode (L2)</button>
-          <button class="secondary-btn" onclick="setAnalyticsMode('ORG')">Org Executive (L3)</button>
-        </div>
-        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-cyan);">FRESHNESS: LIVE SYNC</span>
-      </div>
-
-      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
-        <div class="card-panel">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">ACTIVE ATHLETES</span>
-          <span id="kpi1" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono);">18</span>
-          <span style="font-size: 10px; color: var(--accent-emerald);">▲ +2 vs prev 30 days</span>
-        </div>
-        <div class="card-panel">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">WORKOUT ADHERENCE</span>
-          <span id="kpi2" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono); color: var(--accent-cyan);">84.6%</span>
-          <span style="font-size: 10px; color: var(--accent-emerald);">▲ +4.2 pp vs prev</span>
-        </div>
-        <div class="card-panel">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">NUTRITION COMPLIANCE</span>
-          <span id="kpi3" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono);">78.2%</span>
-          <span style="font-size: 10px; color: var(--accent-emerald);">▲ +1.8 pp vs prev</span>
-        </div>
-        <div class="card-panel">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">AT-RISK CLIENTS</span>
-          <span id="kpi4" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono); color: var(--accent-crimson);">2</span>
-          <span style="font-size: 10px; color: var(--accent-crimson);">▼ Requires review</span>
+  <div class="app-shell">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" aria-label="Main Navigation">
+      <div class="brand-header">
+        <div class="brand-glyph">A</div>
+        <div class="brand-text">
+          <div class="brand-title">ALPHA OS</div>
+          <div class="brand-tagline">Performance Platform</div>
         </div>
       </div>
 
-      <div class="card-panel">
-        <div class="panel-header">
-          <span class="panel-title">Progressive Overload & Volume Curve (30-Day Aggregation)</span>
-          <span style="font-size: 11px; font-family: var(--font-mono); color: var(--accent-cyan);">VOLUME: 24,580 KG</span>
+      <nav class="nav-section">
+        <div class="nav-label">Core Modules</div>
+        
+        <button class="nav-item active" onclick="switchView('analytics', this)" aria-label="Analytics & Intelligence">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          <span>Analytics</span>
+        </button>
+
+        <button class="nav-item" onclick="switchView('clients', this)" aria-label="Clients & Roster">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Athletes</span>
+          <span class="nav-badge">18</span>
+        </button>
+
+        <button class="nav-item" onclick="switchView('programs', this)" aria-label="Programs & Splits">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span>Programs</span>
+        </button>
+
+        <button class="nav-item" onclick="switchView('mobile', this)" aria-label="Mobile Athlete App">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+          <span>Athlete App</span>
+        </button>
+
+        <div class="nav-label" style="margin-top: 12px;">Intelligence & Comms</div>
+
+        <button class="nav-item" onclick="switchView('reports', this)" aria-label="Reports & Exports">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Reports</span>
+        </button>
+
+        <button class="nav-item" onclick="switchView('messages', this)" aria-label="Coach Messages">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Messages</span>
+          <span class="nav-badge">2</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-avatar">CA</div>
+        <div class="user-info">
+          <div class="user-name">Coach Alexander</div>
+          <div class="user-role">Head Performance Coach</div>
         </div>
-        <svg width="100%" height="150" viewBox="0 0 800 150" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <path d="M 0,130 Q 200,110 400,80 T 800,20 L 800,150 L 0,150 Z" fill="url(#grad)" />
-          <path d="M 0,130 Q 200,110 400,80 T 800,20" fill="none" stroke="#00F0FF" stroke-width="3" />
-        </svg>
       </div>
+    </aside>
 
-      <div class="card-panel">
-        <span class="panel-title">Client Adherence & Risk Triage</span>
-        <table>
-          <thead>
-            <tr><th>Athlete</th><th>Workout Adherence</th><th>Nutrition Score</th><th>Last Active</th><th>Status</th></tr>
-          </thead>
-          <tbody>
-            <tr><td style="font-weight: 600; color: #fff;">Marcus Vance</td><td style="color: var(--accent-emerald);">92.4% (14/15)</td><td style="color: var(--accent-emerald);">88.5%</td><td>Today, 07:15</td><td><span class="status-badge">OPTIMAL</span></td></tr>
-            <tr><td style="font-weight: 600; color: #fff;">Elena Rostova</td><td style="color: var(--accent-emerald);">86.0% (12/14)</td><td style="color: var(--accent-emerald);">91.2%</td><td>Yesterday</td><td><span class="status-badge">OPTIMAL</span></td></tr>
-            <tr><td style="font-weight: 600; color: #fff;">David Chen</td><td style="color: var(--accent-crimson);">38.2% (3/8)</td><td style="color: var(--accent-crimson);">42.0%</td><td>5 days ago</td><td><span style="color: var(--accent-crimson); font-weight: 700;">AT RISK</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Top Header -->
+      <header class="top-bar">
+        <div class="breadcrumb-area">
+          <span class="breadcrumb-root">ALPHA OS</span>
+          <span class="breadcrumb-sep">/</span>
+          <span id="breadcrumbTitle" class="breadcrumb-current">Analytics</span>
+        </div>
 
-    <!-- 2. CLIENTS VIEW -->
-    <div id="view-clients" class="view-container">
-      <div class="panel-header">
-        <span class="panel-title">Active Athlete Roster</span>
-        <button class="action-btn" onclick="alert('Invitation modal opened')">+ INVITE ATHLETE</button>
-      </div>
-      <div class="card-panel">
-        <table>
-          <thead>
-            <tr><th>Name</th><th>Email</th><th>Assigned Program</th><th>Status</th><th>Actions</th></tr>
-          </thead>
-          <tbody>
-            <tr><td style="font-weight: 700; color: #fff;">Marcus Vance</td><td>marcus@alpha.local</td><td>Hypertrophy Power Split V1</td><td><span class="status-badge">ACTIVE</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">VIEW DOSSIER</button></td></tr>
-            <tr><td style="font-weight: 700; color: #fff;">Elena Rostova</td><td>elena@alpha.local</td><td>Endurance Protocol A</td><td><span class="status-badge">ACTIVE</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">VIEW DOSSIER</button></td></tr>
-            <tr><td style="font-weight: 700; color: #fff;">David Chen</td><td>david@alpha.local</td><td>Foundation Strength</td><td><span style="color: var(--accent-amber);">CHECK-IN DUE</span></td><td><button class="secondary-btn" style="padding: 4px 8px; font-size: 10px;">MESSAGE</button></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 3. PROGRAMS VIEW -->
-    <div id="view-programs" class="view-container">
-      <div class="panel-header">
-        <span class="panel-title">Training Programs & Periodization Splits</span>
-        <button class="action-btn" onclick="alert('Program Builder opened')">+ NEW PROGRAM</button>
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-        <div class="card-panel">
-          <div class="panel-header">
-            <span style="font-weight: 700; color: #fff; font-size: 15px;">Hypertrophy Power Split V1</span>
-            <span class="status-badge">PUBLISHED</span>
+        <div class="top-actions">
+          <div class="search-launcher" onclick="openSearchModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <span>Search platform...</span>
+            <kbd>⌘K</kbd>
           </div>
-          <p style="font-size: 12px; color: var(--text-secondary);">4-Day undulating periodization for maximum muscle accrual and foundation strength.</p>
-          <div style="font-size: 11px; font-family: var(--font-mono); color: var(--accent-cyan);">8 WEEKS • 4 SESSIONS/WK • 14 ATHLETES ENROLLED</div>
-          <div style="display: flex; gap: 8px; margin-top: 8px;">
-            <button class="secondary-btn" style="flex: 1;">EDIT SPLIT</button>
-            <button class="action-btn" style="flex: 1;">ASSIGN</button>
+
+          <div class="system-status-chip">
+            <span class="pulse-dot"></span>
+            <span>SYSTEM ONLINE</span>
           </div>
         </div>
-        <div class="card-panel">
-          <div class="panel-header">
-            <span style="font-weight: 700; color: #fff; font-size: 15px;">Endurance & VO2 Peak</span>
-            <span class="status-badge">PUBLISHED</span>
-          </div>
-          <p style="font-size: 12px; color: var(--text-secondary);">Cardiovascular conditioning and threshold running programming.</p>
-          <div style="font-size: 11px; font-family: var(--font-mono); color: var(--accent-cyan);">6 WEEKS • 3 SESSIONS/WK • 6 ATHLETES ENROLLED</div>
-          <div style="display: flex; gap: 8px; margin-top: 8px;">
-            <button class="secondary-btn" style="flex: 1;">EDIT SPLIT</button>
-            <button class="action-btn" style="flex: 1;">ASSIGN</button>
-          </div>
-        </div>
-      </div>
-    </div>
+      </header>
 
-    <!-- 4. MOBILE ATHLETE APP PREVIEW -->
-    <div id="view-mobile" class="view-container">
-      <div class="phone-wrapper">
-        <div class="phone-frame">
-          <div style="padding: 10px 16px; background: #07090E; display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">
-            <span>09:41</span>
-            <span>ALPHA 5G • 100%</span>
+      <!-- Scrollable Body Content -->
+      <div class="content-body">
+        
+        <!-- 1. ANALYTICS VIEW -->
+        <section id="pane-analytics" class="view-pane active" aria-labelledby="heading-analytics">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 id="heading-analytics" class="page-heading">Analytics & Intelligence</h1>
+              <p class="page-subheading">Real-time athlete compliance, progressive overload curves, and cohort retention metrics.</p>
+            </div>
+            <div class="page-actions-group">
+              <div class="pill-group">
+                <button id="btnModeCoach" class="pill-btn active" onclick="setAnalyticsScope('COACH')">Coach Mode (L2)</button>
+                <button id="btnModeOrg" class="pill-btn" onclick="setAnalyticsScope('ORG')">Org Executive (L3)</button>
+              </div>
+            </div>
           </div>
-          <div class="phone-screen" id="phoneContent">
-            <!-- Mobile Screen: Live Workout Tracking -->
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+
+          <!-- Summary Metric KPI Cards -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Active Athletes</div>
+              <div id="kpiAthletes" class="metric-val">18</div>
+              <div class="metric-delta delta-up">▲ +2 vs last 30d</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Workout Adherence</div>
+              <div id="kpiAdherence" class="metric-val" style="color: var(--accent-cyan);">84.6%</div>
+              <div class="metric-delta delta-up">▲ +4.2 pp vs target</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Nutrition Compliance</div>
+              <div id="kpiNutrition" class="metric-val">78.2%</div>
+              <div class="metric-delta delta-up">▲ +1.8 pp vs target</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">At-Risk Athletes</div>
+              <div id="kpiRisk" class="metric-val" style="color: var(--accent-crimson);">2</div>
+              <div class="metric-delta delta-down">▼ 2 require intervention</div>
+            </div>
+          </div>
+
+          <!-- Progressive Overload Chart Panel -->
+          <div class="panel">
+            <div class="panel-header">
               <div>
-                <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan);">TODAY'S WORKOUT</span>
-                <h4 style="color: #fff; font-size: 16px;">Lower Body Focus A</h4>
+                <h3 class="panel-heading">Progressive Overload & Volume Trajectory</h3>
+                <p class="panel-subheading">Aggregated 30-day training tonnage and intensity distribution.</p>
               </div>
-              <span class="status-badge" style="font-size: 9px;">ACTIVE SESSION</span>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-cyan); font-weight: 700;">TOTAL VOLUME: 24,580 KG</span>
+            </div>
+            <div style="padding: 24px;">
+              <svg width="100%" height="180" viewBox="0 0 900 180" preserveAspectRatio="none" style="overflow: visible;">
+                <defs>
+                  <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#00F0FF" stop-opacity="0.0"/>
+                  </linearGradient>
+                </defs>
+                <!-- Grid Lines -->
+                <line x1="0" y1="40" x2="900" y2="40" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
+                <line x1="0" y1="90" x2="900" y2="90" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
+                <line x1="0" y1="140" x2="900" y2="140" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
+                <!-- Path -->
+                <path d="M 0,160 Q 150,140 300,110 T 600,60 T 900,20 L 900,180 L 0,180 Z" fill="url(#chartGrad)"/>
+                <path d="M 0,160 Q 150,140 300,110 T 600,60 T 900,20" fill="none" stroke="#00F0FF" stroke-width="3"/>
+                <!-- Data Points -->
+                <circle cx="300" cy="110" r="4" fill="#00F0FF"/>
+                <circle cx="600" cy="60" r="4" fill="#00F0FF"/>
+                <circle cx="900" cy="20" r="5" fill="#FFF" stroke="#00F0FF" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Risk Triage Table Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <h3 class="panel-heading">Athlete Compliance & Risk Triage</h3>
+                <p class="panel-subheading">Identifies athletes falling below minimum weekly adherence thresholds.</p>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Athlete</th>
+                    <th>Workout Compliance</th>
+                    <th>Nutrition Target</th>
+                    <th>Last Check-in</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight: 700; color: #FFF;">Marcus Vance</td>
+                    <td><div class="progress-bar-wrap"><div class="progress-fill" style="width: 92%;"></div></div> 92.4% (14/15)</td>
+                    <td>88.5%</td>
+                    <td>Today, 07:15</td>
+                    <td><span class="status-badge status-published">● OPTIMAL</span></td>
+                    <td style="text-align: right;"><button class="btn btn-secondary btn-sm" onclick="showToast('Opened Marcus Vance Dossier')">View Dossier</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 700; color: #FFF;">Elena Rostova</td>
+                    <td><div class="progress-bar-wrap"><div class="progress-fill" style="width: 86%;"></div></div> 86.0% (12/14)</td>
+                    <td>91.2%</td>
+                    <td>Yesterday</td>
+                    <td><span class="status-badge status-published">● OPTIMAL</span></td>
+                    <td style="text-align: right;"><button class="btn btn-secondary btn-sm" onclick="showToast('Opened Elena Rostova Dossier')">View Dossier</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 700; color: #FFF;">David Chen</td>
+                    <td><div class="progress-bar-wrap"><div class="progress-fill" style="width: 38%; background: var(--accent-crimson);"></div></div> <span style="color: var(--accent-crimson);">38.2% (3/8)</span></td>
+                    <td>42.0%</td>
+                    <td>5 days ago</td>
+                    <td><span class="status-badge" style="background: var(--accent-crimson-subtle); color: var(--accent-crimson); border: 1px solid var(--accent-crimson-border);">● AT RISK</span></td>
+                    <td style="text-align: right;"><button class="btn btn-primary btn-sm" onclick="switchView('messages')">Message Athlete</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. ATHLETES / CLIENTS VIEW -->
+        <section id="pane-clients" class="view-pane" aria-labelledby="heading-clients">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 id="heading-clients" class="page-heading">Athletes & Roster</h1>
+              <p class="page-subheading">Comprehensive athlete roster, current program assignments, and individual compliance histories.</p>
+            </div>
+            <div class="page-actions-group">
+              <button class="btn btn-primary" onclick="openInviteModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                <span>+ Invite Athlete</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Roster Table Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="toolbar-row" style="width: 100%;">
+                <div class="search-input-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                  <input type="text" class="input-control" placeholder="Search athletes by name or email..." oninput="filterAthletes(this.value)">
+                </div>
+                <div class="pill-group">
+                  <button class="pill-btn active">All (18)</button>
+                  <button class="pill-btn">Active (16)</button>
+                  <button class="pill-btn">At Risk (2)</button>
+                </div>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="data-table" id="athleteTable">
+                <thead>
+                  <tr>
+                    <th>Athlete Name</th>
+                    <th>Email Address</th>
+                    <th>Active Training Program</th>
+                    <th>Adherence</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight: 700; color: #FFF;">Marcus Vance</td>
+                    <td>marcus.vance@alpha.os</td>
+                    <td>Hypertrophy Power Split V1</td>
+                    <td><div class="progress-bar-wrap"><div class="progress-fill" style="width: 92%;"></div></div> 92%</td>
+                    <td><span class="status-badge status-published">● ACTIVE</span></td>
+                    <td style="text-align: right;"><button class="btn btn-secondary btn-sm" onclick="showToast('Viewing Marcus Vance Dossier')">Dossier</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 700; color: #FFF;">Elena Rostova</td>
+                    <td>elena.rostova@alpha.os</td>
+                    <td>Endurance & VO2 Peak Protocol</td>
+                    <td><div class="progress-bar-wrap"><div class="progress-fill" style="width: 86%;"></div></div> 86%</td>
+                    <td><span class="status-badge status-published">● ACTIVE</span></td>
+                    <td style="text-align: right;"><button class="btn btn-secondary btn-sm" onclick="showToast('Viewing Elena Rostova Dossier')">Dossier</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 700; color: #FFF;">David Chen</td>
+                    <td>david.chen@alpha.os</td>
+                    <td>Foundation Strength 5x5</td>
+                    <td><div class="progress-bar-wrap"><div class="progress-fill" style="width: 38%; background: var(--accent-amber);"></div></div> 38%</td>
+                    <td><span class="status-badge" style="background: var(--accent-amber-subtle); color: var(--accent-amber); border: 1px solid var(--accent-amber-border);">● CHECK-IN DUE</span></td>
+                    <td style="text-align: right;"><button class="btn btn-primary btn-sm" onclick="switchView('messages')">Message</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. PROGRAMS & SPLITS VIEW -->
+        <section id="pane-programs" class="view-pane" aria-labelledby="heading-programs">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 id="heading-programs" class="page-heading">Programs & Splits</h1>
+              <p class="page-subheading">Manage structured training programs, periodization blocks, and athlete assignments.</p>
+            </div>
+            <div class="page-actions-group">
+              <button class="btn btn-primary" onclick="openNewProgramModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+                <span>+ New Program</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Program Summary Metrics -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Total Programs</div>
+              <div id="progTotalCount" class="metric-val">4</div>
+              <div class="metric-delta delta-neutral">Standard Catalog</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Published</div>
+              <div class="metric-val" style="color: var(--accent-emerald);">3</div>
+              <div class="metric-delta delta-up">● Active in deployment</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Active Athletes</div>
+              <div class="metric-val" style="color: var(--accent-cyan);">28</div>
+              <div class="metric-delta delta-up">Across 3 programs</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Avg Duration</div>
+              <div class="metric-val">7.5 WKS</div>
+              <div class="metric-delta delta-neutral">Macrocycle standard</div>
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="toolbar-row">
+            <div class="search-input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="programSearchInput" class="input-control" placeholder="Search programs by name or focus..." oninput="filterPrograms()">
             </div>
 
-            <!-- Set Card -->
-            <div style="background: rgba(13, 17, 26, 0.9); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
-              <span style="font-size: 12px; font-weight: 700; color: #fff;">Exercise 1: Barbell Back Squat</span>
-              <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
-                <span>SET 1</span>
-                <span>100 KG × 8 REPS</span>
-                <span style="color: var(--accent-emerald);">✓ COMPLETED</span>
+            <div class="pill-group">
+              <button class="pill-btn active" onclick="setProgramFilter('ALL', this)">All (4)</button>
+              <button class="pill-btn" onclick="setProgramFilter('PUBLISHED', this)">Published (3)</button>
+              <button class="pill-btn" onclick="setProgramFilter('DRAFT', this)">Draft (1)</button>
+            </div>
+          </div>
+
+          <!-- Programs Grid -->
+          <div id="programsGrid" class="programs-grid">
+            
+            <!-- Program Card 1 -->
+            <article class="program-card" data-status="PUBLISHED" data-title="Hypertrophy Power Split V1">
+              <div class="card-top">
+                <div>
+                  <div class="card-category">Hypertrophy & Strength</div>
+                  <h3 class="card-title">Hypertrophy Power Split V1</h3>
+                </div>
+                <span class="status-badge status-published">● PUBLISHED</span>
               </div>
-              <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
-                <span>SET 2</span>
-                <span>105 KG × 8 REPS</span>
-                <span style="color: var(--accent-emerald);">✓ COMPLETED</span>
+              <p class="card-desc">4-day undulating periodization designed for muscle growth and foundational compound lift strength.</p>
+              
+              <div class="meta-pills">
+                <span class="meta-tag">⏱ 8 WEEKS</span>
+                <span class="meta-tag">📅 4 SESSIONS / WK</span>
+                <span class="meta-tag">👥 14 ATHLETES</span>
+                <span class="meta-tag">⚡ INTERMEDIATE</span>
               </div>
-              <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700;">
-                <span>SET 3 (CURRENT)</span>
-                <span>110 KG × 6 REPS</span>
-                <span style="color: var(--accent-cyan);">LOG SET</span>
+
+              <div class="card-actions">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="openEditProgramModal('Hypertrophy Power Split V1')">Edit Program</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="openAssignModal('Hypertrophy Power Split V1')">Assign Athletes</button>
+              </div>
+            </article>
+
+            <!-- Program Card 2 -->
+            <article class="program-card" data-status="PUBLISHED" data-title="Endurance & VO2 Peak Protocol">
+              <div class="card-top">
+                <div>
+                  <div class="card-category">Cardiovascular & Conditioning</div>
+                  <h3 class="card-title">Endurance & VO2 Peak Protocol</h3>
+                </div>
+                <span class="status-badge status-published">● PUBLISHED</span>
+              </div>
+              <p class="card-desc">Targeted cardiovascular conditioning, Zone 2 aerobic base building, and lactate threshold sprint intervals.</p>
+              
+              <div class="meta-pills">
+                <span class="meta-tag">⏱ 6 WEEKS</span>
+                <span class="meta-tag">📅 3 SESSIONS / WK</span>
+                <span class="meta-tag">👥 6 ATHLETES</span>
+                <span class="meta-tag">⚡ ADVANCED</span>
+              </div>
+
+              <div class="card-actions">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="openEditProgramModal('Endurance & VO2 Peak Protocol')">Edit Program</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="openAssignModal('Endurance & VO2 Peak Protocol')">Assign Athletes</button>
+              </div>
+            </article>
+
+            <!-- Program Card 3 -->
+            <article class="program-card" data-status="PUBLISHED" data-title="Foundation Strength 5x5">
+              <div class="card-top">
+                <div>
+                  <div class="card-category">Linear Strength Block</div>
+                  <h3 class="card-title">Foundation Strength 5x5</h3>
+                </div>
+                <span class="status-badge status-published">● PUBLISHED</span>
+              </div>
+              <p class="card-desc">Linear progressive overload program focusing on squat, bench press, deadlift, and overhead press mastery.</p>
+              
+              <div class="meta-pills">
+                <span class="meta-tag">⏱ 12 WEEKS</span>
+                <span class="meta-tag">📅 3 SESSIONS / WK</span>
+                <span class="meta-tag">👥 8 ATHLETES</span>
+                <span class="meta-tag">⚡ BEGINNER</span>
+              </div>
+
+              <div class="card-actions">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="openEditProgramModal('Foundation Strength 5x5')">Edit Program</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="openAssignModal('Foundation Strength 5x5')">Assign Athletes</button>
+              </div>
+            </article>
+
+            <!-- Program Card 4 -->
+            <article class="program-card" data-status="DRAFT" data-title="Olympic Weightlifting & Power Block">
+              <div class="card-top">
+                <div>
+                  <div class="card-category">Explosive Power & Olympic Lifts</div>
+                  <h3 class="card-title">Olympic Weightlifting & Power Block</h3>
+                </div>
+                <span class="status-badge status-draft">○ DRAFT</span>
+              </div>
+              <p class="card-desc">Dynamic effort snatch, clean & jerk cycles, and explosive triple-extension development for competitive athletes.</p>
+              
+              <div class="meta-pills">
+                <span class="meta-tag">⏱ 8 WEEKS</span>
+                <span class="meta-tag">📅 5 SESSIONS / WK</span>
+                <span class="meta-tag">👥 0 ATHLETES</span>
+                <span class="meta-tag">⚡ ELITE</span>
+              </div>
+
+              <div class="card-actions">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="openEditProgramModal('Olympic Weightlifting & Power Block')">Edit Program</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="openAssignModal('Olympic Weightlifting & Power Block')">Assign Athletes</button>
+              </div>
+            </article>
+
+          </div>
+
+          <!-- Empty State (Hidden unless filtered out) -->
+          <div id="programsEmptyState" class="empty-state" style="display: none;">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="24" height="24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
+            <h3 style="color: #FFF; font-size: 16px;">No training programs found</h3>
+            <p style="font-size: 13px; max-width: 400px;">No programs match your search or filter criteria. Clear filters or create a new program.</p>
+            <button class="btn btn-secondary" onclick="clearProgramFilters()" style="margin-top: 6px;">Clear Filters</button>
+          </div>
+        </section>
+
+        <!-- 4. MOBILE ATHLETE APP PREVIEW -->
+        <section id="pane-mobile" class="view-pane" aria-labelledby="heading-mobile">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 id="heading-mobile" class="page-heading">Mobile Athlete Experience</h1>
+              <p class="page-subheading">Interactive runtime preview of the iOS / Android athlete app (React Native / Expo 52).</p>
+            </div>
+          </div>
+
+          <div class="phone-center">
+            <div class="phone-chassis">
+              <!-- Top Notch -->
+              <div class="phone-notch">
+                <span>09:41</span>
+                <div class="dynamic-island"></div>
+                <span>5G 100%</span>
+              </div>
+
+              <!-- Phone Screen Body -->
+              <div id="phoneInteractiveBody" class="phone-screen-body">
+                <!-- Live Workout Screen -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">TODAY'S WORKOUT</span>
+                    <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">Lower Body Focus A</h3>
+                  </div>
+                  <span class="status-badge status-published" style="font-size: 9px;">● ACTIVE SESSION</span>
+                </div>
+
+                <!-- Exercise Card -->
+                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+                  <div style="font-size: 13px; font-weight: 700; color: #FFF;">Barbell Back Squat</div>
+                  
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 4px 0;">
+                    <span>SET 1</span>
+                    <span style="font-family: var(--font-mono); color: #FFF;">100 KG × 8 REPS</span>
+                    <span style="color: var(--accent-emerald); font-weight: 700;">✓ DONE</span>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 4px 0;">
+                    <span>SET 2</span>
+                    <span style="font-family: var(--font-mono); color: #FFF;">105 KG × 8 REPS</span>
+                    <span style="color: var(--accent-emerald); font-weight: 700;">✓ DONE</span>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700; background: var(--accent-cyan-subtle); padding: 6px 8px; border-radius: var(--radius-sm);">
+                    <span>SET 3 (ACTIVE)</span>
+                    <span style="font-family: var(--font-mono);">110 KG × 6 REPS</span>
+                    <span>LOGGING</span>
+                  </div>
+                </div>
+
+                <!-- Rest Timer Box -->
+                <div style="background: var(--bg-surface); border: 1px solid var(--accent-cyan-border); border-radius: var(--radius-md); padding: 14px; text-align: center;">
+                  <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">REST INTERVAL</span>
+                  <div id="restTimerDisplay" style="font-size: 28px; font-weight: 800; font-family: var(--font-mono); color: #FFF; margin: 4px 0;">01:18</div>
+                  <div style="display: flex; justify-content: center; gap: 8px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleRestTimer()">Pause</button>
+                    <button class="btn btn-secondary btn-sm" onclick="resetRestTimer()">+30s</button>
+                  </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; margin-top: auto;" onclick="logSetAction()">
+                  <span>✓ Log Set 3 (110 KG)</span>
+                </button>
+              </div>
+
+              <!-- Phone Bottom Tabs -->
+              <div class="phone-tab-bar">
+                <button class="phone-tab-btn active" onclick="setMobileTab('WORKOUT', this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/></svg>
+                  <span>WORKOUT</span>
+                </button>
+                <button class="phone-tab-btn" onclick="setMobileTab('NUTRITION', this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  <span>NUTRITION</span>
+                </button>
+                <button class="phone-tab-btn" onclick="setMobileTab('PROGRESS', this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                  <span>PROGRESS</span>
+                </button>
+                <button class="phone-tab-btn" onclick="setMobileTab('AI', this)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                  <span>AI COACH</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. REPORTS & EXPORTS VIEW -->
+        <section id="pane-reports" class="view-pane" aria-labelledby="heading-reports">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 id="heading-reports" class="page-heading">Executive Reports & Exports</h1>
+              <p class="page-subheading">Compile and download client performance dossiers, coach analytics, and organization summaries.</p>
+            </div>
+            <div class="page-actions-group">
+              <button class="btn btn-primary" onclick="openCompileReportModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                <span>+ Compile New Report</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3 class="panel-heading">Generated Reports Catalog</h3>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Report Title</th>
+                    <th>Scope</th>
+                    <th>Format</th>
+                    <th>Generated Date</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="font-weight: 700; color: #FFF;">30-Day Client Performance Audit</td>
+                    <td><span class="meta-tag">CLIENT</span></td>
+                    <td><span style="font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">CSV</span></td>
+                    <td>Today, 09:15</td>
+                    <td><span class="status-badge status-published">● READY</span></td>
+                    <td style="text-align: right;"><button class="btn btn-secondary btn-sm" onclick="showToast('Downloaded Client Performance Audit.csv')">Download</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 700; color: #FFF;">Executive Organization Adherence Summary</td>
+                    <td><span class="meta-tag">ORGANIZATION</span></td>
+                    <td><span style="font-family: var(--font-mono); color: var(--accent-emerald); font-weight: 700;">JSON</span></td>
+                    <td>Today, 08:30</td>
+                    <td><span class="status-badge status-published">● READY</span></td>
+                    <td style="text-align: right;"><button class="btn btn-secondary btn-sm" onclick="showToast('Downloaded Organization Adherence.json')">Download</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: 700; color: #FFF;">Coach Workload & Attrition Benchmark</td>
+                    <td><span class="meta-tag">COACH</span></td>
+                    <td><span style="font-family: var(--font-mono); color: var(--accent-crimson); font-weight: 700;">PDF</span></td>
+                    <td>Yesterday</td>
+                    <td><span class="status-badge status-published">● READY</span></td>
+                    <td style="text-align: right;"><button class="btn btn-secondary btn-sm" onclick="showToast('Downloaded Coach Benchmark.pdf')">Download</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. COACH MESSAGES VIEW -->
+        <section id="pane-messages" class="view-pane" aria-labelledby="heading-messages">
+          <div class="page-header">
+            <div class="page-title-group">
+              <h1 id="heading-messages" class="page-heading">Coach-Client Communications</h1>
+              <p class="page-subheading">Secure direct messaging channel, workout feedback, and coaching cues.</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 280px 1fr; gap: 20px; min-height: 480px;">
+            <!-- Chat Athlete Sidebar -->
+            <div class="panel">
+              <div class="panel-header" style="padding: 14px 16px;">
+                <span style="font-weight: 700; color: #FFF; font-size: 13px;">Active Threads</span>
+              </div>
+              <div style="display: flex; flex-direction: column; padding: 8px;">
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-surface-elevated); border-radius: var(--radius-md); cursor: pointer; border: 1px solid var(--border-accent);">
+                  <div class="user-avatar" style="width: 32px; height: 32px; font-size: 11px;">MV</div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 12px; font-weight: 700; color: #FFF;">Marcus Vance</div>
+                    <div style="font-size: 10px; color: var(--accent-emerald);">● Online</div>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-md); cursor: pointer; color: var(--text-secondary);">
+                  <div class="user-avatar" style="width: 32px; height: 32px; font-size: 11px; background: #1E293B;">ER</div>
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Elena Rostova</div>
+                    <div style="font-size: 10px; color: var(--text-muted);">Active 2h ago</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Rest Timer -->
-            <div style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-cyan); border-radius: 10px; padding: 12px; text-align: center;">
-              <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan);">REST INTERVAL</span>
-              <div style="font-size: 24px; font-weight: 800; font-family: var(--font-mono); color: #fff;">01:18</div>
+            <!-- Chat Active Thread -->
+            <div class="panel" style="display: flex; flex-direction: column;">
+              <div class="panel-header" style="padding: 14px 20px;">
+                <div>
+                  <h3 class="panel-heading" style="font-size: 14px;">Marcus Vance</h3>
+                  <p class="panel-subheading">Program: Hypertrophy Power Split V1 (Week 3, Day 2)</p>
+                </div>
+                <span class="status-badge status-published">● CONNECTED</span>
+              </div>
+
+              <!-- Message History -->
+              <div id="chatMessageStream" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; background: rgba(5,7,11,0.3);">
+                <div style="align-self: flex-start; max-width: 65%; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 12px 12px 12px 2px; padding: 12px 16px;">
+                  <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 2px;">Marcus • 07:15</div>
+                  <div style="color: #FFF; font-size: 13px;">Coach, hit 110kg on back squat today for 6 clean reps! RPE felt like an 8.5.</div>
+                </div>
+
+                <div style="align-self: flex-end; max-width: 65%; background: var(--accent-cyan-subtle); border: 1px solid var(--accent-cyan-border); border-radius: 12px 12px 2px 12px; padding: 12px 16px;">
+                  <div style="font-size: 11px; color: var(--accent-cyan); margin-bottom: 2px; text-align: right;">You (Coach) • 07:22</div>
+                  <div style="color: #FFF; font-size: 13px;">Incredible work Marcus. Progressive overload target achieved. Take a full 3m rest before your Romanian Deadlifts.</div>
+                </div>
+              </div>
+
+              <!-- Quick Prompt Chips -->
+              <div style="padding: 10px 20px; display: flex; gap: 8px; border-top: 1px solid var(--border-subtle); background: var(--bg-sidebar);">
+                <button class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('Great form today!')">"Great form today!"</button>
+                <button class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('Take a full 3m rest.')">"Take a full 3m rest."</button>
+                <button class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('Hydrate and log post-workout meal.')">"Hydrate and log meal."</button>
+              </div>
+
+              <!-- Input Area -->
+              <div style="padding: 16px 20px; border-top: 1px solid var(--border-subtle); display: flex; gap: 10px;">
+                <input type="text" id="chatInputBox" class="input-control" style="flex: 1;" placeholder="Type feedback or coaching instruction..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+                <button class="btn btn-primary" onclick="sendChatMessage()">
+                  <span>Send</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
             </div>
-
-            <button class="action-btn" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="alert('Set 3 logged in session!')">✓ LOG SET 3 (110 KG)</button>
           </div>
+        </section>
 
-          <!-- Bottom Mobile Tabs -->
-          <div class="phone-nav">
-            <button class="phone-nav-btn active" onclick="setMobileScreen('WORKOUT', this)">WORKOUT</button>
-            <button class="phone-nav-btn" onclick="setMobileScreen('PROGRESS', this)">PROGRESS</button>
-            <button class="phone-nav-btn" onclick="setMobileScreen('AI', this)">AI COACH</button>
-            <button class="phone-nav-btn" onclick="setMobileScreen('ALERTS', this)">ALERTS</button>
-          </div>
-        </div>
       </div>
-    </div>
-
-    <!-- 5. REPORTS VIEW -->
-    <div id="view-reports" class="view-container">
-      <div class="panel-header">
-        <span class="panel-title">Generated Executive Reports</span>
-        <button class="action-btn" onclick="alert('Compiling export report...')">+ COMPILE NEW REPORT</button>
-      </div>
-      <div class="card-panel">
-        <table>
-          <thead>
-            <tr><th>Report Title</th><th>Scope</th><th>Format</th><th>Generated Date</th><th>Status</th><th>Action</th></tr>
-          </thead>
-          <tbody>
-            <tr><td style="font-weight: 600; color: #fff;">30-Day Client Performance Audit</td><td>CLIENT</td><td>CSV</td><td>Today, 09:15</td><td><span class="status-badge">READY</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">DOWNLOAD</button></td></tr>
-            <tr><td style="font-weight: 600; color: #fff;">Executive Organization Adherence</td><td>ORGANIZATION</td><td>JSON</td><td>Today, 08:30</td><td><span class="status-badge">READY</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">DOWNLOAD</button></td></tr>
-            <tr><td style="font-weight: 600; color: #fff;">Coach Workload & Attrition Benchmark</td><td>COACH</td><td>PDF</td><td>Yesterday</td><td><span class="status-badge">READY</span></td><td><button class="action-btn" style="padding: 4px 8px; font-size: 10px;">DOWNLOAD</button></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 6. MESSAGES VIEW -->
-    <div id="view-messages" class="view-container">
-      <div class="card-panel">
-        <div class="panel-header">
-          <span class="panel-title">Coach-Client Channel (Marcus Vance)</span>
-          <span style="font-size: 11px; color: var(--accent-emerald);">● ATHLETE ONLINE</span>
-        </div>
-        <div style="height: 240px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-          <div style="align-self: flex-start; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; max-width: 60%;">
-            <span style="font-size: 11px; color: #fff;">Coach, hit 110kg on back squat today for 6 clean reps!</span>
-          </div>
-          <div style="align-self: flex-end; background: rgba(0,240,255,0.15); border: 1px solid var(--accent-cyan); padding: 8px 12px; border-radius: 8px; max-width: 60%;">
-            <span style="font-size: 11px; color: #fff;">Huge work Marcus. Progressive overload target met. Take 2 mins rest before RDLs.</span>
-          </div>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" placeholder="Type instructions or feedback..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px; color: #fff; font-size: 12px;">
-          <button class="action-btn">SEND</button>
-        </div>
-      </div>
-    </div>
-
+    </main>
   </div>
 
+  <!-- MODALS -->
+
+  <!-- 1. New Program Modal -->
+  <div id="modalNewProgram" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Training Program</h3>
+        <button onclick="closeModal('modalNewProgram')" style="color: var(--text-muted);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Program Name</label>
+          <input type="text" id="newProgName" class="form-input" placeholder="e.g. Hypertrophy Power Split V2">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Focus & Category</label>
+          <input type="text" id="newProgCategory" class="form-input" placeholder="e.g. Strength & Muscle Growth">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label">Duration (Weeks)</label>
+            <input type="number" id="newProgDuration" class="form-input" value="8">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sessions / Week</label>
+            <input type="number" id="newProgFreq" class="form-input" value="4">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalNewProgram')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitNewProgram()">Create Program</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Assign Athletes Modal -->
+  <div id="modalAssign" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Assign Athletes to Program</h3>
+        <button onclick="closeModal('modalAssign')" style="color: var(--text-muted);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Target Program</label>
+          <input type="text" id="assignTargetProgram" class="form-input" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Select Athletes</label>
+          <div style="background: var(--bg-base); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #FFF; cursor: pointer;">
+              <input type="checkbox" checked> Marcus Vance (Hypertrophy Power Split V1)
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #FFF; cursor: pointer;">
+              <input type="checkbox"> Elena Rostova (Endurance & VO2 Peak)
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #FFF; cursor: pointer;">
+              <input type="checkbox" checked> David Chen (Foundation Strength 5x5)
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalAssign')">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmAssignment()">Confirm Assignment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Invite Athlete Modal -->
+  <div id="modalInvite" class="modal-backdrop">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Invite New Athlete</h3>
+        <button onclick="closeModal('modalInvite')" style="color: var(--text-muted);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" placeholder="e.g. Jordan Mitchell">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" placeholder="jordan@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Initial Training Split</label>
+          <select class="form-input" style="background: var(--bg-base);">
+            <option>Hypertrophy Power Split V1</option>
+            <option>Foundation Strength 5x5</option>
+            <option>Endurance & VO2 Peak Protocol</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modalInvite')">Cancel</button>
+        <button class="btn btn-primary" onclick="closeModal('modalInvite'); showToast('Invitation sent successfully!')">Send Invite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Launcher Modal -->
+  <div id="modalSearch" class="modal-backdrop">
+    <div class="modal-box" style="max-width: 480px;">
+      <div style="padding: 16px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" color="var(--accent-cyan)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="globalSearchInput" placeholder="Quick navigate to athlete, program, or report..." style="flex: 1; background: transparent; border: none; color: #FFF; font-size: 14px; outline: none;" oninput="handleGlobalSearch(this.value)">
+        <kbd style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">ESC to exit</kbd>
+      </div>
+      <div id="globalSearchResults" style="padding: 12px; display: flex; flex-direction: column; gap: 4px; max-height: 280px; overflow-y: auto;">
+        <div onclick="switchView('programs'); closeModal('modalSearch');" style="padding: 10px 14px; border-radius: 8px; background: var(--bg-surface-elevated); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: #FFF; font-weight: 600;">Hypertrophy Power Split V1</span>
+          <span class="meta-tag">PROGRAM</span>
+        </div>
+        <div onclick="switchView('clients'); closeModal('modalSearch');" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: #FFF; font-weight: 600;">Marcus Vance</span>
+          <span class="meta-tag">ATHLETE</span>
+        </div>
+        <div onclick="switchView('reports'); closeModal('modalSearch');" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <span style="color: #FFF; font-weight: 600;">30-Day Performance Audit</span>
+          <span class="meta-tag">REPORT</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastStack" class="toast-container" aria-live="polite"></div>
+
+  <!-- Core Interactive Scripting -->
   <script>
-    function showView(viewId, el) {
-      document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('view-' + viewId).classList.add('active');
-      if (el) el.classList.add('active');
+    // Navigation Routing
+    function switchView(viewKey, navBtn) {
+      document.querySelectorAll('.view-pane').forEach(pane => pane.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
 
-      const titles = {
-        analytics: 'ANALYTICS & EXECUTIVE INTELLIGENCE',
-        clients: 'CLIENTS & ROSTER MANAGEMENT',
-        programs: 'TRAINING PROGRAMS & SPLITS',
-        mobile: 'MOBILE ATHLETE APP (INTERACTIVE RUNTIME)',
-        reports: 'EXECUTIVE REPORTS & EXPORTS',
-        messages: 'SECURE COACH-CLIENT MESSAGING'
-      };
-      document.getElementById('pageTitle').innerText = titles[viewId] || 'ALPHA OS';
-    }
+      const targetPane = document.getElementById('pane-' + viewKey);
+      if (targetPane) targetPane.classList.add('active');
 
-    function setAnalyticsMode(mode) {
-      if (mode === 'COACH') {
-        document.getElementById('kpi1').innerText = '18';
-        document.getElementById('kpi2').innerText = '84.6%';
-        document.getElementById('kpi3').innerText = '78.2%';
-        document.getElementById('kpi4').innerText = '2';
+      if (navBtn) {
+        navBtn.classList.add('active');
       } else {
-        document.getElementById('kpi1').innerText = '142';
-        document.getElementById('kpi2').innerText = '81.4%';
-        document.getElementById('kpi3').innerText = '75.9%';
-        document.getElementById('kpi4').innerText = '11';
+        const matchingBtn = document.querySelector(`.nav-item[onclick*="'${viewKey}'"]`);
+        if (matchingBtn) matchingBtn.classList.add('active');
+      }
+
+      const viewTitles = {
+        analytics: 'Analytics',
+        clients: 'Athletes & Roster',
+        programs: 'Programs & Splits',
+        mobile: 'Mobile Athlete App',
+        reports: 'Reports & Exports',
+        messages: 'Coach Messages'
+      };
+
+      document.getElementById('breadcrumbTitle').innerText = viewTitles[viewKey] || 'ALPHA OS';
+    }
+
+    // Toast System
+    function showToast(message) {
+      const container = document.getElementById('toastStack');
+      const toast = document.createElement('div');
+      toast.className = 'toast-msg';
+      toast.innerHTML = `<span>●</span> <span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Analytics Scope Switcher
+    function setAnalyticsScope(scope) {
+      const btnCoach = document.getElementById('btnModeCoach');
+      const btnOrg = document.getElementById('btnModeOrg');
+      if (scope === 'COACH') {
+        btnCoach.classList.add('active');
+        btnOrg.classList.remove('active');
+        document.getElementById('kpiAthletes').innerText = '18';
+        document.getElementById('kpiAdherence').innerText = '84.6%';
+        document.getElementById('kpiNutrition').innerText = '78.2%';
+        document.getElementById('kpiRisk').innerText = '2';
+        showToast('Switched to Coach Portfolio (L2)');
+      } else {
+        btnOrg.classList.add('active');
+        btnCoach.classList.remove('active');
+        document.getElementById('kpiAthletes').innerText = '142';
+        document.getElementById('kpiAdherence').innerText = '81.4%';
+        document.getElementById('kpiNutrition').innerText = '75.9%';
+        document.getElementById('kpiRisk').innerText = '11';
+        showToast('Switched to Org Executive (L3)');
       }
     }
 
-    function setMobileScreen(screen, btn) {
-      document.querySelectorAll('.phone-nav-btn').forEach(b => b.classList.remove('active'));
+    // Program Search & Filtering
+    let currentFilterStatus = 'ALL';
+    function setProgramFilter(status, btn) {
+      currentFilterStatus = status;
+      document.querySelectorAll('#pane-programs .pill-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
-      const content = document.getElementById('phoneContent');
-      if (screen === 'WORKOUT') {
-        content.innerHTML = `
+      filterPrograms();
+    }
+
+    function filterPrograms() {
+      const query = (document.getElementById('programSearchInput').value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('#programsGrid .program-card');
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const title = (card.getAttribute('data-title') || '').toLowerCase();
+        const status = card.getAttribute('data-status');
+        const matchesQuery = !query || title.includes(query);
+        const matchesStatus = currentFilterStatus === 'ALL' || status === currentFilterStatus;
+
+        if (matchesQuery && matchesStatus) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      const emptyState = document.getElementById('programsEmptyState');
+      if (visibleCount === 0) {
+        emptyState.style.display = 'flex';
+      } else {
+        emptyState.style.display = 'none';
+      }
+    }
+
+    function clearProgramFilters() {
+      document.getElementById('programSearchInput').value = '';
+      currentFilterStatus = 'ALL';
+      document.querySelectorAll('#pane-programs .pill-btn').forEach((b, i) => {
+        if (i === 0) b.classList.add('active'); else b.classList.remove('active');
+      });
+      filterPrograms();
+    }
+
+    // Modal Controls
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function openNewProgramModal() { openModal('modalNewProgram'); }
+    function openAssignModal(progTitle) {
+      document.getElementById('assignTargetProgram').value = progTitle || 'Hypertrophy Power Split V1';
+      openModal('modalAssign');
+    }
+    function openEditProgramModal(progTitle) {
+      showToast(`Editing ${progTitle}`);
+    }
+    function openInviteModal() { openModal('modalInvite'); }
+    function openCompileReportModal() { showToast('Compiling executive report...'); }
+
+    function submitNewProgram() {
+      const name = document.getElementById('newProgName').value.trim();
+      if (!name) { alert('Please enter a program name'); return; }
+      closeModal('modalNewProgram');
+      showToast(`Program "${name}" created and saved to draft!`);
+    }
+
+    function confirmAssignment() {
+      closeModal('modalAssign');
+      showToast('Athletes assigned successfully!');
+    }
+
+    // Search Modal (⌘K)
+    function openSearchModal() {
+      openModal('modalSearch');
+      setTimeout(() => document.getElementById('globalSearchInput').focus(), 50);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        openSearchModal();
+      }
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
+      }
+    });
+
+    // Mobile Preview Tab Switching
+    function setMobileTab(tab, btn) {
+      document.querySelectorAll('.phone-tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      const body = document.getElementById('phoneInteractiveBody');
+
+      if (tab === 'WORKOUT') {
+        body.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div><span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan);">TODAY'S WORKOUT</span><h4 style="color: #fff; font-size: 16px;">Lower Body Focus A</h4></div>
-            <span class="status-badge" style="font-size: 9px;">ACTIVE SESSION</span>
+            <div>
+              <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">TODAY'S WORKOUT</span>
+              <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">Lower Body Focus A</h3>
+            </div>
+            <span class="status-badge status-published" style="font-size: 9px;">● ACTIVE SESSION</span>
           </div>
-          <div style="background: rgba(13, 17, 26, 0.9); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
-            <span style="font-size: 12px; font-weight: 700; color: #fff;">Exercise 1: Barbell Back Squat</span>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);"><span>SET 1</span><span>100 KG × 8 REPS</span><span style="color: var(--accent-emerald);">✓ COMPLETED</span></div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);"><span>SET 2</span><span>105 KG × 8 REPS</span><span style="color: var(--accent-emerald);">✓ COMPLETED</span></div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700;"><span>SET 3 (CURRENT)</span><span>110 KG × 6 REPS</span><span style="color: var(--accent-cyan);">LOG SET</span></div>
+
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-size: 13px; font-weight: 700; color: #FFF;">Barbell Back Squat</div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 4px 0;">
+              <span>SET 1</span>
+              <span style="font-family: var(--font-mono); color: #FFF;">100 KG × 8 REPS</span>
+              <span style="color: var(--accent-emerald); font-weight: 700;">✓ DONE</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 4px 0;">
+              <span>SET 2</span>
+              <span style="font-family: var(--font-mono); color: #FFF;">105 KG × 8 REPS</span>
+              <span style="color: var(--accent-emerald); font-weight: 700;">✓ DONE</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700; background: var(--accent-cyan-subtle); padding: 6px 8px; border-radius: var(--radius-sm);">
+              <span>SET 3 (ACTIVE)</span>
+              <span style="font-family: var(--font-mono);">110 KG × 6 REPS</span>
+              <span>LOGGING</span>
+            </div>
           </div>
-          <div style="background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-cyan); border-radius: 10px; padding: 12px; text-align: center;">
-            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan);">REST INTERVAL</span>
-            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-mono); color: #fff;">01:18</div>
+
+          <div style="background: var(--bg-surface); border: 1px solid var(--accent-cyan-border); border-radius: var(--radius-md); padding: 14px; text-align: center;">
+            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">REST INTERVAL</span>
+            <div id="restTimerDisplay" style="font-size: 28px; font-weight: 800; font-family: var(--font-mono); color: #FFF; margin: 4px 0;">01:18</div>
+            <div style="display: flex; justify-content: center; gap: 8px;">
+              <button class="btn btn-secondary btn-sm" onclick="toggleRestTimer()">Pause</button>
+              <button class="btn btn-secondary btn-sm" onclick="resetRestTimer()">+30s</button>
+            </div>
           </div>
-          <button class="action-btn" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="alert('Set logged!')">✓ LOG SET 3 (110 KG)</button>
+
+          <button class="btn btn-primary" style="width: 100%; margin-top: auto;" onclick="logSetAction()">
+            <span>✓ Log Set 3 (110 KG)</span>
+          </button>
         `;
-      } else if (screen === 'PROGRESS') {
-        content.innerHTML = `
-          <h4 style="color: #fff; font-size: 16px;">Biometrics & Progression</h4>
-          <div style="background: rgba(13, 17, 26, 0.9); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px;">
-            <span style="font-size: 10px; color: var(--text-muted);">BODY WEIGHT</span>
-            <div style="font-size: 22px; font-weight: 800; color: var(--accent-cyan); font-family: var(--font-mono);">82.4 KG</div>
-            <span style="font-size: 10px; color: var(--accent-emerald);">▼ -1.8 kg over 30 days (Optimal Cut)</span>
+      } else if (tab === 'NUTRITION') {
+        body.innerHTML = `
+          <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">Daily Nutrition & Macros</h3>
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">CALORIC TARGET</span>
+            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-display); color: var(--accent-cyan); margin: 4px 0;">2,450 / 2,800 KCAL</div>
+            <div class="progress-bar-wrap" style="width: 100%; height: 8px;"><div class="progress-fill" style="width: 87%;"></div></div>
           </div>
-          <div style="background: rgba(13, 17, 26, 0.9); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; margin-top: 10px;">
-            <span style="font-size: 10px; color: var(--text-muted);">PERSONAL RECORDS (ALL-TIME)</span>
-            <div style="font-size: 12px; margin-top: 6px; color: #fff;">• Back Squat: 140 KG</div>
-            <div style="font-size: 12px; margin-top: 4px; color: #fff;">• Deadlift: 180 KG</div>
-            <div style="font-size: 12px; margin-top: 4px; color: #fff;">• Bench Press: 115 KG</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+            <div style="background: var(--bg-surface-elevated); border-radius: 8px; padding: 10px; text-align: center;">
+              <div style="font-size: 10px; color: var(--text-muted);">PROTEIN</div>
+              <div style="font-size: 14px; font-weight: 700; color: #FFF; margin-top: 2px;">165g / 180g</div>
+            </div>
+            <div style="background: var(--bg-surface-elevated); border-radius: 8px; padding: 10px; text-align: center;">
+              <div style="font-size: 10px; color: var(--text-muted);">CARBS</div>
+              <div style="font-size: 14px; font-weight: 700; color: #FFF; margin-top: 2px;">280g / 320g</div>
+            </div>
+            <div style="background: var(--bg-surface-elevated); border-radius: 8px; padding: 10px; text-align: center;">
+              <div style="font-size: 10px; color: var(--text-muted);">FATS</div>
+              <div style="font-size: 14px; font-weight: 700; color: #FFF; margin-top: 2px;">62g / 70g</div>
+            </div>
           </div>
         `;
-      } else if (screen === 'AI') {
-        content.innerHTML = `
-          <h4 style="color: #fff; font-size: 16px;">AI Performance Intelligence</h4>
-          <div style="background: rgba(121, 40, 202, 0.15); border: 1px solid var(--accent-violet); border-radius: 12px; padding: 14px;">
-            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-violet);">COACH AI INSIGHT</span>
-            <p style="font-size: 12px; color: #fff; margin-top: 6px;">Your squat volume is up 8% this week with stable RPE. You are ready to attempt a 2.5kg overload on next cycle.</p>
+      } else if (tab === 'PROGRESS') {
+        body.innerHTML = `
+          <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">Biometrics & PRs</h3>
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">BODY WEIGHT</span>
+            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-display); color: var(--accent-cyan); margin: 4px 0;">82.4 KG</div>
+            <span style="font-size: 11px; color: var(--accent-emerald);">▼ -1.8 kg over 30 days (Optimal Cut)</span>
           </div>
-          <button class="action-btn" style="width: 100%; padding: 10px; margin-top: 12px;" onclick="alert('AI Coach Analysis Requested')">ANALYZE RECOVERY</button>
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">ALL-TIME PERSONAL RECORDS</span>
+            <div style="font-size: 12px; margin-top: 6px; color: #FFF;">• Barbell Back Squat: 140 KG</div>
+            <div style="font-size: 12px; margin-top: 4px; color: #FFF;">• Conventional Deadlift: 180 KG</div>
+            <div style="font-size: 12px; margin-top: 4px; color: #FFF;">• Barbell Bench Press: 115 KG</div>
+          </div>
         `;
-      } else if (screen === 'ALERTS') {
-        content.innerHTML = `
-          <h4 style="color: #fff; font-size: 16px;">Notification Center</h4>
-          <div style="background: rgba(13, 17, 26, 0.9); border-left: 3px solid var(--accent-cyan); border-radius: 8px; padding: 12px; margin-top: 6px;">
-            <span style="font-size: 11px; font-weight: 700; color: #fff;">Workout Scheduled</span>
-            <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Lower Body Focus A scheduled for today at 17:00.</p>
+      } else if (tab === 'AI') {
+        body.innerHTML = `
+          <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">AI Coach Intelligence</h3>
+          <div style="background: var(--accent-violet-subtle); border: 1px solid var(--accent-violet-border); border-radius: var(--radius-md); padding: 14px;">
+            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-violet); font-weight: 700;">RECOVERY & OVERLOAD INSIGHT</span>
+            <p style="font-size: 12px; color: #FFF; margin-top: 6px; line-height: 1.4;">Your squat volume is up 8% this week with stable RPE. You are ready to attempt a 2.5kg progressive overload on the next training session.</p>
           </div>
-          <div style="background: rgba(13, 17, 26, 0.9); border-left: 3px solid var(--accent-emerald); border-radius: 8px; padding: 12px; margin-top: 6px;">
-            <span style="font-size: 11px; font-weight: 700; color: #fff;">Nutrition Target Met</span>
-            <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Protein goal (160g) achieved for yesterday.</p>
-          </div>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="showToast('AI Recovery Analysis Completed!')">Run Full Diagnostic</button>
         `;
       }
+    }
+
+    // Rest Timer Logic
+    let restTimerSeconds = 78;
+    let restTimerInterval = null;
+
+    function toggleRestTimer() {
+      if (restTimerInterval) {
+        clearInterval(restTimerInterval);
+        restTimerInterval = null;
+        showToast('Rest timer paused');
+      } else {
+        restTimerInterval = setInterval(() => {
+          if (restTimerSeconds > 0) {
+            restTimerSeconds--;
+            const mins = String(Math.floor(restTimerSeconds / 60)).padStart(2, '0');
+            const secs = String(restTimerSeconds % 60).padStart(2, '0');
+            const el = document.getElementById('restTimerDisplay');
+            if (el) el.innerText = `${mins}:${secs}`;
+          } else {
+            clearInterval(restTimerInterval);
+            restTimerInterval = null;
+            showToast('Rest interval complete!');
+          }
+        }, 1000);
+        showToast('Rest timer started');
+      }
+    }
+
+    function resetRestTimer() {
+      restTimerSeconds += 30;
+      const mins = String(Math.floor(restTimerSeconds / 60)).padStart(2, '0');
+      const secs = String(restTimerSeconds % 60).padStart(2, '0');
+      const el = document.getElementById('restTimerDisplay');
+      if (el) el.innerText = `${mins}:${secs}`;
+      showToast('Added 30s to rest timer');
+    }
+
+    function logSetAction() {
+      showToast('Logged Set 3: 110 KG × 6 Reps (Saved)');
+    }
+
+    // Messaging Logic
+    function sendChatMessage() {
+      const input = document.getElementById('chatInputBox');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const stream = document.getElementById('chatMessageStream');
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const msgEl = document.createElement('div');
+      msgEl.style.cssText = 'align-self: flex-end; max-width: 65%; background: var(--accent-cyan-subtle); border: 1px solid var(--accent-cyan-border); border-radius: 12px 12px 2px 12px; padding: 12px 16px;';
+      msgEl.innerHTML = `
+        <div style="font-size: 11px; color: var(--accent-cyan); margin-bottom: 2px; text-align: right;">You (Coach) • ${timeStr}</div>
+        <div style="color: #FFF; font-size: 13px;">${text}</div>
+      `;
+
+      stream.appendChild(msgEl);
+      input.value = '';
+      stream.scrollTop = stream.scrollHeight;
+      showToast('Message sent to Marcus Vance');
+    }
+
+    function sendQuickPrompt(promptText) {
+      document.getElementById('chatInputBox').value = promptText;
+      sendChatMessage();
     }
   </script>
 </body>
