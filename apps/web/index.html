@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALPHA Performance OS — Coach & Athlete Operating System</title>
+  <title>ALPHA PERFORMANCE OS — Performance Platform</title>
   
   <!-- Typography: Plus Jakarta Sans (UI) + Outfit (Metrics/Display) + JetBrains Mono (Telemetry) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,16 +15,16 @@
       /* Foundation Palette */
       --bg-base: #05070B;
       --bg-sidebar: #080B10;
-      --bg-header: rgba(8, 11, 16, 0.82);
-      --bg-surface: #0D1118;
-      --bg-surface-elevated: #11161F;
-      --bg-surface-active: #161D29;
-      --bg-surface-overlay: rgba(5, 7, 11, 0.75);
+      --bg-header: rgba(8, 11, 16, 0.88);
+      --bg-surface: #0B0F15;
+      --bg-surface-elevated: #10151D;
+      --bg-surface-active: #151C27;
+      --bg-surface-overlay: rgba(5, 7, 11, 0.78);
 
       /* Borders */
-      --border-subtle: rgba(255, 255, 255, 0.06);
-      --border-default: rgba(255, 255, 255, 0.1);
-      --border-accent: rgba(0, 240, 255, 0.35);
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-default: rgba(255, 255, 255, 0.12);
+      --border-accent: rgba(0, 240, 255, 0.3);
       --border-accent-strong: #00F0FF;
 
       /* Typography & Content Colors */
@@ -36,23 +36,23 @@
       /* Semantic Accents */
       --accent-cyan: #00F0FF;
       --accent-cyan-subtle: rgba(0, 240, 255, 0.08);
-      --accent-cyan-border: rgba(0, 240, 255, 0.25);
+      --accent-cyan-border: rgba(0, 240, 255, 0.22);
       
       --accent-emerald: #10B981;
-      --accent-emerald-subtle: rgba(16, 185, 129, 0.1);
-      --accent-emerald-border: rgba(16, 185, 129, 0.25);
+      --accent-emerald-subtle: rgba(16, 185, 129, 0.09);
+      --accent-emerald-border: rgba(16, 185, 129, 0.22);
 
       --accent-amber: #F59E0B;
-      --accent-amber-subtle: rgba(245, 158, 11, 0.1);
-      --accent-amber-border: rgba(245, 158, 11, 0.25);
+      --accent-amber-subtle: rgba(245, 158, 11, 0.09);
+      --accent-amber-border: rgba(245, 158, 11, 0.22);
 
       --accent-crimson: #EF4444;
-      --accent-crimson-subtle: rgba(239, 68, 68, 0.1);
-      --accent-crimson-border: rgba(239, 68, 68, 0.25);
+      --accent-crimson-subtle: rgba(239, 68, 68, 0.09);
+      --accent-crimson-border: rgba(239, 68, 68, 0.22);
 
       --accent-violet: #8B5CF6;
-      --accent-violet-subtle: rgba(139, 92, 246, 0.1);
-      --accent-violet-border: rgba(139, 92, 246, 0.25);
+      --accent-violet-subtle: rgba(139, 92, 246, 0.09);
+      --accent-violet-border: rgba(139, 92, 246, 0.22);
 
       /* Typography Stacks */
       --font-ui: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -61,11 +61,11 @@
 
       /* Transitions & Radii */
       --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
-      --radius-xl: 18px;
+      --radius-md: 9px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
       --transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-      --transition-smooth: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-smooth: 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* Reset & Base */
@@ -80,7 +80,7 @@
 
     /* Sidebar Navigation */
     .app-sidebar {
-      width: 260px;
+      width: 255px;
       background-color: var(--bg-sidebar);
       border-right: 1px solid var(--border-subtle);
       display: flex;
@@ -91,8 +91,8 @@
     }
 
     .brand-header {
-      height: 64px;
-      padding: 0 20px;
+      height: 62px;
+      padding: 0 18px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -100,8 +100,8 @@
     }
 
     .brand-glyph {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       background: linear-gradient(135deg, #00F0FF, #0070F3);
       border-radius: var(--radius-md);
       display: flex;
@@ -110,22 +110,22 @@
       color: #05070B;
       font-family: var(--font-display);
       font-weight: 900;
-      font-size: 18px;
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+      font-size: 17px;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
     }
 
     .brand-text { display: flex; flex-direction: column; }
-    .brand-title { font-family: var(--font-display); font-size: 14px; font-weight: 800; letter-spacing: 0.06em; color: #FFF; }
-    .brand-tagline { font-family: var(--font-mono); font-size: 9px; color: var(--accent-cyan); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .brand-title { font-family: var(--font-display); font-size: 13px; font-weight: 800; letter-spacing: 0.05em; color: #FFF; line-height: 1.2; }
+    .brand-tagline { font-family: var(--font-mono); font-size: 8.5px; color: var(--accent-cyan); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 1px; }
 
-    .nav-section { flex: 1; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
-    .nav-label { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 12px 6px; }
+    .nav-section { flex: 1; padding: 16px 10px; display: flex; flex-direction: column; gap: 3px; overflow-y: auto; }
+    .nav-label { font-size: 9.5px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 12px 4px; }
 
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 9px 12px;
+      gap: 11px;
+      padding: 8px 12px;
       border-radius: var(--radius-md);
       color: var(--text-secondary);
       font-weight: 500;
@@ -149,30 +149,29 @@
     .nav-item.active::before {
       content: '';
       position: absolute;
-      left: -12px;
+      left: -10px;
       width: 3px;
-      height: 20px;
-      border-radius: 0 4px 4px 0;
+      height: 18px;
+      border-radius: 0 3px 3px 0;
       background-color: var(--accent-cyan);
-      box-shadow: 0 0 12px var(--accent-cyan);
     }
 
-    .nav-item svg { width: 18px; height: 18px; stroke-width: 1.75; flex-shrink: 0; }
-    .nav-badge { margin-left: auto; font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; border-radius: 10px; background: var(--accent-cyan-subtle); color: var(--accent-cyan); font-weight: 700; }
+    .nav-item svg { width: 17px; height: 17px; stroke-width: 1.75; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; border-radius: 8px; background: var(--accent-cyan-subtle); color: var(--accent-cyan); font-weight: 700; }
 
     /* Sidebar Footer / User Profile */
     .sidebar-footer {
-      padding: 16px;
+      padding: 14px 16px;
       border-top: 1px solid var(--border-subtle);
       background-color: rgba(5, 7, 11, 0.4);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 11px;
     }
 
     .user-avatar {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: var(--radius-md);
       background: linear-gradient(135deg, #1E293B, #0F172A);
       border: 1px solid var(--border-default);
@@ -182,7 +181,7 @@
       font-weight: 700;
       color: var(--accent-cyan);
       font-family: var(--font-display);
-      font-size: 13px;
+      font-size: 12px;
       position: relative;
     }
 
@@ -191,8 +190,8 @@
       position: absolute;
       bottom: -1px;
       right: -1px;
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       background-color: var(--accent-emerald);
       border: 2px solid var(--bg-sidebar);
       border-radius: 50%;
@@ -200,15 +199,15 @@
 
     .user-info { flex: 1; min-width: 0; }
     .user-name { font-size: 12px; font-weight: 700; color: #FFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .user-role { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
+    .user-role { font-size: 9.5px; color: var(--text-muted); font-family: var(--font-mono); }
 
     /* Main Content Area */
     .app-main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; background-color: var(--bg-base); position: relative; }
 
     /* Top Bar Header */
     .top-bar {
-      height: 64px;
-      padding: 0 32px;
+      height: 62px;
+      padding: 0 30px;
       background-color: var(--bg-header);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -222,68 +221,43 @@
     }
 
     .breadcrumb-area { display: flex; align-items: center; gap: 8px; }
-    .breadcrumb-root { font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
+    .breadcrumb-root { font-size: 12px; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.04em; }
     .breadcrumb-sep { color: var(--text-faint); font-size: 11px; }
     .breadcrumb-current { font-size: 13px; font-weight: 700; color: var(--text-primary); }
 
-    .top-actions { display: flex; align-items: center; gap: 14px; }
-
-    /* Search Quick Launcher */
-    .search-launcher {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 7px 14px;
-      color: var(--text-muted);
-      font-size: 12px;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      width: 240px;
-    }
-
-    .search-launcher:hover { border-color: var(--border-default); color: var(--text-secondary); background: var(--bg-surface-elevated); }
-    .search-launcher kbd { font-family: var(--font-mono); font-size: 10px; background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-subtle); color: var(--text-muted); margin-left: auto; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
 
     /* System Status Indicator */
     .system-status-chip {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border-radius: 20px;
+      gap: 7px;
+      padding: 5px 11px;
+      border-radius: 18px;
       background: var(--accent-emerald-subtle);
       border: 1px solid var(--accent-emerald-border);
       color: var(--accent-emerald);
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
       letter-spacing: 0.04em;
     }
 
     .pulse-dot {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       background-color: var(--accent-emerald);
-      box-shadow: 0 0 8px var(--accent-emerald);
-      animation: pulseGlow 2.5s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.9); }
+      box-shadow: 0 0 6px var(--accent-emerald);
     }
 
     /* Scrollable View Containers */
-    .content-body { flex: 1; overflow-y: auto; padding: 32px; display: flex; flex-direction: column; gap: 28px; }
-    .view-pane { display: none; flex-direction: column; gap: 24px; animation: fadeInPane var(--transition-smooth); }
+    .content-body { flex: 1; overflow-y: auto; padding: 28px 30px; display: flex; flex-direction: column; gap: 24px; }
+    .view-pane { display: none; flex-direction: column; gap: 20px; animation: fadeInPane var(--transition-smooth); }
     .view-pane.active { display: flex; }
 
     @keyframes fadeInPane {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -294,11 +268,11 @@
       align-items: flex-end;
       gap: 20px;
       border-bottom: 1px solid var(--border-subtle);
-      padding-bottom: 20px;
+      padding-bottom: 16px;
     }
 
-    .page-title-group { display: flex; flex-direction: column; gap: 4px; }
-    .page-heading { font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #FFF; letter-spacing: -0.01em; }
+    .page-title-group { display: flex; flex-direction: column; gap: 3px; }
+    .page-heading { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: #FFF; letter-spacing: -0.01em; }
     .page-subheading { font-size: 13px; color: var(--text-secondary); line-height: 1.4; max-width: 650px; }
     .page-actions-group { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
@@ -307,28 +281,27 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 8px 16px;
+      gap: 7px;
+      padding: 7px 15px;
       border-radius: var(--radius-md);
       font-weight: 600;
       font-size: 12px;
       letter-spacing: 0.02em;
       transition: all var(--transition-fast);
-      height: 38px;
+      height: 35px;
       white-space: nowrap;
     }
 
-    .btn svg { width: 15px; height: 15px; stroke-width: 2; }
+    .btn svg { width: 14px; height: 14px; stroke-width: 2; }
 
     .btn-primary {
       background: var(--accent-cyan);
       color: #05070B;
       font-weight: 700;
-      box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
     }
     .btn-primary:hover {
       background: #33F3FF;
-      box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
       transform: translateY(-1px);
     }
     .btn-primary:active { transform: translateY(0); }
@@ -354,23 +327,23 @@
       color: var(--text-primary);
     }
 
-    .btn-sm { height: 30px; padding: 5px 12px; font-size: 11px; }
+    .btn-sm { height: 28px; padding: 4px 10px; font-size: 11px; }
 
     /* Summary Metric Cards Grid */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      gap: 14px;
     }
 
     .metric-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      padding: 18px 20px;
+      padding: 16px 18px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       position: relative;
       overflow: hidden;
       transition: border-color var(--transition-fast);
@@ -379,7 +352,7 @@
     .metric-card:hover { border-color: var(--border-default); }
 
     .metric-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--text-muted);
       letter-spacing: 0.06em;
@@ -389,7 +362,7 @@
 
     .metric-val {
       font-family: var(--font-display);
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 800;
       color: #FFF;
       line-height: 1.1;
@@ -399,13 +372,13 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 600;
       font-family: var(--font-mono);
     }
 
     .delta-up { color: var(--accent-emerald); }
-    .delta-neutral { color: var(--accent-cyan); }
+    .delta-neutral { color: var(--text-muted); }
     .delta-down { color: var(--accent-crimson); }
 
     /* Cards & Panels */
@@ -419,15 +392,15 @@
     }
 
     .panel-header {
-      padding: 18px 22px;
+      padding: 16px 20px;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 14px;
     }
 
-    .panel-heading { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #FFF; }
+    .panel-heading { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: #FFF; }
     .panel-subheading { font-size: 12px; color: var(--text-muted); }
 
     /* Filter & Search Toolbar */
@@ -435,35 +408,35 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .search-input-wrap {
       position: relative;
       flex: 1;
-      max-width: 380px;
-      min-width: 240px;
+      max-width: 360px;
+      min-width: 220px;
     }
 
     .search-input-wrap svg {
       position: absolute;
-      left: 12px;
+      left: 11px;
       top: 50%;
       transform: translateY(-50%);
-      width: 15px;
-      height: 15px;
+      width: 14px;
+      height: 14px;
       color: var(--text-muted);
       pointer-events: none;
     }
 
     .input-control {
       width: 100%;
-      height: 38px;
+      height: 35px;
       background: var(--bg-surface);
       border: 1px solid var(--border-default);
       border-radius: var(--radius-md);
-      padding: 0 14px 0 36px;
+      padding: 0 12px 0 34px;
       color: #FFF;
       font-size: 12px;
       transition: all var(--transition-fast);
@@ -472,7 +445,7 @@
     .input-control:focus {
       outline: none;
       border-color: var(--accent-cyan);
-      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15);
+      box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.15);
       background: var(--bg-surface-elevated);
     }
 
@@ -485,9 +458,9 @@
     }
 
     .pill-btn {
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: var(--radius-sm);
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       color: var(--text-muted);
       transition: all var(--transition-fast);
@@ -497,24 +470,24 @@
     .pill-btn.active {
       background: var(--bg-surface-active);
       color: var(--accent-cyan);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
 
-    /* Program Cards Grid */
+    /* Program Cards Grid (10-20% more compact, uniform default borders) */
     .programs-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
+      gap: 16px;
     }
 
     .program-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      padding: 24px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 13px;
       transition: all var(--transition-smooth);
       position: relative;
     }
@@ -522,38 +495,41 @@
     .program-card:hover {
       border-color: rgba(0, 240, 255, 0.3);
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
     }
 
-    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-    .card-category { font-family: var(--font-mono); font-size: 10px; color: var(--accent-cyan); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
-    .card-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #FFF; line-height: 1.25; }
-    .card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; min-height: 38px; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .card-category { font-family: var(--font-mono); font-size: 9.5px; color: var(--accent-cyan); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px; }
+    .card-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: #FFF; line-height: 1.25; }
+    .card-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; min-height: 36px; }
 
-    /* Metadata Badge Row */
-    .meta-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-    .meta-tag {
-      display: inline-flex;
+    /* Metadata Hierarchy: Dot-separated clean row */
+    .card-meta-row {
+      display: flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: var(--radius-sm);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 6px;
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       font-weight: 500;
+      padding: 6px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
+
+    .meta-val { color: var(--text-primary); font-weight: 600; }
+    .meta-dot { color: var(--text-faint); }
+    .meta-diff { color: var(--text-secondary); }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 3px 9px;
+      gap: 5px;
+      padding: 3px 8px;
       border-radius: 12px;
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 700;
       letter-spacing: 0.04em;
     }
@@ -563,19 +539,17 @@
 
     .card-actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       margin-top: auto;
-      padding-top: 14px;
-      border-top: 1px solid var(--border-subtle);
     }
 
     /* Tables */
     .table-container { width: 100%; overflow-x: auto; }
     .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
     .data-table th {
-      padding: 12px 18px;
+      padding: 11px 16px;
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 700;
       color: var(--text-muted);
       letter-spacing: 0.06em;
@@ -584,7 +558,7 @@
       background: rgba(5, 7, 11, 0.2);
     }
     .data-table td {
-      padding: 14px 18px;
+      padding: 13px 16px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.03);
       color: var(--text-secondary);
       vertical-align: middle;
@@ -592,71 +566,71 @@
     .data-table tr:hover td { background-color: rgba(255, 255, 255, 0.02); color: var(--text-primary); }
 
     /* Progress Bar */
-    .progress-bar-wrap { width: 90px; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+    .progress-bar-wrap { width: 85px; height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 7px; }
     .progress-fill { height: 100%; border-radius: 3px; background: var(--accent-emerald); }
 
     /* Empty State */
     .empty-state {
-      padding: 60px 20px;
+      padding: 50px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 12px;
+      gap: 10px;
       color: var(--text-muted);
     }
     .empty-icon {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: var(--bg-surface-elevated);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     /* Interactive Phone Mockup */
     .phone-center { display: flex; justify-content: center; align-items: center; padding: 10px 0; }
     .phone-chassis {
-      width: 375px;
-      height: 740px;
+      width: 365px;
+      height: 720px;
       background: #000;
       border: 8px solid #1E293B;
-      border-radius: 46px;
+      border-radius: 44px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 240, 255, 0.15);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 240, 255, 0.12);
       position: relative;
     }
 
     .phone-notch {
-      height: 28px;
+      height: 26px;
       background: #000;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 20px;
-      font-size: 11px;
+      padding: 0 18px;
+      font-size: 10.5px;
       font-family: var(--font-mono);
       color: var(--text-secondary);
       z-index: 10;
     }
 
-    .dynamic-island { width: 90px; height: 18px; background: #0A0D14; border-radius: 10px; margin: 0 auto; }
+    .dynamic-island { width: 85px; height: 16px; background: #0A0D14; border-radius: 10px; margin: 0 auto; }
 
-    .phone-screen-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; background: #05070B; }
+    .phone-screen-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 13px; background: #05070B; }
     .phone-tab-bar {
-      height: 60px;
+      height: 56px;
       background: #090C12;
       border-top: 1px solid var(--border-subtle);
       display: flex;
       justify-content: space-around;
       align-items: center;
-      padding-bottom: 4px;
+      padding-bottom: 3px;
     }
 
     .phone-tab-btn {
@@ -665,13 +639,13 @@
       align-items: center;
       gap: 3px;
       color: var(--text-muted);
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 700;
       font-family: var(--font-mono);
       transition: all var(--transition-fast);
     }
 
-    .phone-tab-btn svg { width: 18px; height: 18px; stroke-width: 2; }
+    .phone-tab-btn svg { width: 17px; height: 17px; stroke-width: 2; }
     .phone-tab-btn.active { color: var(--accent-cyan); }
 
     /* Modal System */
@@ -680,8 +654,8 @@
       position: fixed;
       inset: 0;
       background: var(--bg-surface-overlay);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       z-index: 100;
       align-items: center;
       justify-content: center;
@@ -692,73 +666,78 @@
 
     .modal-box {
       width: 100%;
-      max-width: 520px;
+      max-width: 500px;
       background: var(--bg-surface);
       border: 1px solid var(--border-default);
       border-radius: var(--radius-xl);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 240, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 240, 255, 0.08);
       overflow: hidden;
       animation: modalSlide var(--transition-smooth);
     }
 
     @keyframes modalSlide {
-      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      from { opacity: 0; transform: scale(0.97) translateY(8px); }
       to { opacity: 1; transform: scale(1) translateY(0); }
     }
 
     .modal-header {
-      padding: 20px 24px;
+      padding: 18px 22px;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .modal-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #FFF; }
-    .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-subtle); background: var(--bg-sidebar); display: flex; justify-content: flex-end; gap: 10px; }
+    .modal-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: #FFF; }
+    .modal-body { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+    .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border-subtle); background: var(--bg-sidebar); display: flex; justify-content: flex-end; gap: 9px; }
 
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; font-family: var(--font-mono); }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-label { font-size: 10.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; font-family: var(--font-mono); }
     .form-input {
-      height: 38px;
+      height: 36px;
       background: var(--bg-base);
       border: 1px solid var(--border-default);
       border-radius: var(--radius-md);
       padding: 0 12px;
       color: #FFF;
-      font-size: 13px;
+      font-size: 12.5px;
     }
-    .form-input:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15); }
+    .form-input:focus { outline: none; border-color: var(--accent-cyan); box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.15); }
 
     /* Toast Notification */
-    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+    .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
     .toast-msg {
       background: var(--bg-surface-elevated);
       border: 1px solid var(--accent-cyan-border);
       border-left: 3px solid var(--accent-cyan);
       border-radius: var(--radius-md);
-      padding: 12px 18px;
+      padding: 11px 16px;
       color: #FFF;
       font-size: 12px;
       font-weight: 600;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
       display: flex;
       align-items: center;
-      gap: 10px;
-      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      gap: 9px;
+      animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Responsive Breakdown */
     @media (max-width: 1024px) {
       .metrics-grid { grid-template-columns: repeat(2, 1fr); }
       .programs-grid { grid-template-columns: 1fr; }
-      .app-sidebar { width: 72px; }
+      .app-sidebar { width: 70px; }
       .brand-text, .nav-label, .nav-item span, .user-info, .nav-badge { display: none; }
       .brand-header, .sidebar-footer { justify-content: center; padding: 0; }
-      .nav-item { justify-content: center; padding: 12px; }
+      .nav-item { justify-content: center; padding: 11px; }
+    }
+    @media (max-width: 768px) {
+      .metrics-grid { grid-template-columns: 1fr; }
+      .content-body { padding: 20px 16px; }
+      .top-bar { padding: 0 16px; }
     }
   </style>
 </head>
@@ -770,43 +749,43 @@
       <div class="brand-header">
         <div class="brand-glyph">A</div>
         <div class="brand-text">
-          <div class="brand-title">ALPHA OS</div>
-          <div class="brand-tagline">Performance Platform</div>
+          <div class="brand-title">ALPHA PERFORMANCE OS</div>
+          <div class="brand-tagline">PERFORMANCE PLATFORM</div>
         </div>
       </div>
 
       <nav class="nav-section">
         <div class="nav-label">Core Modules</div>
         
-        <button class="nav-item active" onclick="switchView('analytics', this)" aria-label="Analytics & Intelligence">
+        <button class="nav-item active" onclick="switchView('analytics', this)" aria-label="Analytics">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
           <span>Analytics</span>
         </button>
 
-        <button class="nav-item" onclick="switchView('clients', this)" aria-label="Clients & Roster">
+        <button class="nav-item" onclick="switchView('clients', this)" aria-label="Athletes">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span>Athletes</span>
           <span class="nav-badge">18</span>
         </button>
 
-        <button class="nav-item" onclick="switchView('programs', this)" aria-label="Programs & Splits">
+        <button class="nav-item" onclick="switchView('programs', this)" aria-label="Programs">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
           <span>Programs</span>
         </button>
 
-        <button class="nav-item" onclick="switchView('mobile', this)" aria-label="Mobile Athlete App">
+        <button class="nav-item" onclick="switchView('mobile', this)" aria-label="Athlete App">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
           <span>Athlete App</span>
         </button>
 
-        <div class="nav-label" style="margin-top: 12px;">Intelligence & Comms</div>
+        <div class="nav-label" style="margin-top: 10px;">Intelligence & Comms</div>
 
-        <button class="nav-item" onclick="switchView('reports', this)" aria-label="Reports & Exports">
+        <button class="nav-item" onclick="switchView('reports', this)" aria-label="Reports">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           <span>Reports</span>
         </button>
 
-        <button class="nav-item" onclick="switchView('messages', this)" aria-label="Coach Messages">
+        <button class="nav-item" onclick="switchView('messages', this)" aria-label="Messages">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>Messages</span>
           <span class="nav-badge">2</span>
@@ -827,18 +806,12 @@
       <!-- Top Header -->
       <header class="top-bar">
         <div class="breadcrumb-area">
-          <span class="breadcrumb-root">ALPHA OS</span>
+          <span class="breadcrumb-root">ALPHA PERFORMANCE OS</span>
           <span class="breadcrumb-sep">/</span>
           <span id="breadcrumbTitle" class="breadcrumb-current">Analytics</span>
         </div>
 
         <div class="top-actions">
-          <div class="search-launcher" onclick="openSearchModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <span>Search platform...</span>
-            <kbd>⌘K</kbd>
-          </div>
-
           <div class="system-status-chip">
             <span class="pulse-dot"></span>
             <span>SYSTEM ONLINE</span>
@@ -897,25 +870,25 @@
               </div>
               <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-cyan); font-weight: 700;">TOTAL VOLUME: 24,580 KG</span>
             </div>
-            <div style="padding: 24px;">
-              <svg width="100%" height="180" viewBox="0 0 900 180" preserveAspectRatio="none" style="overflow: visible;">
+            <div style="padding: 22px;">
+              <svg width="100%" height="160" viewBox="0 0 900 160" preserveAspectRatio="none" style="overflow: visible;">
                 <defs>
                   <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.35"/>
+                    <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.3"/>
                     <stop offset="100%" stop-color="#00F0FF" stop-opacity="0.0"/>
                   </linearGradient>
                 </defs>
                 <!-- Grid Lines -->
-                <line x1="0" y1="40" x2="900" y2="40" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
-                <line x1="0" y1="90" x2="900" y2="90" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
-                <line x1="0" y1="140" x2="900" y2="140" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
+                <line x1="0" y1="35" x2="900" y2="35" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
+                <line x1="0" y1="80" x2="900" y2="80" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
+                <line x1="0" y1="125" x2="900" y2="125" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4"/>
                 <!-- Path -->
-                <path d="M 0,160 Q 150,140 300,110 T 600,60 T 900,20 L 900,180 L 0,180 Z" fill="url(#chartGrad)"/>
-                <path d="M 0,160 Q 150,140 300,110 T 600,60 T 900,20" fill="none" stroke="#00F0FF" stroke-width="3"/>
+                <path d="M 0,145 Q 150,130 300,100 T 600,55 T 900,18 L 900,160 L 0,160 Z" fill="url(#chartGrad)"/>
+                <path d="M 0,145 Q 150,130 300,100 T 600,55 T 900,18" fill="none" stroke="#00F0FF" stroke-width="2.5"/>
                 <!-- Data Points -->
-                <circle cx="300" cy="110" r="4" fill="#00F0FF"/>
-                <circle cx="600" cy="60" r="4" fill="#00F0FF"/>
-                <circle cx="900" cy="20" r="5" fill="#FFF" stroke="#00F0FF" stroke-width="2"/>
+                <circle cx="300" cy="100" r="3.5" fill="#00F0FF"/>
+                <circle cx="600" cy="55" r="3.5" fill="#00F0FF"/>
+                <circle cx="900" cy="18" r="4.5" fill="#FFF" stroke="#00F0FF" stroke-width="2"/>
               </svg>
             </div>
           </div>
@@ -1044,12 +1017,13 @@
           </div>
         </section>
 
-        <!-- 3. PROGRAMS & SPLITS VIEW -->
+        <!-- 3. PROGRAMS & SPLITS VIEW (Refined & Compacted) -->
         <section id="pane-programs" class="view-pane" aria-labelledby="heading-programs">
+          <!-- Clear Page Header with Primary CTA on the Right -->
           <div class="page-header">
             <div class="page-title-group">
               <h1 id="heading-programs" class="page-heading">Programs & Splits</h1>
-              <p class="page-subheading">Manage structured training programs, periodization blocks, and athlete assignments.</p>
+              <p class="page-subheading">Manage structured training programs, periodization, and athlete assignments.</p>
             </div>
             <div class="page-actions-group">
               <button class="btn btn-primary" onclick="openNewProgramModal()">
@@ -1059,7 +1033,7 @@
             </div>
           </div>
 
-          <!-- Program Summary Metrics -->
+          <!-- Program Summary Metrics (Real Data) -->
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Total Programs</div>
@@ -1072,22 +1046,22 @@
               <div class="metric-delta delta-up">● Active in deployment</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">Active Athletes</div>
-              <div class="metric-val" style="color: var(--accent-cyan);">28</div>
-              <div class="metric-delta delta-up">Across 3 programs</div>
+              <div class="metric-label">Drafts</div>
+              <div class="metric-val" style="color: var(--text-muted);">1</div>
+              <div class="metric-delta delta-neutral">○ In preparation</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">Avg Duration</div>
-              <div class="metric-val">7.5 WKS</div>
-              <div class="metric-delta delta-neutral">Macrocycle standard</div>
+              <div class="metric-label">Active Athletes</div>
+              <div class="metric-val" style="color: var(--accent-cyan);">28</div>
+              <div class="metric-delta delta-up">Enrolled across splits</div>
             </div>
           </div>
 
-          <!-- Filter & Search Toolbar -->
+          <!-- Search / Filter Toolbar -->
           <div class="toolbar-row">
             <div class="search-input-wrap">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-              <input type="text" id="programSearchInput" class="input-control" placeholder="Search programs by name or focus..." oninput="filterPrograms()">
+              <input type="text" id="programSearchInput" class="input-control" placeholder="Search programs by name, focus, or goal..." oninput="filterPrograms()">
             </div>
 
             <div class="pill-group">
@@ -1097,11 +1071,11 @@
             </div>
           </div>
 
-          <!-- Programs Grid -->
+          <!-- Programs Grid (Uniform default styling, compact height, clean metadata hierarchy) -->
           <div id="programsGrid" class="programs-grid">
             
             <!-- Program Card 1 -->
-            <article class="program-card" data-status="PUBLISHED" data-title="Hypertrophy Power Split V1">
+            <article class="program-card" data-status="PUBLISHED" data-title="Hypertrophy Power Split V1" data-desc="4-day undulating periodization designed for muscle growth and foundational compound lift strength.">
               <div class="card-top">
                 <div>
                   <div class="card-category">Hypertrophy & Strength</div>
@@ -1111,11 +1085,15 @@
               </div>
               <p class="card-desc">4-day undulating periodization designed for muscle growth and foundational compound lift strength.</p>
               
-              <div class="meta-pills">
-                <span class="meta-tag">⏱ 8 WEEKS</span>
-                <span class="meta-tag">📅 4 SESSIONS / WK</span>
-                <span class="meta-tag">👥 14 ATHLETES</span>
-                <span class="meta-tag">⚡ INTERMEDIATE</span>
+              <!-- Clean Dot-Separated Metadata Row -->
+              <div class="card-meta-row">
+                <span class="meta-val">8 WEEKS</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-val">4× / WEEK</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-val">14 ATHLETES</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-diff">INTERMEDIATE</span>
               </div>
 
               <div class="card-actions">
@@ -1125,7 +1103,7 @@
             </article>
 
             <!-- Program Card 2 -->
-            <article class="program-card" data-status="PUBLISHED" data-title="Endurance & VO2 Peak Protocol">
+            <article class="program-card" data-status="PUBLISHED" data-title="Endurance & VO2 Peak Protocol" data-desc="Targeted cardiovascular conditioning, Zone 2 aerobic base building, and lactate threshold sprint intervals.">
               <div class="card-top">
                 <div>
                   <div class="card-category">Cardiovascular & Conditioning</div>
@@ -1135,11 +1113,14 @@
               </div>
               <p class="card-desc">Targeted cardiovascular conditioning, Zone 2 aerobic base building, and lactate threshold sprint intervals.</p>
               
-              <div class="meta-pills">
-                <span class="meta-tag">⏱ 6 WEEKS</span>
-                <span class="meta-tag">📅 3 SESSIONS / WK</span>
-                <span class="meta-tag">👥 6 ATHLETES</span>
-                <span class="meta-tag">⚡ ADVANCED</span>
+              <div class="card-meta-row">
+                <span class="meta-val">6 WEEKS</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-val">3× / WEEK</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-val">6 ATHLETES</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-diff">ADVANCED</span>
               </div>
 
               <div class="card-actions">
@@ -1149,7 +1130,7 @@
             </article>
 
             <!-- Program Card 3 -->
-            <article class="program-card" data-status="PUBLISHED" data-title="Foundation Strength 5x5">
+            <article class="program-card" data-status="PUBLISHED" data-title="Foundation Strength 5x5" data-desc="Linear progressive overload program focusing on squat, bench press, deadlift, and overhead press mastery.">
               <div class="card-top">
                 <div>
                   <div class="card-category">Linear Strength Block</div>
@@ -1159,11 +1140,14 @@
               </div>
               <p class="card-desc">Linear progressive overload program focusing on squat, bench press, deadlift, and overhead press mastery.</p>
               
-              <div class="meta-pills">
-                <span class="meta-tag">⏱ 12 WEEKS</span>
-                <span class="meta-tag">📅 3 SESSIONS / WK</span>
-                <span class="meta-tag">👥 8 ATHLETES</span>
-                <span class="meta-tag">⚡ BEGINNER</span>
+              <div class="card-meta-row">
+                <span class="meta-val">12 WEEKS</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-val">3× / WEEK</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-val">8 ATHLETES</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-diff">BEGINNER</span>
               </div>
 
               <div class="card-actions">
@@ -1173,7 +1157,7 @@
             </article>
 
             <!-- Program Card 4 -->
-            <article class="program-card" data-status="DRAFT" data-title="Olympic Weightlifting & Power Block">
+            <article class="program-card" data-status="DRAFT" data-title="Olympic Weightlifting & Power Block" data-desc="Dynamic effort snatch, clean & jerk cycles, and explosive triple-extension development for competitive athletes.">
               <div class="card-top">
                 <div>
                   <div class="card-category">Explosive Power & Olympic Lifts</div>
@@ -1183,11 +1167,14 @@
               </div>
               <p class="card-desc">Dynamic effort snatch, clean & jerk cycles, and explosive triple-extension development for competitive athletes.</p>
               
-              <div class="meta-pills">
-                <span class="meta-tag">⏱ 8 WEEKS</span>
-                <span class="meta-tag">📅 5 SESSIONS / WK</span>
-                <span class="meta-tag">👥 0 ATHLETES</span>
-                <span class="meta-tag">⚡ ELITE</span>
+              <div class="card-meta-row">
+                <span class="meta-val">8 WEEKS</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-val">5× / WEEK</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-val">0 ATHLETES</span>
+                <span class="meta-dot">·</span>
+                <span class="meta-diff">ELITE</span>
               </div>
 
               <div class="card-actions">
@@ -1198,14 +1185,17 @@
 
           </div>
 
-          <!-- Empty State (Hidden unless filtered out) -->
+          <!-- Empty State (Displayed only when filter yields no matches) -->
           <div id="programsEmptyState" class="empty-state" style="display: none;">
             <div class="empty-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="24" height="24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </div>
-            <h3 style="color: #FFF; font-size: 16px;">No training programs found</h3>
-            <p style="font-size: 13px; max-width: 400px;">No programs match your search or filter criteria. Clear filters or create a new program.</p>
-            <button class="btn btn-secondary" onclick="clearProgramFilters()" style="margin-top: 6px;">Clear Filters</button>
+            <h3 style="color: #FFF; font-size: 15px; font-weight: 700;">No training programs yet</h3>
+            <p style="font-size: 12.5px; max-width: 380px;">No programs match your search or filter criteria. Create your first program to start building structured athlete plans.</p>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <button class="btn btn-secondary" onclick="clearProgramFilters()">Clear Filters</button>
+              <button class="btn btn-primary" onclick="openNewProgramModal()">+ New Program</button>
+            </div>
           </div>
         </section>
 
@@ -1232,29 +1222,29 @@
                 <!-- Live Workout Screen -->
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                   <div>
-                    <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">TODAY'S WORKOUT</span>
-                    <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">Lower Body Focus A</h3>
+                    <span style="font-size: 9.5px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">TODAY'S WORKOUT</span>
+                    <h3 style="color: #FFF; font-size: 15px; font-family: var(--font-display);">Lower Body Focus A</h3>
                   </div>
-                  <span class="status-badge status-published" style="font-size: 9px;">● ACTIVE SESSION</span>
+                  <span class="status-badge status-published" style="font-size: 8.5px;">● ACTIVE SESSION</span>
                 </div>
 
                 <!-- Exercise Card -->
-                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-                  <div style="font-size: 13px; font-weight: 700; color: #FFF;">Barbell Back Squat</div>
+                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 13px; display: flex; flex-direction: column; gap: 9px;">
+                  <div style="font-size: 12.5px; font-weight: 700; color: #FFF;">Barbell Back Squat</div>
                   
-                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 4px 0;">
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 3px 0;">
                     <span>SET 1</span>
                     <span style="font-family: var(--font-mono); color: #FFF;">100 KG × 8 REPS</span>
                     <span style="color: var(--accent-emerald); font-weight: 700;">✓ DONE</span>
                   </div>
 
-                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 4px 0;">
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 3px 0;">
                     <span>SET 2</span>
                     <span style="font-family: var(--font-mono); color: #FFF;">105 KG × 8 REPS</span>
                     <span style="color: var(--accent-emerald); font-weight: 700;">✓ DONE</span>
                   </div>
 
-                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700; background: var(--accent-cyan-subtle); padding: 6px 8px; border-radius: var(--radius-sm);">
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700; background: var(--accent-cyan-subtle); padding: 5px 7px; border-radius: var(--radius-sm);">
                     <span>SET 3 (ACTIVE)</span>
                     <span style="font-family: var(--font-mono);">110 KG × 6 REPS</span>
                     <span>LOGGING</span>
@@ -1262,10 +1252,10 @@
                 </div>
 
                 <!-- Rest Timer Box -->
-                <div style="background: var(--bg-surface); border: 1px solid var(--accent-cyan-border); border-radius: var(--radius-md); padding: 14px; text-align: center;">
-                  <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">REST INTERVAL</span>
-                  <div id="restTimerDisplay" style="font-size: 28px; font-weight: 800; font-family: var(--font-mono); color: #FFF; margin: 4px 0;">01:18</div>
-                  <div style="display: flex; justify-content: center; gap: 8px;">
+                <div style="background: var(--bg-surface); border: 1px solid var(--accent-cyan-border); border-radius: var(--radius-md); padding: 13px; text-align: center;">
+                  <span style="font-size: 9.5px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">REST INTERVAL</span>
+                  <div id="restTimerDisplay" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono); color: #FFF; margin: 3px 0;">01:18</div>
+                  <div style="display: flex; justify-content: center; gap: 7px;">
                     <button class="btn btn-secondary btn-sm" onclick="toggleRestTimer()">Pause</button>
                     <button class="btn btn-secondary btn-sm" onclick="resetRestTimer()">+30s</button>
                   </div>
@@ -1333,7 +1323,7 @@
                 <tbody>
                   <tr>
                     <td style="font-weight: 700; color: #FFF;">30-Day Client Performance Audit</td>
-                    <td><span class="meta-tag">CLIENT</span></td>
+                    <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">CLIENT</span></td>
                     <td><span style="font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">CSV</span></td>
                     <td>Today, 09:15</td>
                     <td><span class="status-badge status-published">● READY</span></td>
@@ -1341,7 +1331,7 @@
                   </tr>
                   <tr>
                     <td style="font-weight: 700; color: #FFF;">Executive Organization Adherence Summary</td>
-                    <td><span class="meta-tag">ORGANIZATION</span></td>
+                    <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">ORGANIZATION</span></td>
                     <td><span style="font-family: var(--font-mono); color: var(--accent-emerald); font-weight: 700;">JSON</span></td>
                     <td>Today, 08:30</td>
                     <td><span class="status-badge status-published">● READY</span></td>
@@ -1349,7 +1339,7 @@
                   </tr>
                   <tr>
                     <td style="font-weight: 700; color: #FFF;">Coach Workload & Attrition Benchmark</td>
-                    <td><span class="meta-tag">COACH</span></td>
+                    <td><span class="status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">COACH</span></td>
                     <td><span style="font-family: var(--font-mono); color: var(--accent-crimson); font-weight: 700;">PDF</span></td>
                     <td>Yesterday</td>
                     <td><span class="status-badge status-published">● READY</span></td>
@@ -1370,25 +1360,25 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 280px 1fr; gap: 20px; min-height: 480px;">
+          <div style="display: grid; grid-template-columns: 270px 1fr; gap: 16px; min-height: 460px;">
             <!-- Chat Athlete Sidebar -->
             <div class="panel">
-              <div class="panel-header" style="padding: 14px 16px;">
-                <span style="font-weight: 700; color: #FFF; font-size: 13px;">Active Threads</span>
+              <div class="panel-header" style="padding: 13px 15px;">
+                <span style="font-weight: 700; color: #FFF; font-size: 12.5px;">Active Threads</span>
               </div>
-              <div style="display: flex; flex-direction: column; padding: 8px;">
-                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg-surface-elevated); border-radius: var(--radius-md); cursor: pointer; border: 1px solid var(--border-accent);">
-                  <div class="user-avatar" style="width: 32px; height: 32px; font-size: 11px;">MV</div>
+              <div style="display: flex; flex-direction: column; padding: 7px;">
+                <div style="display: flex; align-items: center; gap: 9px; padding: 9px 11px; background: var(--bg-surface-elevated); border-radius: var(--radius-md); cursor: pointer; border: 1px solid var(--border-accent);">
+                  <div class="user-avatar" style="width: 30px; height: 30px; font-size: 11px;">MV</div>
                   <div style="flex: 1; min-width: 0;">
                     <div style="font-size: 12px; font-weight: 700; color: #FFF;">Marcus Vance</div>
-                    <div style="font-size: 10px; color: var(--accent-emerald);">● Online</div>
+                    <div style="font-size: 9.5px; color: var(--accent-emerald);">● Online</div>
                   </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-md); cursor: pointer; color: var(--text-secondary);">
-                  <div class="user-avatar" style="width: 32px; height: 32px; font-size: 11px; background: #1E293B;">ER</div>
+                <div style="display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-radius: var(--radius-md); cursor: pointer; color: var(--text-secondary);">
+                  <div class="user-avatar" style="width: 30px; height: 30px; font-size: 11px; background: #1E293B;">ER</div>
                   <div style="flex: 1; min-width: 0;">
                     <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Elena Rostova</div>
-                    <div style="font-size: 10px; color: var(--text-muted);">Active 2h ago</div>
+                    <div style="font-size: 9.5px; color: var(--text-muted);">Active 2h ago</div>
                   </div>
                 </div>
               </div>
@@ -1396,40 +1386,40 @@
 
             <!-- Chat Active Thread -->
             <div class="panel" style="display: flex; flex-direction: column;">
-              <div class="panel-header" style="padding: 14px 20px;">
+              <div class="panel-header" style="padding: 13px 18px;">
                 <div>
-                  <h3 class="panel-heading" style="font-size: 14px;">Marcus Vance</h3>
+                  <h3 class="panel-heading" style="font-size: 13.5px;">Marcus Vance</h3>
                   <p class="panel-subheading">Program: Hypertrophy Power Split V1 (Week 3, Day 2)</p>
                 </div>
                 <span class="status-badge status-published">● CONNECTED</span>
               </div>
 
               <!-- Message History -->
-              <div id="chatMessageStream" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; background: rgba(5,7,11,0.3);">
-                <div style="align-self: flex-start; max-width: 65%; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 12px 12px 12px 2px; padding: 12px 16px;">
-                  <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 2px;">Marcus • 07:15</div>
-                  <div style="color: #FFF; font-size: 13px;">Coach, hit 110kg on back squat today for 6 clean reps! RPE felt like an 8.5.</div>
+              <div id="chatMessageStream" style="flex: 1; padding: 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: rgba(5,7,11,0.3);">
+                <div style="align-self: flex-start; max-width: 65%; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 10px 10px 10px 2px; padding: 10px 14px;">
+                  <div style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 2px;">Marcus • 07:15</div>
+                  <div style="color: #FFF; font-size: 12.5px;">Coach, hit 110kg on back squat today for 6 clean reps! RPE felt like an 8.5.</div>
                 </div>
 
-                <div style="align-self: flex-end; max-width: 65%; background: var(--accent-cyan-subtle); border: 1px solid var(--accent-cyan-border); border-radius: 12px 12px 2px 12px; padding: 12px 16px;">
-                  <div style="font-size: 11px; color: var(--accent-cyan); margin-bottom: 2px; text-align: right;">You (Coach) • 07:22</div>
-                  <div style="color: #FFF; font-size: 13px;">Incredible work Marcus. Progressive overload target achieved. Take a full 3m rest before your Romanian Deadlifts.</div>
+                <div style="align-self: flex-end; max-width: 65%; background: var(--accent-cyan-subtle); border: 1px solid var(--accent-cyan-border); border-radius: 10px 10px 2px 10px; padding: 10px 14px;">
+                  <div style="font-size: 10.5px; color: var(--accent-cyan); margin-bottom: 2px; text-align: right;">You (Coach) • 07:22</div>
+                  <div style="color: #FFF; font-size: 12.5px;">Incredible work Marcus. Progressive overload target achieved. Take a full 3m rest before your Romanian Deadlifts.</div>
                 </div>
               </div>
 
               <!-- Quick Prompt Chips -->
-              <div style="padding: 10px 20px; display: flex; gap: 8px; border-top: 1px solid var(--border-subtle); background: var(--bg-sidebar);">
+              <div style="padding: 9px 18px; display: flex; gap: 7px; border-top: 1px solid var(--border-subtle); background: var(--bg-sidebar);">
                 <button class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('Great form today!')">"Great form today!"</button>
                 <button class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('Take a full 3m rest.')">"Take a full 3m rest."</button>
                 <button class="btn btn-secondary btn-sm" onclick="sendQuickPrompt('Hydrate and log post-workout meal.')">"Hydrate and log meal."</button>
               </div>
 
               <!-- Input Area -->
-              <div style="padding: 16px 20px; border-top: 1px solid var(--border-subtle); display: flex; gap: 10px;">
+              <div style="padding: 14px 18px; border-top: 1px solid var(--border-subtle); display: flex; gap: 9px;">
                 <input type="text" id="chatInputBox" class="input-control" style="flex: 1;" placeholder="Type feedback or coaching instruction..." onkeypress="if(event.key==='Enter') sendChatMessage()">
                 <button class="btn btn-primary" onclick="sendChatMessage()">
                   <span>Send</span>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
               </div>
             </div>
@@ -1447,7 +1437,7 @@
     <div class="modal-box">
       <div class="modal-header">
         <h3 class="modal-title">Create Training Program</h3>
-        <button onclick="closeModal('modalNewProgram')" style="color: var(--text-muted);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
+        <button onclick="closeModal('modalNewProgram')" style="color: var(--text-muted);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -1456,9 +1446,9 @@
         </div>
         <div class="form-group">
           <label class="form-label">Target Focus & Category</label>
-          <input type="text" id="newProgCategory" class="form-input" placeholder="e.g. Strength & Muscle Growth">
+          <input type="text" id="newProgCategory" class="form-input" placeholder="e.g. Hypertrophy & Strength">
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
           <div class="form-group">
             <label class="form-label">Duration (Weeks)</label>
             <input type="number" id="newProgDuration" class="form-input" value="8">
@@ -1481,7 +1471,7 @@
     <div class="modal-box">
       <div class="modal-header">
         <h3 class="modal-title">Assign Athletes to Program</h3>
-        <button onclick="closeModal('modalAssign')" style="color: var(--text-muted);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
+        <button onclick="closeModal('modalAssign')" style="color: var(--text-muted);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -1490,7 +1480,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Select Athletes</label>
-          <div style="background: var(--bg-base); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="background: var(--bg-base); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 9px; display: flex; flex-direction: column; gap: 7px;">
             <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #FFF; cursor: pointer;">
               <input type="checkbox" checked> Marcus Vance (Hypertrophy Power Split V1)
             </label>
@@ -1515,7 +1505,7 @@
     <div class="modal-box">
       <div class="modal-header">
         <h3 class="modal-title">Invite New Athlete</h3>
-        <button onclick="closeModal('modalInvite')" style="color: var(--text-muted);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
+        <button onclick="closeModal('modalInvite')" style="color: var(--text-muted);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -1542,31 +1532,6 @@
     </div>
   </div>
 
-  <!-- Search Launcher Modal -->
-  <div id="modalSearch" class="modal-backdrop">
-    <div class="modal-box" style="max-width: 480px;">
-      <div style="padding: 16px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" color="var(--accent-cyan)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" id="globalSearchInput" placeholder="Quick navigate to athlete, program, or report..." style="flex: 1; background: transparent; border: none; color: #FFF; font-size: 14px; outline: none;" oninput="handleGlobalSearch(this.value)">
-        <kbd style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">ESC to exit</kbd>
-      </div>
-      <div id="globalSearchResults" style="padding: 12px; display: flex; flex-direction: column; gap: 4px; max-height: 280px; overflow-y: auto;">
-        <div onclick="switchView('programs'); closeModal('modalSearch');" style="padding: 10px 14px; border-radius: 8px; background: var(--bg-surface-elevated); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-          <span style="color: #FFF; font-weight: 600;">Hypertrophy Power Split V1</span>
-          <span class="meta-tag">PROGRAM</span>
-        </div>
-        <div onclick="switchView('clients'); closeModal('modalSearch');" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-          <span style="color: #FFF; font-weight: 600;">Marcus Vance</span>
-          <span class="meta-tag">ATHLETE</span>
-        </div>
-        <div onclick="switchView('reports'); closeModal('modalSearch');" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-          <span style="color: #FFF; font-weight: 600;">30-Day Performance Audit</span>
-          <span class="meta-tag">REPORT</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Toast Notification Container -->
   <div id="toastStack" class="toast-container" aria-live="polite"></div>
 
@@ -1589,14 +1554,14 @@
 
       const viewTitles = {
         analytics: 'Analytics',
-        clients: 'Athletes & Roster',
+        clients: 'Athletes',
         programs: 'Programs & Splits',
-        mobile: 'Mobile Athlete App',
-        reports: 'Reports & Exports',
-        messages: 'Coach Messages'
+        mobile: 'Athlete App',
+        reports: 'Reports',
+        messages: 'Messages'
       };
 
-      document.getElementById('breadcrumbTitle').innerText = viewTitles[viewKey] || 'ALPHA OS';
+      document.getElementById('breadcrumbTitle').innerText = viewTitles[viewKey] || 'Analytics';
     }
 
     // Toast System
@@ -1608,9 +1573,9 @@
       container.appendChild(toast);
       setTimeout(() => {
         toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
+        toast.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => toast.remove(), 250);
+      }, 2800);
     }
 
     // Analytics Scope Switcher
@@ -1652,8 +1617,9 @@
 
       cards.forEach(card => {
         const title = (card.getAttribute('data-title') || '').toLowerCase();
+        const desc = (card.getAttribute('data-desc') || '').toLowerCase();
         const status = card.getAttribute('data-status');
-        const matchesQuery = !query || title.includes(query);
+        const matchesQuery = !query || title.includes(query) || desc.includes(query);
         const matchesStatus = currentFilterStatus === 'ALL' || status === currentFilterStatus;
 
         if (matchesQuery && matchesStatus) {
@@ -1679,6 +1645,16 @@
         if (i === 0) b.classList.add('active'); else b.classList.remove('active');
       });
       filterPrograms();
+    }
+
+    // Athlete Filtering
+    function filterAthletes(query) {
+      const q = (query || '').toLowerCase().trim();
+      const rows = document.querySelectorAll('#athleteTable tbody tr');
+      rows.forEach(r => {
+        const text = r.innerText.toLowerCase();
+        r.style.display = !q || text.includes(q) ? '' : 'none';
+      });
     }
 
     // Modal Controls
@@ -1707,17 +1683,7 @@
       showToast('Athletes assigned successfully!');
     }
 
-    // Search Modal (⌘K)
-    function openSearchModal() {
-      openModal('modalSearch');
-      setTimeout(() => document.getElementById('globalSearchInput').focus(), 50);
-    }
-
     document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        openSearchModal();
-      }
       if (e.key === 'Escape') {
         document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
       }
@@ -1733,35 +1699,35 @@
         body.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">TODAY'S WORKOUT</span>
-              <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">Lower Body Focus A</h3>
+              <span style="font-size: 9.5px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">TODAY'S WORKOUT</span>
+              <h3 style="color: #FFF; font-size: 15px; font-family: var(--font-display);">Lower Body Focus A</h3>
             </div>
-            <span class="status-badge status-published" style="font-size: 9px;">● ACTIVE SESSION</span>
+            <span class="status-badge status-published" style="font-size: 8.5px;">● ACTIVE SESSION</span>
           </div>
 
-          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; display: flex; flex-direction: column; gap: 10px;">
-            <div style="font-size: 13px; font-weight: 700; color: #FFF;">Barbell Back Squat</div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 4px 0;">
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 13px; display: flex; flex-direction: column; gap: 9px;">
+            <div style="font-size: 12.5px; font-weight: 700; color: #FFF;">Barbell Back Squat</div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 3px 0;">
               <span>SET 1</span>
               <span style="font-family: var(--font-mono); color: #FFF;">100 KG × 8 REPS</span>
               <span style="color: var(--accent-emerald); font-weight: 700;">✓ DONE</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 4px 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 3px 0;">
               <span>SET 2</span>
               <span style="font-family: var(--font-mono); color: #FFF;">105 KG × 8 REPS</span>
               <span style="color: var(--accent-emerald); font-weight: 700;">✓ DONE</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700; background: var(--accent-cyan-subtle); padding: 6px 8px; border-radius: var(--radius-sm);">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--accent-cyan); font-weight: 700; background: var(--accent-cyan-subtle); padding: 5px 7px; border-radius: var(--radius-sm);">
               <span>SET 3 (ACTIVE)</span>
               <span style="font-family: var(--font-mono);">110 KG × 6 REPS</span>
               <span>LOGGING</span>
             </div>
           </div>
 
-          <div style="background: var(--bg-surface); border: 1px solid var(--accent-cyan-border); border-radius: var(--radius-md); padding: 14px; text-align: center;">
-            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">REST INTERVAL</span>
-            <div id="restTimerDisplay" style="font-size: 28px; font-weight: 800; font-family: var(--font-mono); color: #FFF; margin: 4px 0;">01:18</div>
-            <div style="display: flex; justify-content: center; gap: 8px;">
+          <div style="background: var(--bg-surface); border: 1px solid var(--accent-cyan-border); border-radius: var(--radius-md); padding: 13px; text-align: center;">
+            <span style="font-size: 9.5px; font-family: var(--font-mono); color: var(--accent-cyan); font-weight: 700;">REST INTERVAL</span>
+            <div id="restTimerDisplay" style="font-size: 26px; font-weight: 800; font-family: var(--font-mono); color: #FFF; margin: 3px 0;">01:18</div>
+            <div style="display: flex; justify-content: center; gap: 7px;">
               <button class="btn btn-secondary btn-sm" onclick="toggleRestTimer()">Pause</button>
               <button class="btn btn-secondary btn-sm" onclick="resetRestTimer()">+30s</button>
             </div>
@@ -1773,48 +1739,48 @@
         `;
       } else if (tab === 'NUTRITION') {
         body.innerHTML = `
-          <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">Daily Nutrition & Macros</h3>
-          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
-            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">CALORIC TARGET</span>
-            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-display); color: var(--accent-cyan); margin: 4px 0;">2,450 / 2,800 KCAL</div>
-            <div class="progress-bar-wrap" style="width: 100%; height: 8px;"><div class="progress-fill" style="width: 87%;"></div></div>
+          <h3 style="color: #FFF; font-size: 15px; font-family: var(--font-display);">Daily Nutrition & Macros</h3>
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 13px;">
+            <span style="font-size: 9.5px; font-family: var(--font-mono); color: var(--text-muted);">CALORIC TARGET</span>
+            <div style="font-size: 22px; font-weight: 800; font-family: var(--font-display); color: var(--accent-cyan); margin: 3px 0;">2,450 / 2,800 KCAL</div>
+            <div class="progress-bar-wrap" style="width: 100%; height: 7px;"><div class="progress-fill" style="width: 87%;"></div></div>
           </div>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-            <div style="background: var(--bg-surface-elevated); border-radius: 8px; padding: 10px; text-align: center;">
-              <div style="font-size: 10px; color: var(--text-muted);">PROTEIN</div>
-              <div style="font-size: 14px; font-weight: 700; color: #FFF; margin-top: 2px;">165g / 180g</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px;">
+            <div style="background: var(--bg-surface-elevated); border-radius: 7px; padding: 9px; text-align: center;">
+              <div style="font-size: 9.5px; color: var(--text-muted);">PROTEIN</div>
+              <div style="font-size: 13px; font-weight: 700; color: #FFF; margin-top: 2px;">165g / 180g</div>
             </div>
-            <div style="background: var(--bg-surface-elevated); border-radius: 8px; padding: 10px; text-align: center;">
-              <div style="font-size: 10px; color: var(--text-muted);">CARBS</div>
-              <div style="font-size: 14px; font-weight: 700; color: #FFF; margin-top: 2px;">280g / 320g</div>
+            <div style="background: var(--bg-surface-elevated); border-radius: 7px; padding: 9px; text-align: center;">
+              <div style="font-size: 9.5px; color: var(--text-muted);">CARBS</div>
+              <div style="font-size: 13px; font-weight: 700; color: #FFF; margin-top: 2px;">280g / 320g</div>
             </div>
-            <div style="background: var(--bg-surface-elevated); border-radius: 8px; padding: 10px; text-align: center;">
-              <div style="font-size: 10px; color: var(--text-muted);">FATS</div>
-              <div style="font-size: 14px; font-weight: 700; color: #FFF; margin-top: 2px;">62g / 70g</div>
+            <div style="background: var(--bg-surface-elevated); border-radius: 7px; padding: 9px; text-align: center;">
+              <div style="font-size: 9.5px; color: var(--text-muted);">FATS</div>
+              <div style="font-size: 13px; font-weight: 700; color: #FFF; margin-top: 2px;">62g / 70g</div>
             </div>
           </div>
         `;
       } else if (tab === 'PROGRESS') {
         body.innerHTML = `
-          <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">Biometrics & PRs</h3>
-          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
-            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">BODY WEIGHT</span>
-            <div style="font-size: 24px; font-weight: 800; font-family: var(--font-display); color: var(--accent-cyan); margin: 4px 0;">82.4 KG</div>
-            <span style="font-size: 11px; color: var(--accent-emerald);">▼ -1.8 kg over 30 days (Optimal Cut)</span>
+          <h3 style="color: #FFF; font-size: 15px; font-family: var(--font-display);">Biometrics & PRs</h3>
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 13px;">
+            <span style="font-size: 9.5px; font-family: var(--font-mono); color: var(--text-muted);">BODY WEIGHT</span>
+            <div style="font-size: 22px; font-weight: 800; font-family: var(--font-display); color: var(--accent-cyan); margin: 3px 0;">82.4 KG</div>
+            <span style="font-size: 10.5px; color: var(--accent-emerald);">▼ -1.8 kg over 30 days (Optimal Cut)</span>
           </div>
-          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
-            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">ALL-TIME PERSONAL RECORDS</span>
-            <div style="font-size: 12px; margin-top: 6px; color: #FFF;">• Barbell Back Squat: 140 KG</div>
-            <div style="font-size: 12px; margin-top: 4px; color: #FFF;">• Conventional Deadlift: 180 KG</div>
-            <div style="font-size: 12px; margin-top: 4px; color: #FFF;">• Barbell Bench Press: 115 KG</div>
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 13px;">
+            <span style="font-size: 9.5px; font-family: var(--font-mono); color: var(--text-muted);">ALL-TIME PERSONAL RECORDS</span>
+            <div style="font-size: 11.5px; margin-top: 5px; color: #FFF;">• Barbell Back Squat: 140 KG</div>
+            <div style="font-size: 11.5px; margin-top: 3px; color: #FFF;">• Conventional Deadlift: 180 KG</div>
+            <div style="font-size: 11.5px; margin-top: 3px; color: #FFF;">• Barbell Bench Press: 115 KG</div>
           </div>
         `;
       } else if (tab === 'AI') {
         body.innerHTML = `
-          <h3 style="color: #FFF; font-size: 16px; font-family: var(--font-display);">AI Coach Intelligence</h3>
-          <div style="background: var(--accent-violet-subtle); border: 1px solid var(--accent-violet-border); border-radius: var(--radius-md); padding: 14px;">
-            <span style="font-size: 10px; font-family: var(--font-mono); color: var(--accent-violet); font-weight: 700;">RECOVERY & OVERLOAD INSIGHT</span>
-            <p style="font-size: 12px; color: #FFF; margin-top: 6px; line-height: 1.4;">Your squat volume is up 8% this week with stable RPE. You are ready to attempt a 2.5kg progressive overload on the next training session.</p>
+          <h3 style="color: #FFF; font-size: 15px; font-family: var(--font-display);">AI Coach Intelligence</h3>
+          <div style="background: var(--accent-violet-subtle); border: 1px solid var(--accent-violet-border); border-radius: var(--radius-md); padding: 13px;">
+            <span style="font-size: 9.5px; font-family: var(--font-mono); color: var(--accent-violet); font-weight: 700;">RECOVERY & OVERLOAD INSIGHT</span>
+            <p style="font-size: 11.5px; color: #FFF; margin-top: 5px; line-height: 1.4;">Your squat volume is up 8% this week with stable RPE. You are ready to attempt a 2.5kg progressive overload on the next training session.</p>
           </div>
           <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="showToast('AI Recovery Analysis Completed!')">Run Full Diagnostic</button>
         `;
@@ -1871,10 +1837,10 @@
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
       const msgEl = document.createElement('div');
-      msgEl.style.cssText = 'align-self: flex-end; max-width: 65%; background: var(--accent-cyan-subtle); border: 1px solid var(--accent-cyan-border); border-radius: 12px 12px 2px 12px; padding: 12px 16px;';
+      msgEl.style.cssText = 'align-self: flex-end; max-width: 65%; background: var(--accent-cyan-subtle); border: 1px solid var(--accent-cyan-border); border-radius: 10px 10px 2px 10px; padding: 10px 14px;';
       msgEl.innerHTML = `
-        <div style="font-size: 11px; color: var(--accent-cyan); margin-bottom: 2px; text-align: right;">You (Coach) • ${timeStr}</div>
-        <div style="color: #FFF; font-size: 13px;">${text}</div>
+        <div style="font-size: 10.5px; color: var(--accent-cyan); margin-bottom: 2px; text-align: right;">You (Coach) • ${timeStr}</div>
+        <div style="color: #FFF; font-size: 12.5px;">${text}</div>
       `;
 
       stream.appendChild(msgEl);
