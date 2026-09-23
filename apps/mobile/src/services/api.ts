@@ -1,7 +1,7 @@
 import { IApiResponse } from '@alpha/types';
 import { SecureStorage } from './secureStorage';
 
-const BASE_URL = 'http://localhost:4000/api/v1';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://gymrecordapp.onrender.com/api/v1';
 
 export class ApiClient {
   private static async getAuthHeader(): Promise<Record<string, string>> {
