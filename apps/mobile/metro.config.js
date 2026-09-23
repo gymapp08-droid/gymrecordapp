@@ -6,6 +6,7 @@ const projectRoot = __dirname;
 const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
+config.projectRoot = projectRoot;
 
 const watchFolders = [projectRoot];
 if (fs.existsSync(path.resolve(monorepoRoot, 'packages'))) {
