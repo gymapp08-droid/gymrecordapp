@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ALPHA",
-    "slug": "alpha-performance-os",
+    "slug": "alpha-personal-performance-os",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -27,7 +27,7 @@
       "adaptiveIcon": {
         "backgroundColor": "#05070B"
       },
-      "package": "com.alpha.performance.os",
+      "package": "com.gymapp08.alphapersonalperformanceos",
       "versionCode": 1,
       "permissions": [
         "android.permission.health.READ_STEPS",
@@ -38,6 +38,11 @@
         "android.permission.CAMERA",
         "android.permission.READ_MEDIA_IMAGES"
       ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8b8e3acd-ebda-4d78-b8fa-c84d8bb079af"
+      }
     }
   }
 }
