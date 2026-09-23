@@ -5,10 +5,30 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { Request, Response, NextFunction } from 'express';
+import * as fs from 'fs';
+import * as path from 'path';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
+
+  // Serve ALPHA Web Performance Dashboard on root / and /dashboard
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if (req.method === 'GET' && (req.path === '/' || req.path === '/dashboard' || req.path === '/index.html')) {
+      const candidates = [
+        path.join(process.cwd(), 'apps', 'web', 'index.html'),
+        path.join(__dirname, '..', '..', 'web', 'index.html'),
+        path.join(__dirname, '..', '..', '..', 'apps', 'web', 'index.html'),
+        path.join(__dirname, '..', '..', '..', '..', 'apps', 'web', 'index.html'),
+      ];
+      const htmlPath = candidates.find((c) => fs.existsSync(c));
+      if (htmlPath) {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.sendFile(htmlPath);
+      }
+    }
+    next();
+  });
 
   app.setGlobalPrefix('api/v1');
 
@@ -18,7 +38,10 @@ async function bootstrap() {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-    res.setHeader('Content-Security-Policy', "default-src 'self'");
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; font-src 'self' https: data:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:;",
+    );
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     next();
   });
