@@ -11,13 +11,14 @@
     "prisma:generate": "npm run --workspace=@alpha/database generate",
     "prisma:migrate": "npm run --workspace=@alpha/database migrate",
     "build:packages": "npm run prisma:generate && npm run --workspace=@alpha/types build && npm run --workspace=@alpha/utils build && npm run --workspace=@alpha/validation build && npm run --workspace=@alpha/database build",
-    "build": "npm run build:packages && npm run --workspace=@alpha/api build",
+    "build": "npm run build:packages && npm run --workspace=@alpha/web build && npm run --workspace=@alpha/api build",
     "test": "npm run --workspaces --if-present test",
     "lint": "npm run --workspaces --if-present lint",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
   },
   "devDependencies": {
     "@types/react-dom": "^18.3.7",
+    "esbuild": "^0.28.2",
     "prettier": "^3.3.3",
     "react-dom": "^18.3.1",
     "typescript": "^5.6.3"

@@ -27,6 +27,19 @@ async function bootstrap() {
         return res.sendFile(htmlPath);
       }
     }
+    if (req.method === 'GET' && req.path === '/bundle.js') {
+      const candidates = [
+        path.join(process.cwd(), 'apps', 'web', 'bundle.js'),
+        path.join(__dirname, '..', '..', 'web', 'bundle.js'),
+        path.join(__dirname, '..', '..', '..', 'apps', 'web', 'bundle.js'),
+        path.join(__dirname, '..', '..', '..', '..', 'apps', 'web', 'bundle.js'),
+      ];
+      const jsPath = candidates.find((c) => fs.existsSync(c));
+      if (jsPath) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        return res.sendFile(jsPath);
+      }
+    }
     next();
   });
 
