@@ -18,6 +18,7 @@ export const STITCH_THEME = {
     accentEmerald: '#10B981',
     accentAmber: '#F59E0B',
     accentCrimson: '#EF4444',
+    accentRose: '#FF0055',
   },
   typography: {
     fontMono: "'SF Mono', 'Fira Code', Menlo, Consolas, monospace",
@@ -107,6 +108,17 @@ export const STITCH_THEME = {
       clip: 'rect(0, 0, 0, 0)',
       whiteSpace: 'nowrap',
       borderWidth: '0',
+    } as React.CSSProperties,
+    input: {
+      backgroundColor: 'rgba(255, 255, 255, 0.04)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      borderRadius: '8px',
+      padding: '8px 12px',
+      color: '#F8FAFC',
+      fontSize: '13px',
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      outline: 'none',
+      boxSizing: 'border-box',
     } as React.CSSProperties,
   },
 };

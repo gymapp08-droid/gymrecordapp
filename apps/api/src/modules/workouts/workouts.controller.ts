@@ -3,6 +3,8 @@ import {
   Get,
   Post,
   Put,
+  Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -30,9 +32,21 @@ export class WorkoutsController {
   async getExercises(
     @Query('muscle') muscleGroup?: string,
     @Query('equipment') equipment?: string,
+    @Query('difficulty') difficulty?: string,
+    @Query('movementPattern') movementPattern?: string,
+    @Query('exerciseType') exerciseType?: string,
+    @Query('status') status?: string,
     @Query('search') search?: string,
   ) {
-    return this.workoutsService.getExercises({ muscleGroup, equipment, search });
+    return this.workoutsService.getExercises({
+      muscleGroup,
+      equipment,
+      difficulty,
+      movementPattern,
+      exerciseType,
+      status,
+      search,
+    });
   }
 
   @Get('exercises/:id')
@@ -41,8 +55,44 @@ export class WorkoutsController {
   }
 
   @Post('exercises')
-  async createExercise(@Body() dto: CreateExerciseDto) {
+  async createExercise(@Body() dto: CreateExerciseDto & any) {
     return this.workoutsService.createExercise(dto);
+  }
+
+  @Patch('exercises/:id')
+  async updateExercise(@Param('id') id: string, @Body() updates: any) {
+    return this.workoutsService.updateExercise(id, updates);
+  }
+
+  @Delete('exercises/:id')
+  async archiveExercise(@Param('id') id: string) {
+    return this.workoutsService.archiveExercise(id);
+  }
+
+  // --- Standalone Workout Templates ---
+  @Get('templates')
+  async listWorkoutTemplates() {
+    return this.workoutsService.listWorkoutTemplates();
+  }
+
+  @Get('templates/:id')
+  async getWorkoutTemplateById(@Param('id') id: string) {
+    return this.workoutsService.getWorkoutTemplateById(id);
+  }
+
+  @Post('templates')
+  async createWorkoutTemplate(@Body() data: any) {
+    return this.workoutsService.createWorkoutTemplate(data);
+  }
+
+  @Patch('templates/:id')
+  async updateWorkoutTemplate(@Param('id') id: string, @Body() data: any) {
+    return this.workoutsService.updateWorkoutTemplate(id, data);
+  }
+
+  @Delete('templates/:id')
+  async deleteWorkoutTemplate(@Param('id') id: string) {
+    return this.workoutsService.deleteWorkoutTemplate(id);
   }
 
   // --- Program & Split ---

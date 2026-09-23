@@ -1000,13 +1000,17 @@ export interface IAuditLogRecord {
     id: string;
     userId?: string | null;
     actorName?: string | null;
-    action: string;
-    resource: string;
+    action?: string;
+    resource?: string;
     resourceId?: string | null;
     ipAddress?: string | null;
     userAgent?: string | null;
     metadata?: Record<string, any> | null;
-    createdAt: string;
+    createdAt?: string;
+    timestamp?: string;
+    userName?: string;
+    description?: string;
+    type?: string;
 }
 export type NotificationCategory = 'WORKOUT' | 'NUTRITION' | 'HYDRATION' | 'ACTIVITY' | 'PROGRESS' | 'GOALS' | 'MESSAGES' | 'COACH' | 'SYSTEM';
 export type NotificationDeliveryStatus = 'QUEUED' | 'PROCESSING' | 'SENT' | 'DELIVERED' | 'FAILED' | 'CANCELLED';
@@ -1857,4 +1861,113 @@ export interface IAdminSystemConfig {
     defaultWeeklyCheckInDay: number;
     defaultWeeklyCheckInTime: string;
     primaryTimezone: string;
+}
+export interface IEnterpriseExercise {
+    id: string;
+    name: string;
+    category: string;
+    primaryMuscle: string;
+    secondaryMuscles: string[];
+    targetArea?: string | null;
+    equipment: string;
+    movementPattern?: string | null;
+    exerciseType: string;
+    difficulty: string;
+    description?: string | null;
+    instructions?: string | null;
+    technique?: string | null;
+    commonMistakes?: string | string[] | null;
+    safetyNotes?: string | null;
+    tempo?: string | null;
+    defaultRest: number;
+    tags?: string[];
+    status: string;
+    animationUrl?: string | null;
+    imageUrl?: string | null;
+    videoUrl?: string | null;
+    thumbnailUrl?: string | null;
+    isCustom?: boolean;
+    creatorId?: string | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
+export interface IExecutiveOverview {
+    totalAthletes: number;
+    activeAthletes: number;
+    totalTrainers: number;
+    totalPrograms: number;
+    totalExercises: number;
+    todayWorkoutsCount: number;
+    pendingCheckInsCount: number;
+    recentActivity: IAuditLogRecord[];
+    totalUsers?: number;
+    activeUsers?: number;
+    newUsersToday?: number;
+    activeTrainers?: number;
+    activePrograms?: number;
+    workoutTemplatesCount?: number;
+    exercisesCount?: number;
+    nutritionPlansCount?: number;
+    todayWorkoutsScheduled?: number;
+    todayWorkoutsCompleted?: number;
+}
+export interface ITrainerClientItem {
+    relationshipId: string;
+    clientId: string;
+    clientName: string;
+    assignedAt: string;
+}
+export interface ITrainerManagementSummary {
+    id: string;
+    email: string;
+    fullName: string;
+    role?: UserRole | string;
+    specialization?: string | null;
+    status: AccountStatus;
+    isActive?: boolean;
+    activeClientsCount: number;
+    assignedClientsCount?: number;
+    clients: ITrainerClientItem[];
+    assignedClients?: {
+        id: string;
+        fullName: string;
+        email: string;
+    }[];
+    createdAt?: string;
+}
+export interface IStandaloneWorkoutTemplate {
+    id: string;
+    name: string;
+    description?: string | null;
+    notes?: string | null;
+    category?: string | null;
+    durationMinutes?: number;
+    estimatedMinutes?: number | null;
+    goal?: string | null;
+    difficulty: string;
+    dayOfWeek?: number | null;
+    exercises: {
+        id?: string;
+        exerciseId: string;
+        exerciseName: string;
+        primaryMuscle?: string;
+        orderIndex: number;
+        targetSets: number;
+        targetReps: number;
+        targetWeightKg?: number | null;
+        restSeconds: number;
+        targetRpe?: number | null;
+        notes?: string | null;
+    }[];
+    createdAt?: string;
+    updatedAt?: string;
+}
+export interface ITrainerClientNote {
+    id: string;
+    authorId: string;
+    authorName: string;
+    clientId: string;
+    note: string;
+    category: string;
+    createdAt: string;
 }

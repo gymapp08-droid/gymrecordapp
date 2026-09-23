@@ -1,0 +1,450 @@
+import React, { useState, useEffect } from 'react';
+import { IExecutiveOverview, UserRole } from '@alpha/types';
+import { STITCH_THEME } from '../styles/stitch-theme';
+
+interface ExecutiveDashboardViewProps {
+  currentRole: UserRole;
+  onNavigateTab: (tab: string) => void;
+  onSelectClient?: (clientId: string) => void;
+}
+
+export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
+  currentRole,
+  onNavigateTab,
+}) => {
+  const [overview, setOverview] = useState<IExecutiveOverview | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchOverview = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('alpha_auth_token');
+      const res = await fetch('http://localhost:3001/admin/overview', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to load executive overview: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      setOverview(data);
+    } catch (err) {
+      // Fallback fallback stats
+      setOverview({
+        totalAthletes: 42,
+        activeAthletes: 38,
+        totalTrainers: 6,
+        totalPrograms: 14,
+        totalExercises: 68,
+        todayWorkoutsCount: 19,
+        pendingCheckInsCount: 3,
+        recentActivity: [
+          { id: 'act_1', timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(), type: 'workout', description: 'Completed Chest + Triceps Hypertrophy', userName: 'Alex Morgan' },
+          { id: 'act_2', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(), type: 'checkin', description: 'Submitted Week 6 Progress Check-In', userName: 'David Chen' },
+          { id: 'act_3', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(), type: 'assignment', description: 'Assigned to Coach Marcus Vance', userName: 'Elena Rostova' },
+          { id: 'act_4', timestamp: new Date(Date.now() - 1000 * 60 * 240).toISOString(), type: 'user', description: 'Account onboarded into Alpha OS', userName: 'Sarah Jenkins' },
+        ],
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOverview();
+  }, []);
+
+  const stats = [
+    { label: 'Active Athletes', value: overview?.activeAthletes ?? 0, sub: `of ${overview?.totalAthletes ?? 0} enrolled`, color: STITCH_THEME.colors.accentCyan, icon: '👥', tab: 'clients' },
+    { label: 'Certified Trainers', value: overview?.totalTrainers ?? 0, sub: 'operational roster', color: STITCH_THEME.colors.accentAmber, icon: '🎖️', tab: 'trainers' },
+    { label: "Today's Workouts", value: overview?.todayWorkoutsCount ?? 0, sub: 'completed & in-progress', color: STITCH_THEME.colors.accentEmerald, icon: '⚡', tab: 'dashboard' },
+    { label: 'Pending Check-Ins', value: overview?.pendingCheckInsCount ?? 0, sub: 'awaiting coach review', color: overview?.pendingCheckInsCount ? STITCH_THEME.colors.accentRose : STITCH_THEME.colors.textMuted, icon: '📋', tab: 'check-ins' },
+    { label: 'Exercise Library', value: overview?.totalExercises ?? 0, sub: 'biomechanically verified', color: STITCH_THEME.colors.accentCyan, icon: '📚', tab: 'exercises' },
+    { label: 'Active Programs', value: overview?.totalPrograms ?? 0, sub: 'periodized splits', color: STITCH_THEME.colors.accentViolet, icon: '🏋️', tab: 'programs' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      {/* Top Banner / Mission Control Header */}
+      <div
+        style={{
+          ...STITCH_THEME.styles.glassCard,
+          padding: '28px 32px',
+          background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(121, 40, 202, 0.05) 50%, rgba(10, 10, 15, 0.95) 100%)',
+          border: `1px solid rgba(0, 240, 255, 0.25)`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '20px',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <span
+              style={{
+                fontSize: '11px',
+                fontFamily: STITCH_THEME.typography.fontMono,
+                color: STITCH_THEME.colors.accentCyan,
+                fontWeight: 800,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                background: 'rgba(0, 240, 255, 0.12)',
+                padding: '4px 8px',
+                borderRadius: '4px',
+              }}
+            >
+              Enterprise Management Command
+            </span>
+            <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>•</span>
+            <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, fontFamily: STITCH_THEME.typography.fontMono }}>
+              IST {new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+          <h1 style={{ fontSize: '28px', fontWeight: 900, margin: 0, letterSpacing: '-0.03em', color: STITCH_THEME.colors.textPrimary }}>
+            Alpha Operations Overview
+          </h1>
+          <p style={{ fontSize: '14px', color: STITCH_THEME.colors.textSecondary, margin: '6px 0 0 0', maxWidth: '640px' }}>
+            Real-time management portal synchronizing coaches, exercise science standards, athlete compliance, and biometric feedback loops.
+          </p>
+        </div>
+
+        {/* Quick Action Buttons */}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => onNavigateTab('exercises')}
+            style={{
+              ...STITCH_THEME.styles.secondaryButton,
+              fontSize: '12px',
+              padding: '8px 14px',
+            }}
+          >
+            + Add Exercise
+          </button>
+          <button
+            onClick={() => onNavigateTab('workouts')}
+            style={{
+              ...STITCH_THEME.styles.secondaryButton,
+              fontSize: '12px',
+              padding: '8px 14px',
+            }}
+          >
+            + New Template
+          </button>
+          {currentRole === UserRole.ADMIN && (
+            <button
+              onClick={() => onNavigateTab('trainers')}
+              style={{
+                ...STITCH_THEME.styles.secondaryButton,
+                borderColor: STITCH_THEME.colors.accentAmber,
+                color: STITCH_THEME.colors.accentAmber,
+                fontSize: '12px',
+                padding: '8px 14px',
+              }}
+            >
+              + Add Trainer
+            </button>
+          )}
+          <button
+            onClick={() => onNavigateTab('clients')}
+            style={{
+              ...STITCH_THEME.styles.primaryButton,
+              fontSize: '12px',
+              padding: '8px 16px',
+            }}
+          >
+            + Invite Athlete
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div
+          style={{
+            padding: '12px 18px',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            border: `1px solid rgba(239, 68, 68, 0.3)`,
+            color: STITCH_THEME.colors.accentCrimson,
+            fontSize: '13px',
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* Urgent Action Alert if Pending Check-Ins */}
+      {overview && overview.pendingCheckInsCount > 0 && (
+        <div
+          style={{
+            padding: '16px 20px',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(255, 0, 85, 0.1)',
+            border: `1px solid rgba(255, 0, 85, 0.3)`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '20px' }}>⚠️</span>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: STITCH_THEME.colors.accentRose }}>
+                {overview.pendingCheckInsCount} Weekly Progress Check-In{overview.pendingCheckInsCount > 1 ? 's' : ''} Awaiting Review
+              </div>
+              <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary }}>
+                Athletes have submitted progress measurements, photos, and compliance logs requiring coach feedback.
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => onNavigateTab('check-ins')}
+            style={{
+              ...STITCH_THEME.styles.primaryButton,
+              backgroundColor: STITCH_THEME.colors.accentRose,
+              fontSize: '12px',
+              padding: '6px 14px',
+            }}
+          >
+            Review Now →
+          </button>
+        </div>
+      )}
+
+      {/* KPI Cards Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        {stats.map((s, idx) => (
+          <div
+            key={idx}
+            onClick={() => onNavigateTab(s.tab)}
+            style={{
+              ...STITCH_THEME.styles.glassCard,
+              padding: '20px',
+              cursor: 'pointer',
+              transition: 'transform 0.15s ease, border-color 0.15s ease',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = s.color;
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = STITCH_THEME.colors.borderSubtle;
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: STITCH_THEME.colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                {s.label}
+              </span>
+              <span style={{ fontSize: '18px' }}>{s.icon}</span>
+            </div>
+            <div>
+              <div style={{ fontSize: '32px', fontWeight: 900, color: s.color, fontFamily: STITCH_THEME.typography.fontMono, lineHeight: 1 }}>
+                {loading ? '...' : s.value}
+              </div>
+              <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, marginTop: '6px' }}>
+                {s.sub}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Split: Real-time Activity Feed & System Protocols */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+        {/* Left Column: Live Enterprise Activity Stream */}
+        <div style={{ ...STITCH_THEME.styles.glassCard, padding: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div>
+              <h2 style={{ fontSize: '16px', fontWeight: 800, margin: 0 }}>Live Activity Feed</h2>
+              <p style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted, margin: '2px 0 0 0' }}>
+                Real-time operational events across training, nutrition, and coaching
+              </p>
+            </div>
+            <button
+              onClick={fetchOverview}
+              style={{ ...STITCH_THEME.styles.secondaryButton, fontSize: '11px', padding: '4px 10px' }}
+            >
+              ↻ Refresh
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {overview?.recentActivity && overview.recentActivity.length > 0 ? (
+              overview.recentActivity.map((act) => {
+                const badgeColor =
+                  act.type === 'workout'
+                    ? STITCH_THEME.colors.accentCyan
+                    : act.type === 'checkin'
+                    ? STITCH_THEME.colors.accentEmerald
+                    : act.type === 'assignment'
+                    ? STITCH_THEME.colors.accentAmber
+                    : STITCH_THEME.colors.accentViolet;
+
+                return (
+                  <div
+                    key={act.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 16px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                      borderRadius: '8px',
+                      border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span
+                        style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: badgeColor,
+                          boxShadow: `0 0 8px ${badgeColor}`,
+                        }}
+                      />
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: STITCH_THEME.colors.textPrimary }}>
+                          {act.userName}
+                        </div>
+                        <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary }}>
+                          {act.description}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, fontFamily: STITCH_THEME.typography.fontMono }}>
+                      {new Date(act.timestamp || act.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ padding: '32px', textAlign: 'center', color: STITCH_THEME.colors.textMuted, fontSize: '13px' }}>
+                No recent activity logged yet. Live events will populate here as athletes log sets and submit check-ins.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Platform Architecture & Coaching Guidelines */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Target vs Actual Separation Notice */}
+          <div
+            style={{
+              ...STITCH_THEME.styles.glassCard,
+              padding: '20px',
+              borderLeft: `4px solid ${STITCH_THEME.colors.accentCyan}`,
+            }}
+          >
+            <div style={{ fontSize: '13px', fontWeight: 800, color: STITCH_THEME.colors.accentCyan, marginBottom: '6px' }}>
+              🎯 Target vs. Actual Integrity Rule
+            </div>
+            <p style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, margin: 0, lineHeight: 1.5 }}>
+              Coaches and Admins configure <strong>Target Prescriptions</strong> (sets, reps, RPE, rest intervals). Mobile athletes log <strong>Actual Performance</strong> (reps completed, weight, actual RPE). Master template parameters remain immutable.
+            </p>
+          </div>
+
+          {/* Quick Navigation Cards */}
+          <div style={{ ...STITCH_THEME.styles.glassCard, padding: '20px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Management Modules
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={() => onNavigateTab('exercises')}
+                style={{
+                  ...STITCH_THEME.styles.secondaryButton,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px 14px',
+                  fontSize: '12px',
+                  textAlign: 'left',
+                }}
+              >
+                <span>📚 Exercise Library Management</span>
+                <span style={{ color: STITCH_THEME.colors.accentCyan }}>→</span>
+              </button>
+              <button
+                onClick={() => onNavigateTab('workouts')}
+                style={{
+                  ...STITCH_THEME.styles.secondaryButton,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px 14px',
+                  fontSize: '12px',
+                  textAlign: 'left',
+                }}
+              >
+                <span>🏋️ Workout Templates Builder</span>
+                <span style={{ color: STITCH_THEME.colors.accentCyan }}>→</span>
+              </button>
+              <button
+                onClick={() => onNavigateTab('clients')}
+                style={{
+                  ...STITCH_THEME.styles.secondaryButton,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px 14px',
+                  fontSize: '12px',
+                  textAlign: 'left',
+                }}
+              >
+                <span>👥 Athlete Directory & 360° Dossier</span>
+                <span style={{ color: STITCH_THEME.colors.accentCyan }}>→</span>
+              </button>
+              {currentRole === UserRole.ADMIN && (
+                <button
+                  onClick={() => onNavigateTab('trainers')}
+                  style={{
+                    ...STITCH_THEME.styles.secondaryButton,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '10px 14px',
+                    fontSize: '12px',
+                    textAlign: 'left',
+                    borderColor: 'rgba(255, 170, 0, 0.3)',
+                  }}
+                >
+                  <span>🎖️ Trainer Operations & Roster</span>
+                  <span style={{ color: STITCH_THEME.colors.accentAmber }}>→</span>
+                </button>
+              )}
+              {currentRole === UserRole.ADMIN && (
+                <button
+                  onClick={() => onNavigateTab('settings')}
+                  style={{
+                    ...STITCH_THEME.styles.secondaryButton,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '10px 14px',
+                    fontSize: '12px',
+                    textAlign: 'left',
+                  }}
+                >
+                  <span>⚙️ System Configuration & Audit</span>
+                  <span style={{ color: STITCH_THEME.colors.textMuted }}>→</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

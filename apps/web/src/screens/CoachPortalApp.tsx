@@ -31,9 +31,13 @@ import { CalendarView } from '../components/CalendarView';
 import { ReportsView } from '../components/ReportsView';
 import { MessagesView } from '../components/MessagesView';
 import { CoachAiDrawer } from '../components/CoachAiDrawer';
-import { AuditLogsView } from '../components/AuditLogsView';
 import { WeeklyCheckInsView } from '../components/WeeklyCheckInsView';
 import { AdminDashboardView } from '../components/AdminDashboardView';
+import { ExecutiveDashboardView } from '../components/ExecutiveDashboardView';
+import { ExerciseManagementView } from '../components/ExerciseManagementView';
+import { WorkoutManagementView } from '../components/WorkoutManagementView';
+import { TrainerManagementView } from '../components/TrainerManagementView';
+import { SystemSettingsView } from '../components/SystemSettingsView';
 import { AuthGuard } from '../components/AuthGuard';
 import { IAuthUser } from '@alpha/types';
 
@@ -381,9 +385,7 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
   const [currentRole, setCurrentRole] = useState<UserRole>(
     (authenticatedUser?.role as UserRole) || UserRole.COACH,
   );
-  const [activeTab, setActiveTab] = useState<PortalTab>(
-    authenticatedUser?.role === UserRole.ADMIN ? 'admin' : 'clients',
-  );
+  const [activeTab, setActiveTab] = useState<PortalTab>('overview');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Data State
@@ -882,6 +884,13 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
               }}
               currentRole={currentRole}
             />
+          ) : activeTab === 'overview' ? (
+            /* Enterprise Executive Overview & Mission Control */
+            <ExecutiveDashboardView
+              currentRole={currentRole}
+              onNavigateTab={(tab) => setActiveTab(tab as PortalTab)}
+              onSelectClient={(id) => setSelectedClientId(id)}
+            />
           ) : activeTab === 'clients' ? (
             /* Client Management Table */
             <div>
@@ -987,6 +996,12 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                 ))}
               </div>
             </div>
+          ) : activeTab === 'exercises' ? (
+            /* Exercise Library & Biomechanics Management */
+            <ExerciseManagementView currentRole={currentRole} />
+          ) : activeTab === 'workouts' ? (
+            /* Standalone Workout Templates & Visual Builder */
+            <WorkoutManagementView currentRole={currentRole} />
           ) : activeTab === 'nutrition' ? (
             /* Nutrition Plans Library */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1049,18 +1064,27 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
           ) : activeTab === 'check-ins' ? (
             /* Weekly Progress Check-Ins Review */
             <WeeklyCheckInsView />
+          ) : activeTab === 'trainers' ? (
+            /* Certified Trainers Operations & Client Assignments */
+            <TrainerManagementView
+              currentRole={currentRole}
+              onSimulateTrainer={(_id, _name) => {
+                setCurrentRole(UserRole.TRAINER);
+                setActiveTab('overview');
+              }}
+            />
           ) : activeTab === 'admin' ? (
             /* Full System Administration & Governance */
             <AdminDashboardView auditLogs={auditLogs} />
           ) : activeTab === 'settings' ? (
-            /* Security, Audit Trail & Tenant Compliance */
-            <AuditLogsView logs={auditLogs} onRefresh={() => {}} />
+            /* System Configuration, RBAC Governance & Audit Trail */
+            <SystemSettingsView currentRole={currentRole} auditLogs={auditLogs} />
           ) : (
             /* Placeholder for secondary tabs */
             <div style={{ ...STITCH_THEME.styles.glassCard, padding: '48px', textAlign: 'center' }}>
               <div style={{ fontSize: '32px', marginBottom: '16px' }}>⚡</div>
               <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
-                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Dashboard
+                {(activeTab as string).charAt(0).toUpperCase() + (activeTab as string).slice(1)} Dashboard
               </h2>
               <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary }}>
                 Phase 08 Coaching Portal module operational. Select <strong>Clients</strong> to manage athletes or <strong>Programs</strong> to inspect training splits.

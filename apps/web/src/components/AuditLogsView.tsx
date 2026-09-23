@@ -116,7 +116,7 @@ export const AuditLogsView: React.FC<AuditLogsViewProps> = ({ logs, onRefresh })
                   }}
                 >
                   <td style={{ padding: '14px 18px', color: STITCH_THEME.colors.textSecondary, fontFamily: STITCH_THEME.typography.fontMono, fontSize: '12px' }}>
-                    {new Date(log.createdAt).toLocaleString()}
+                    {new Date(log.createdAt || log.timestamp || Date.now()).toLocaleString()}
                   </td>
                   <td style={{ padding: '14px 18px' }}>
                     <span
@@ -127,11 +127,11 @@ export const AuditLogsView: React.FC<AuditLogsViewProps> = ({ logs, onRefresh })
                         padding: '4px 8px',
                         borderRadius: '4px',
                         backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                        color: getActionColor(log.action),
-                        border: `1px solid ${getActionColor(log.action)}33`,
+                        color: getActionColor(log.action || 'SYSTEM'),
+                        border: `1px solid ${getActionColor(log.action || 'SYSTEM')}33`,
                       }}
                     >
-                      {log.action}
+                      {log.action || log.description || 'EVENT'}
                     </span>
                   </td>
                   <td style={{ padding: '14px 18px', fontWeight: 600, color: STITCH_THEME.colors.textPrimary }}>

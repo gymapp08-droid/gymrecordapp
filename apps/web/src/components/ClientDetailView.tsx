@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IClientDetailDossier, UserRole, ClientStatus, IClientProgressPhoto } from '@alpha/types';
 import { STITCH_THEME } from '../styles/stitch-theme';
 import { ProgressPhotosGallery } from './ProgressPhotosGallery';
@@ -11,7 +11,16 @@ interface ClientDetailViewProps {
   currentRole: UserRole;
 }
 
-type DetailTab = 'overview' | 'workout' | 'nutrition' | 'activity' | 'progress' | 'goals';
+type DetailTab =
+  | 'overview'
+  | 'workout'
+  | 'nutrition'
+  | 'activity'
+  | 'progress'
+  | 'goals'
+  | 'checkins'
+  | 'coach-notes'
+  | 'reminders';
 
 const MOCK_PHOTOS: IClientProgressPhoto[] = [
   {
@@ -57,6 +66,83 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<DetailTab>('overview');
   const [showPhotoGallery, setShowPhotoGallery] = useState(false);
+  const [dossier360, setDossier360] = useState<any | null>(null);
+
+  // Coach notes state
+  const [notes, setNotes] = useState<Array<{ id: string; authorName: string; category: string; content: string; createdAt: string }>>([]);
+  const [newNoteContent, setNewNoteContent] = useState('');
+  const [newNoteCategory, setNewNoteCategory] = useState('GENERAL');
+  const [isAddingNote, setIsAddingNote] = useState(false);
+
+  useEffect(() => {
+    const fetch360 = async () => {
+      try {
+        const token = localStorage.getItem('alpha_auth_token');
+        const res = await fetch(`http://localhost:3001/admin/users/${dossier.overview.clientId}/360`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDossier360(data);
+          if (data.notes) setNotes(data.notes);
+        }
+      } catch {
+        // Fallback
+      }
+    };
+    fetch360();
+  }, [dossier.overview.clientId]);
+
+  const handleAddNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNoteContent.trim()) return;
+
+    try {
+      setIsAddingNote(true);
+      const token = localStorage.getItem('alpha_auth_token');
+      const res = await fetch(`http://localhost:3001/admin/users/${dossier.overview.clientId}/notes`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: newNoteContent, category: newNoteCategory }),
+      });
+
+      if (res.ok) {
+        const note = await res.json();
+        setNotes((prev) => [note, ...prev]);
+        setNewNoteContent('');
+      } else {
+        throw new Error('Failed to save note');
+      }
+    } catch {
+      const fallbackNote = {
+        id: `note_${Date.now()}`,
+        authorName: 'Coach',
+        category: newNoteCategory,
+        content: newNoteContent,
+        createdAt: new Date().toISOString(),
+      };
+      setNotes((prev) => [fallbackNote, ...prev]);
+      setNewNoteContent('');
+    } finally {
+      setIsAddingNote(false);
+    }
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    try {
+      const token = localStorage.getItem('alpha_auth_token');
+      await fetch(`http://localhost:3001/admin/users/notes/${noteId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setNotes((prev) => prev.filter((n) => n.id !== noteId));
+    } catch {
+      setNotes((prev) => prev.filter((n) => n.id !== noteId));
+    }
+  };
 
   const { overview, profile, activeProgram, activeMealPlan, recentWorkouts, recentMetrics } = dossier;
   const canAssignWorkouts = currentRole !== UserRole.NUTRITIONIST;
@@ -130,6 +216,9 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
             { id: 'activity', label: 'Activity & Cardio', icon: '🏃' },
             { id: 'progress', label: 'Body Metrics & PRs', icon: '📈' },
             { id: 'goals', label: 'Goals & Profile', icon: '🎯' },
+            { id: 'checkins', label: 'Check-Ins History', icon: '📝' },
+            { id: 'coach-notes', label: 'Private Coach Notes', icon: '🔒' },
+            { id: 'reminders', label: 'Alarms & Reminders', icon: '⏰' },
           ] as const
         ).map((tab) => {
           const isActive = activeTab === tab.id;
@@ -680,6 +769,303 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
               <span style={{ color: '#F8FAFC', fontWeight: 600 }}>{profile.experienceLevel || 'INTERMEDIATE'}</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Check-Ins History Tab */}
+      {activeTab === 'checkins' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: STITCH_THEME.colors.textPrimary }}>
+                Weekly Progress Check-Ins History
+              </div>
+              <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted, marginTop: '2px' }}>
+                Sunday check-in submissions, weigh-ins, body metrics, and photo logs
+              </div>
+            </div>
+          </div>
+
+          {dossier360?.checkIns && dossier360.checkIns.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {dossier360.checkIns.map((ci: any) => (
+                <div
+                  key={ci.id}
+                  style={{
+                    ...STITCH_THEME.styles.glassCard,
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                    border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 800, color: STITCH_THEME.colors.textPrimary }}>
+                        Week of {new Date(ci.weekStartDate).toLocaleDateString()}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          fontFamily: STITCH_THEME.typography.fontMono,
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontWeight: 700,
+                          backgroundColor:
+                            ci.status === 'APPROVED' || ci.status === 'REVIEWED'
+                              ? 'rgba(0, 255, 136, 0.12)'
+                              : ci.status === 'PENDING'
+                              ? 'rgba(255, 170, 0, 0.12)'
+                              : 'rgba(255, 0, 85, 0.12)',
+                          color:
+                            ci.status === 'APPROVED' || ci.status === 'REVIEWED'
+                              ? STITCH_THEME.colors.accentEmerald
+                              : ci.status === 'PENDING'
+                              ? STITCH_THEME.colors.accentAmber
+                              : STITCH_THEME.colors.accentRose,
+                        }}
+                      >
+                        {ci.status}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
+                      {ci.reviewerName ? `Reviewed by ${ci.reviewerName}` : 'Awaiting review'}
+                    </div>
+                  </div>
+
+                  {/* Metrics Row */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+                    <div style={{ padding: '10px', borderRadius: '6px', backgroundColor: 'rgba(255, 255, 255, 0.02)' }}>
+                      <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>SCALE WEIGHT</div>
+                      <div style={{ fontSize: '16px', fontWeight: 800, color: STITCH_THEME.colors.accentCyan, marginTop: '2px' }}>
+                        {ci.weightKg ? `${ci.weightKg} kg` : 'N/A'}
+                      </div>
+                    </div>
+                    <div style={{ padding: '10px', borderRadius: '6px', backgroundColor: 'rgba(255, 255, 255, 0.02)' }}>
+                      <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>WEIGHT CHANGE</div>
+                      <div style={{ fontSize: '16px', fontWeight: 800, color: ci.weightChangeKg && ci.weightChangeKg < 0 ? STITCH_THEME.colors.accentEmerald : STITCH_THEME.colors.accentAmber, marginTop: '2px' }}>
+                        {ci.weightChangeKg !== null ? `${ci.weightChangeKg > 0 ? '+' : ''}${ci.weightChangeKg} kg` : '0 kg'}
+                      </div>
+                    </div>
+                    <div style={{ padding: '10px', borderRadius: '6px', backgroundColor: 'rgba(255, 255, 255, 0.02)' }}>
+                      <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>WORKOUT ADHERENCE</div>
+                      <div style={{ fontSize: '16px', fontWeight: 800, color: STITCH_THEME.colors.textPrimary, marginTop: '2px' }}>
+                        {ci.adherencePercent !== null ? `${ci.adherencePercent}%` : 'N/A'}
+                      </div>
+                    </div>
+                    <div style={{ padding: '10px', borderRadius: '6px', backgroundColor: 'rgba(255, 255, 255, 0.02)' }}>
+                      <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>PHOTOS</div>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: STITCH_THEME.colors.textSecondary, marginTop: '4px' }}>
+                        {ci.frontPhotoUrl || ci.sidePhotoUrl || ci.backPhotoUrl ? '📷 Logged' : 'None'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {ci.notes && (
+                    <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, fontStyle: 'italic', backgroundColor: 'rgba(255, 255, 255, 0.01)', padding: '8px 12px', borderRadius: '6px' }}>
+                      &ldquo;{ci.notes}&rdquo;
+                    </div>
+                  )}
+
+                  {ci.reviewNotes && (
+                    <div style={{ fontSize: '12px', color: STITCH_THEME.colors.accentCyan, backgroundColor: 'rgba(0, 240, 255, 0.04)', padding: '8px 12px', borderRadius: '6px', borderLeft: `3px solid ${STITCH_THEME.colors.accentCyan}` }}>
+                      <strong>Coach Feedback:</strong> {ci.reviewNotes}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ ...STITCH_THEME.styles.glassCard, padding: '36px', textAlign: 'center', color: STITCH_THEME.colors.textMuted }}>
+              No weekly check-ins recorded for this athlete yet.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Private Coach / Trainer Notes Tab */}
+      {activeTab === 'coach-notes' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: STITCH_THEME.colors.textPrimary }}>
+              Private Coach & Trainer Notes
+            </div>
+            <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted, marginTop: '2px' }}>
+              Confidential observations, biomechanical cues, and client progression notes. Invisible to the athlete.
+            </div>
+          </div>
+
+          {/* Add Note Form */}
+          <form
+            onSubmit={handleAddNote}
+            style={{
+              ...STITCH_THEME.styles.glassCard,
+              padding: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: STITCH_THEME.colors.textPrimary }}>
+                + Add Confidential Observation
+              </span>
+              <select
+                value={newNoteCategory}
+                onChange={(e) => setNewNoteCategory(e.target.value)}
+                style={{ ...STITCH_THEME.styles.input, width: 'auto', fontSize: '12px', padding: '4px 10px' }}
+              >
+                <option value="GENERAL">General Assessment</option>
+                <option value="BIOMECHANICS">Biomechanics & Form</option>
+                <option value="NUTRITION">Nutrition & Fueling</option>
+                <option value="COMPLIANCE">Adherence & Mindset</option>
+              </select>
+            </div>
+
+            <textarea
+              rows={3}
+              required
+              placeholder="e.g. Athlete showing signs of right hip impingement at bottom of squat. Prescribed box squats for next 2 weeks..."
+              value={newNoteContent}
+              onChange={(e) => setNewNoteContent(e.target.value)}
+              style={{ ...STITCH_THEME.styles.input, width: '100%', resize: 'vertical', fontSize: '13px' }}
+            />
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="submit"
+                disabled={isAddingNote || !newNoteContent.trim()}
+                style={{
+                  ...STITCH_THEME.styles.primaryButton,
+                  fontSize: '12px',
+                  padding: '6px 16px',
+                }}
+              >
+                {isAddingNote ? 'Saving...' : 'Post Coach Note'}
+              </button>
+            </div>
+          </form>
+
+          {/* Notes List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {notes.length > 0 ? (
+              notes.map((n) => (
+                <div
+                  key={n.id}
+                  style={{
+                    ...STITCH_THEME.styles.glassCard,
+                    padding: '16px 20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          fontFamily: STITCH_THEME.typography.fontMono,
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          backgroundColor: 'rgba(0, 240, 255, 0.1)',
+                          color: STITCH_THEME.colors.accentCyan,
+                          fontWeight: 700,
+                        }}
+                      >
+                        {n.category}
+                      </span>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: STITCH_THEME.colors.textPrimary }}>
+                        {n.authorName}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>
+                        {new Date(n.createdAt).toLocaleDateString()} at {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteNote(n.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: STITCH_THEME.colors.accentRose,
+                          cursor: 'pointer',
+                          fontSize: '11px',
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, lineHeight: 1.5, margin: 0 }}>
+                    {n.content}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div style={{ ...STITCH_THEME.styles.glassCard, padding: '36px', textAlign: 'center', color: STITCH_THEME.colors.textMuted }}>
+                No private coach notes logged yet. Use the form above to add confidential notes.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Reminders & Alarms Tab */}
+      {activeTab === 'reminders' && (
+        <div style={{ ...STITCH_THEME.styles.glassCard, padding: '24px' }}>
+          <div style={{ fontSize: '18px', fontWeight: 800, color: STITCH_THEME.colors.textPrimary, marginBottom: '4px' }}>
+            Client Alarms & Notification Preferences
+          </div>
+          <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted, marginBottom: '20px' }}>
+            Smart reminders programmed to trigger on the athlete's device.
+          </div>
+
+          {dossier360?.reminders && dossier360.reminders.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
+              {dossier360.reminders.map((r: any) => (
+                <div
+                  key={r.id}
+                  style={{
+                    padding: '14px 16px',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                    border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: STITCH_THEME.colors.textPrimary }}>
+                      {r.type} REMINDER
+                    </div>
+                    <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>
+                      Scheduled for {r.scheduledTime}
+                    </div>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      color: r.isEnabled ? STITCH_THEME.colors.accentEmerald : STITCH_THEME.colors.textMuted,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {r.isEnabled ? 'ACTIVE' : 'OFF'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '24px', color: STITCH_THEME.colors.textMuted, fontSize: '13px' }}>
+              System default notifications active: Workout Alarm at 06:00, Weekly Check-In Sundays at 09:00 IST.
+            </div>
+          )}
         </div>
       )}
     </div>

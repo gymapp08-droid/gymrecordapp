@@ -207,6 +207,8 @@ model User {
   coachSentMessages       CoachMessage[]            @relation("CoachSentMessages")
   clientReceivedMessages  CoachMessage[]            @relation("ClientReceivedMessages")
   coachAiDrafts           CoachAiDraft[]            @relation("CoachAiDrafts")
+  notesAuthored           TrainerClientNote[]       @relation("AuthorTrainerNotes")
+  notesReceived           TrainerClientNote[]       @relation("ClientTrainerNotes")
 
   // Analytics & Executive Intelligence (Phase 10)
   analyticsDailyUser      AnalyticsDailyUser[]
@@ -238,6 +240,23 @@ model CoachClientRelationship {
   @@index([coachId, status, isActive])
   @@index([organizationId, status])
   @@map("coach_client_relationships")
+}
+
+model TrainerClientNote {
+  id        String   @id @default(uuid())
+  authorId  String   @map("author_id")
+  clientId  String   @map("client_id")
+  note      String
+  category  String   @default("GENERAL") // GENERAL, NUTRITION, BIOMECHANICS, COMPLIANCE
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  author User @relation("AuthorTrainerNotes", fields: [authorId], references: [id], onDelete: Cascade)
+  client User @relation("ClientTrainerNotes", fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([authorId])
+  @@map("trainer_client_notes")
 }
 
 model ClientInvitation {
@@ -373,10 +392,26 @@ model Exercise {
   category         String
   primaryMuscle    String   @map("primary_muscle")
   secondaryMuscles String[] @default([]) @map("secondary_muscles")
+  targetArea       String?  @map("target_area")
   equipment        String   @default("Barbell")
+  movementPattern  String?  @map("movement_pattern")
+  exerciseType     String?  @default("STRENGTH") @map("exercise_type")
   difficulty       String   @default("INTERMEDIATE")
+  description      String?
   instructions     String?
+  technique        String?
+  commonMistakes   String?  @map("common_mistakes")
+  safetyNotes      String?  @map("safety_notes")
+  tempo            String?
+  defaultRest      Int      @default(90) @map("default_rest")
+  tags             String[] @default([])
+  status           String   @default("ACTIVE")
+  animationUrl     String?  @map("animation_url")
+  imageUrl         String?  @map("image_url")
   videoUrl         String?  @map("video_url")
+  thumbnailUrl     String?  @map("thumbnail_url")
+  isCustom         Boolean  @default(false) @map("is_custom")
+  creatorId        String?  @map("creator_id")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
@@ -385,6 +420,7 @@ model Exercise {
 
   @@index([primaryMuscle])
   @@index([equipment])
+  @@index([status])
   @@map("exercises")
 }
 
