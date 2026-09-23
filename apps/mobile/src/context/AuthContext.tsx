@@ -11,8 +11,10 @@ interface AuthContextType {
   error: string | null;
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, password: string, fullName: string) => Promise<boolean>;
+  googleLogin: (idToken: string) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
+  restoreSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,33 +32,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setStatus('loading');
     try {
       const refreshToken = await SecureStorage.getItem('alpha_refresh_token');
+      const accessToken = await SecureStorage.getItem('alpha_access_token');
+
       if (!refreshToken) {
         setStatus('unauthenticated');
         return;
       }
 
-      if (refreshToken === 'demo_refresh_token') {
-        const savedEmail = (await SecureStorage.getItem('alpha_user_email')) || 'demo@alpha.os';
-        const savedName = (await SecureStorage.getItem('alpha_user_name')) || 'Alpha Protocol Athlete';
-        setUser({
-          id: 'usr-demo-001',
-          email: savedEmail,
-          fullName: savedName,
-          role: 'ATHLETE' as any,
-          status: 'ACTIVE' as any,
-          isEmailVerified: true,
-          organizationId: null,
-        });
-        setStatus('authenticated');
-        return;
-      }
-
-      const res = await ApiClient.post<IAuthTokens>('/auth/refresh', { refreshToken });
-      if (res.success && res.data) {
-        await SecureStorage.setItem('alpha_access_token', res.data.accessToken);
-        await SecureStorage.setItem('alpha_refresh_token', res.data.refreshToken);
-
-        // Fetch user context
+      // First attempt to get the current profile using the cached access token
+      if (accessToken) {
         const userRes = await ApiClient.get<IAuthUser>('/users/me');
         if (userRes.success && userRes.data) {
           setUser(userRes.data);
@@ -64,11 +48,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
       }
-      // If refresh failed, clear tokens
+
+      // If access token expired or failed, use refresh token to acquire new token pair
+      const res = await ApiClient.post<IAuthTokens>('/auth/refresh', { refreshToken });
+      if (res.success && res.data) {
+        await SecureStorage.setItem('alpha_access_token', res.data.accessToken);
+        await SecureStorage.setItem('alpha_refresh_token', res.data.refreshToken);
+
+        const userRes = await ApiClient.get<IAuthUser>('/users/me');
+        if (userRes.success && userRes.data) {
+          setUser(userRes.data);
+          setStatus('authenticated');
+          return;
+        }
+      }
+
+      // Refresh invalid or session revoked: clear storage cleanly
       await SecureStorage.clear();
+      setUser(null);
       setStatus('unauthenticated');
     } catch {
       await SecureStorage.clear();
+      setUser(null);
       setStatus('unauthenticated');
     }
   };
@@ -77,11 +78,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setStatus('loading');
     setError(null);
 
-    const isDemo = email.trim().toLowerCase() === 'demo@alpha.os' || email.trim().toLowerCase() === 'athlete@alpha.os';
-
     try {
       const res = await ApiClient.post<{ user: IAuthUser; tokens: IAuthTokens }>('/auth/login', {
-        email,
+        email: email.trim(),
         password,
       });
 
@@ -93,47 +92,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
 
-      // If explicit demo credentials OR network unavailable in development, establish demo athlete session
-      if (isDemo || res.error?.code === 'NETWORK_ERROR') {
-        const demoUser: IAuthUser = {
-          id: 'usr-demo-001',
-          email: email || 'demo@alpha.os',
-          fullName: 'Alpha Protocol Athlete',
-          role: 'ATHLETE' as any,
-          status: 'ACTIVE' as any,
-          isEmailVerified: true,
-          organizationId: null,
-        };
-        setUser(demoUser);
-        await SecureStorage.setItem('alpha_access_token', 'demo_access_token');
-        await SecureStorage.setItem('alpha_refresh_token', 'demo_refresh_token');
-        await SecureStorage.setItem('alpha_user_email', demoUser.email);
-        await SecureStorage.setItem('alpha_user_name', demoUser.fullName || 'Athlete');
-        setStatus('authenticated');
-        return true;
-      }
-
-      setError(res.error?.message || 'Authentication failed');
+      const errMsg = res.error?.message || 'Invalid credentials. Please verify your email and password.';
+      setError(errMsg);
       setStatus('unauthenticated');
       return false;
-    } catch {
-      if (isDemo) {
-        const demoUser: IAuthUser = {
-          id: 'usr-demo-001',
-          email: 'demo@alpha.os',
-          fullName: 'Alpha Protocol Athlete',
-          role: 'ATHLETE' as any,
-          status: 'ACTIVE' as any,
-          isEmailVerified: true,
-          organizationId: null,
-        };
-        setUser(demoUser);
-        await SecureStorage.setItem('alpha_access_token', 'demo_access_token');
-        await SecureStorage.setItem('alpha_refresh_token', 'demo_refresh_token');
-        setStatus('authenticated');
-        return true;
-      }
-      setError('Authentication failed');
+    } catch (err: any) {
+      setError(err?.message || 'Authentication failed. Please check network connection.');
       setStatus('unauthenticated');
       return false;
     }
@@ -145,9 +109,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       const res = await ApiClient.post<{ user: IAuthUser; tokens: IAuthTokens }>('/auth/register', {
-        email,
+        email: email.trim(),
         password,
-        fullName,
+        fullName: fullName.trim(),
       });
 
       if (res.success && res.data) {
@@ -158,59 +122,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
 
-      // Development fallback if offline
-      if (res.error?.code === 'NETWORK_ERROR') {
-        const newUser: IAuthUser = {
-          id: `usr-${Date.now()}`,
-          email,
-          fullName: fullName || 'Protocol Athlete',
-          role: 'ATHLETE' as any,
-          status: 'ACTIVE' as any,
-          isEmailVerified: true,
-          organizationId: null,
-        };
-        setUser(newUser);
-        await SecureStorage.setItem('alpha_access_token', 'demo_access_token');
-        await SecureStorage.setItem('alpha_refresh_token', 'demo_refresh_token');
-        await SecureStorage.setItem('alpha_user_email', newUser.email);
-        await SecureStorage.setItem('alpha_user_name', newUser.fullName || 'Athlete');
+      const errMsg = res.error?.message || 'Registration failed. Please check your details.';
+      setError(errMsg);
+      setStatus('unauthenticated');
+      return false;
+    } catch (err: any) {
+      setError(err?.message || 'Registration failed. Please check network connection.');
+      setStatus('unauthenticated');
+      return false;
+    }
+  };
+
+  const googleLogin = async (idToken: string): Promise<boolean> => {
+    setStatus('loading');
+    setError(null);
+
+    try {
+      const res = await ApiClient.post<{ user: IAuthUser; tokens: IAuthTokens }>('/auth/social', {
+        provider: 'GOOGLE',
+        token: idToken,
+      });
+
+      if (res.success && res.data) {
+        setUser(res.data.user);
+        await SecureStorage.setItem('alpha_access_token', res.data.tokens.accessToken);
+        await SecureStorage.setItem('alpha_refresh_token', res.data.tokens.refreshToken);
         setStatus('authenticated');
         return true;
       }
 
-      setError(res.error?.message || 'Registration failed');
+      const errMsg = res.error?.message || 'Google verification failed.';
+      setError(errMsg);
       setStatus('unauthenticated');
       return false;
-    } catch {
-      const newUser: IAuthUser = {
-        id: `usr-${Date.now()}`,
-        email,
-        fullName: fullName || 'Protocol Athlete',
-        role: 'ATHLETE' as any,
-        status: 'ACTIVE' as any,
-        isEmailVerified: true,
-        organizationId: null,
-      };
-      setUser(newUser);
-      await SecureStorage.setItem('alpha_access_token', 'demo_access_token');
-      await SecureStorage.setItem('alpha_refresh_token', 'demo_refresh_token');
-      setStatus('authenticated');
-      return true;
+    } catch (err: any) {
+      setError(err?.message || 'Google Sign-In failed.');
+      setStatus('unauthenticated');
+      return false;
     }
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
       const refreshToken = await SecureStorage.getItem('alpha_refresh_token');
       if (refreshToken) {
         await ApiClient.post('/auth/logout', { refreshToken });
       }
+    } catch {
+      // Ignore network errors on logout
     } finally {
       await SecureStorage.clear();
       setUser(null);
       setStatus('unauthenticated');
     }
   };
+
+  const clearError = () => setError(null);
 
   return (
     <AuthContext.Provider
@@ -220,8 +187,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error,
         login,
         register,
+        googleLogin,
         logout,
-        clearError: () => setError(null),
+        clearError,
+        restoreSession,
       }}
     >
       {children}
@@ -229,7 +198,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

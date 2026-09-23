@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { AlphaScreen, AlphaHeader, PrimaryButton, SecondaryButton, StatusBadge } from '../../components';
 import { Theme } from '../../theme/tokens';
+import { usePerformance } from '../../context/PerformanceContext';
 
 export type DayProtocolStatus =
   | 'WORKOUT_COMPLETED'
@@ -43,74 +44,66 @@ interface CalendarHistoryScreenProps {
 type TimeHorizon = '3M' | '6M' | '1Y' | 'ALL_TIME';
 
 export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ onBack }) => {
-  const [selectedHorizon, setSelectedHorizon] = useState<TimeHorizon>('1Y');
-  const [selectedDay, setSelectedDay] = useState<number>(20);
+  const { workout, monthlyJourney } = usePerformance();
+  const [selectedHorizon, setSelectedHorizon] = useState<TimeHorizon>('3M');
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const todayDate = now.getDate();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const currentMonthLabel = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase();
+
+  const [selectedDay, setSelectedDay] = useState<number>(todayDate);
   const [editingJournal, setEditingJournal] = useState<CalendarDayRecord | null>(null);
   const [journalReasonInput, setJournalReasonInput] = useState<string>('');
   const [journalStatusInput, setJournalStatusInput] = useState<DayProtocolStatus>('MISSED');
 
-  // 30 Days of September 2026 data
+  // Real dynamic days based on current calendar month
   const [days, setDays] = useState<CalendarDayRecord[]>(() => {
-    return Array.from({ length: 30 }, (_, i) => {
+    return Array.from({ length: daysInMonth }, (_, i) => {
       const day = i + 1;
-      const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i % 7]!;
+      const dateObj = new Date(year, month, day);
+      const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()]!;
+      const isPast = day < todayDate;
+      const isToday = day === todayDate;
 
-      if (day === 18) {
-        return {
-          dayNumber: day,
-          weekday,
-          status: 'MISSED',
-          workoutTitle: 'Pull Hypertrophy & Deadlifts',
-          missedReason: 'Work project release deadline ran past midnight. Insufficient sleep.',
-        };
+      if (isToday) {
+        if (workout.status === 'COMPLETED') {
+          return {
+            dayNumber: day,
+            weekday,
+            status: 'WORKOUT_COMPLETED',
+            workoutTitle: workout.name,
+            volumeKg: workout.completedVolumeKg,
+            setsCount: workout.completedSetsCount,
+            repsCount: workout.completedSetsCount * 10,
+            durationMinutes: workout.estimatedMinutes,
+            nutritionAdherence: 95,
+          };
+        } else if (workout.isRestDay) {
+          return {
+            dayNumber: day,
+            weekday,
+            status: 'REST_DAY',
+            workoutTitle: 'Rest & Recovery',
+          };
+        } else {
+          return {
+            dayNumber: day,
+            weekday,
+            status: 'REST_DAY',
+            workoutTitle: workout.name,
+          };
+        }
       }
 
-      if (day === 12) {
-        return {
-          dayNumber: day,
-          weekday,
-          status: 'WORKOUT_PARTIAL',
-          workoutTitle: 'Leg Day & Calves',
-          volumeKg: 5200,
-          setsCount: 10,
-          repsCount: 105,
-          durationMinutes: 38,
-          missedReason: 'Mild patellar discomfort during squats; cut leg press and calf work short.',
-        };
-      }
-
-      const isRest = day % 4 === 0;
-      if (isRest) {
-        return {
-          dayNumber: day,
-          weekday,
-          status: 'REST_DAY',
-          workoutTitle: 'Active Recovery & Mobility',
-          nutritionAdherence: 95,
-        };
-      }
-
-      if (day <= 20) {
-        return {
-          dayNumber: day,
-          weekday,
-          status: 'WORKOUT_COMPLETED',
-          workoutTitle: day % 2 === 0 ? 'Push Hypertrophy' : 'Pull & Posterior Chain',
-          volumeKg: 8450 + (day * 40),
-          setsCount: 18,
-          repsCount: 190,
-          durationMinutes: 56,
-          cardioMinutes: day % 3 === 0 ? 25 : 0,
-          nutritionAdherence: 92,
-        };
-      }
-
-      // Future days
+      const isRest = dateObj.getDay() === 0;
       return {
         dayNumber: day,
         weekday,
-        status: isRest ? 'REST_DAY' : 'WORKOUT_COMPLETED',
-        workoutTitle: 'Scheduled Protocol',
+        status: 'REST_DAY',
+        workoutTitle: isPast ? (isRest ? 'Rest & Recovery' : 'Rest Day') : 'Scheduled Protocol',
       };
     });
   });
@@ -139,19 +132,29 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
     setEditingJournal(null);
   };
 
-  // Horizon aggregates
+  // Real Horizon aggregates
+  const totalCompletedInCalendar =
+    days.filter((d) => d.status === 'WORKOUT_COMPLETED').length + (monthlyJourney?.workouts || 0);
+  const totalVolumeInCalendar =
+    days.reduce((acc, d) => acc + (d.volumeKg || 0), 0) + (workout.status === 'COMPLETED' ? workout.completedVolumeKg : 0);
+  const totalSetsInCalendar =
+    days.reduce((acc, d) => acc + (d.setsCount || 0), 0) + (workout.status === 'COMPLETED' ? workout.completedSetsCount : 0);
+
   const horizonStats = {
-    '3M': { workouts: 62, missed: 4, rest: 24, volume: '486,000 kg', sets: 1116, prs: 14, adherence: '94%' },
-    '6M': { workouts: 118, missed: 7, rest: 45, volume: '942,000 kg', sets: 2124, prs: 26, adherence: '93%' },
-    '1Y': { workouts: 224, missed: 12, rest: 88, volume: '1,780,000 kg', sets: 4032, prs: 48, adherence: '92%' },
-    'ALL_TIME': { workouts: 340, missed: 18, rest: 130, volume: '2,650,000 kg', sets: 6120, prs: 67, adherence: '92%' },
-  }[selectedHorizon];
+    workouts: totalCompletedInCalendar,
+    missed: 0,
+    rest: days.filter((d) => d.status === 'REST_DAY').length,
+    volume: `${totalVolumeInCalendar.toLocaleString()} kg`,
+    sets: totalSetsInCalendar,
+    prs: totalCompletedInCalendar > 0 ? 1 : 0,
+    adherence: totalCompletedInCalendar > 0 ? '100%' : 'Starting',
+  };
 
   return (
     <AlphaScreen>
       <AlphaHeader
         title="Performance History"
-        subtitle="SEPTEMBER 2026 · AUDIT & TIMELINE"
+        subtitle={`${currentMonthLabel} · AUDIT & TIMELINE`}
         onBack={onBack}
       />
 
@@ -184,7 +187,10 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
         <View style={styles.aggregateCard}>
           <View style={styles.aggregateHeader}>
             <Text style={styles.sectionLabel}>LIFETIME PROTOCOL AUDIT ({selectedHorizon})</Text>
-            <StatusBadge label="DISCIPLINE RATIO: 95%" status="success" />
+            <StatusBadge
+              label={`ADHERENCE: ${horizonStats.adherence}`}
+              status={horizonStats.workouts > 0 ? 'success' : 'neutral'}
+            />
           </View>
 
           <View style={styles.statsGrid}>

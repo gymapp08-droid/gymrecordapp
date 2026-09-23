@@ -177,6 +177,14 @@ export class WorkoutsService {
     return program;
   }
 
+  async getTodayWorkout(userId: string, dayOfWeekParam?: number): Promise<StoredProgramDay | null> {
+    const program = await this.getActiveProgram(userId);
+    // 1=Mon ... 7=Sun
+    const dow = dayOfWeekParam || (new Date().getDay() === 0 ? 7 : new Date().getDay());
+    const day = program.days.find((d) => d.dayOfWeek === dow);
+    return day || null;
+  }
+
   async assignProgram(athleteId: string, programId: string) {
     if (!this.programs.has(programId)) {
       throw new NotFoundException({ code: 'PROGRAM_NOT_FOUND', message: 'Program not found' });

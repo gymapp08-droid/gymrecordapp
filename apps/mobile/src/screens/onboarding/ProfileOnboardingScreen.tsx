@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { AlphaScreen, AlphaHeader, PrimaryButton } from '../../components';
+import { AlphaScreen, AlphaHeader, PrimaryButton, StatusBadge } from '../../components';
 import { Theme } from '../../theme/tokens';
+import { calculateBmi, determineTrainingMaturity } from '../../utils/timezone';
 
 export interface UserProfileData {
   gender: 'MALE' | 'FEMALE' | 'OTHER';
@@ -10,6 +11,8 @@ export interface UserProfileData {
   weightKg: number;
   unitSystem: 'METRIC' | 'IMPERIAL';
   experienceLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'ELITE';
+  bmi?: number | null;
+  trainingYears?: number;
 }
 
 interface ProfileOnboardingScreenProps {
@@ -18,28 +21,76 @@ interface ProfileOnboardingScreenProps {
 }
 
 const EXPERIENCE_LEVELS = [
-  { id: 'BEGINNER', label: 'Beginner', desc: '< 1 year regular training' },
-  { id: 'INTERMEDIATE', label: 'Intermediate', desc: '1–3 years disciplined training' },
-  { id: 'ADVANCED', label: 'Advanced', desc: '3–5 years periodized training' },
-  { id: 'ELITE', label: 'Elite', desc: '5+ years competitive / high volume' },
+  { id: 'BEGINNER', label: 'Beginner', years: 0.5, desc: '< 1 year regular training' },
+  { id: 'INTERMEDIATE', label: 'Intermediate', years: 2, desc: '1–3 years disciplined training' },
+  { id: 'ADVANCED', label: 'Advanced', years: 4, desc: '3–5 years periodized training' },
+  { id: 'ELITE', label: 'Elite', years: 6, desc: '5+ years competitive training' },
 ] as const;
 
 export const ProfileOnboardingScreen: React.FC<ProfileOnboardingScreenProps> = ({ onBack, onNext }) => {
   const [gender, setGender] = useState<'MALE' | 'FEMALE' | 'OTHER'>('MALE');
-  const [age, setAge] = useState('26');
-  const [heightCm, setHeightCm] = useState('180');
-  const [weightKg, setWeightKg] = useState('78');
+  // Section 8: Empty initial state — no hardcoded fake numbers masquerading as real user data
+  const [age, setAge] = useState('');
+  const [heightInput, setHeightInput] = useState('');
+  const [weightInput, setWeightInput] = useState('');
   const [unitSystem, setUnitSystem] = useState<'METRIC' | 'IMPERIAL'>('METRIC');
   const [experienceLevel, setExperienceLevel] = useState<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'ELITE'>('INTERMEDIATE');
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const numWeight = parseFloat(weightInput);
+  const numHeight = parseFloat(heightInput);
+  const numAge = parseInt(age, 10);
+
+  // Section 9: Dynamic BMI computation
+  const bmiResult = useMemo(() => {
+    return calculateBmi(numWeight, numHeight, unitSystem);
+  }, [numWeight, numHeight, unitSystem]);
+
+  // Section 10: Dynamic Training Maturity
+  const selectedExp = EXPERIENCE_LEVELS.find((e) => e.id === experienceLevel);
+  const trainingMaturity = useMemo(() => {
+    return determineTrainingMaturity(experienceLevel, selectedExp?.years);
+  }, [experienceLevel, selectedExp]);
 
   const handleNext = () => {
+    if (!numAge || numAge < 14 || numAge > 100) {
+      setValidationError('Please enter a valid age (14–100 years).');
+      return;
+    }
+
+    if (!numHeight || numHeight < 50 || numHeight > 250) {
+      setValidationError(
+        unitSystem === 'METRIC'
+          ? 'Please enter a valid height (50–250 cm).'
+          : 'Please enter a valid height (20–100 inches).'
+      );
+      return;
+    }
+
+    if (!numWeight || numWeight < 30 || numWeight > 350) {
+      setValidationError(
+        unitSystem === 'METRIC'
+          ? 'Please enter a valid body weight (30–350 kg).'
+          : 'Please enter a valid body weight (65–750 lbs).'
+      );
+      return;
+    }
+
+    setValidationError(null);
+
+    // Convert to metric standard for backend storage
+    const finalHeightCm = unitSystem === 'IMPERIAL' ? Math.round(numHeight * 2.54) : Math.round(numHeight);
+    const finalWeightKg = unitSystem === 'IMPERIAL' ? Math.round((numWeight / 2.20462) * 10) / 10 : numWeight;
+
     onNext({
       gender,
-      age: parseInt(age, 10) || 25,
-      heightCm: parseInt(heightCm, 10) || 175,
-      weightKg: parseFloat(weightKg) || 75,
+      age: numAge,
+      heightCm: finalHeightCm,
+      weightKg: finalWeightKg,
       unitSystem,
       experienceLevel,
+      bmi: bmiResult.value,
+      trainingYears: selectedExp?.years,
     });
   };
 
@@ -47,16 +98,22 @@ export const ProfileOnboardingScreen: React.FC<ProfileOnboardingScreenProps> = (
     <AlphaScreen>
       <AlphaHeader
         title="Biometric Baseline"
-        subtitle="Step 2 of 3 · Calibration"
+        subtitle="Step 2 of 4 · Calibration"
         onBack={onBack}
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.leadText}>
-          Precision telemetry enables accurate metabolic burn, caloric targets, and baseline recovery volume.
+          Your biometric baseline calibrates accurate progressive overload, caloric maintenance, and training volume.
         </Text>
 
-        {/* Gender Selection */}
+        {validationError && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>⚠️ {validationError}</Text>
+          </View>
+        )}
+
+        {/* Biological Sex */}
         <Text style={styles.sectionLabel}>BIOLOGICAL SEX</Text>
         <View style={styles.toggleRow}>
           {(['MALE', 'FEMALE', 'OTHER'] as const).map((item) => (
@@ -80,164 +137,237 @@ export const ProfileOnboardingScreen: React.FC<ProfileOnboardingScreenProps> = (
               style={[styles.miniToggleBtn, unitSystem === 'METRIC' && styles.miniToggleBtnActive]}
               onPress={() => setUnitSystem('METRIC')}
             >
-              <Text style={[styles.miniToggleText, unitSystem === 'METRIC' && styles.miniToggleTextActive]}>KG / CM</Text>
+              <Text style={[styles.miniToggleText, unitSystem === 'METRIC' && styles.miniToggleTextActive]}>
+                KG / CM
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.miniToggleBtn, unitSystem === 'IMPERIAL' && styles.miniToggleBtnActive]}
               onPress={() => setUnitSystem('IMPERIAL')}
             >
-              <Text style={[styles.miniToggleText, unitSystem === 'IMPERIAL' && styles.miniToggleTextActive]}>LBS / IN</Text>
+              <Text style={[styles.miniToggleText, unitSystem === 'IMPERIAL' && styles.miniToggleTextActive]}>
+                LBS / IN
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Numerical Metrics */}
+        {/* Numerical Metrics Input */}
         <View style={styles.metricsRow}>
+          {/* Age */}
           <View style={styles.metricInputCard}>
             <Text style={styles.inputLabel}>AGE</Text>
             <TextInput
               style={styles.numericInput}
               value={age}
-              onChangeText={setAge}
+              onChangeText={(t) => {
+                setAge(t);
+                if (validationError) setValidationError(null);
+              }}
               keyboardType="number-pad"
-              placeholderTextColor="#64748B"
               maxLength={3}
+              placeholder="e.g. 25"
+              placeholderTextColor={Theme.colors.textMuted}
             />
-            <Text style={styles.unitLabel}>yrs</Text>
+            <Text style={styles.unitTag}>years</Text>
           </View>
 
+          {/* Height */}
           <View style={styles.metricInputCard}>
             <Text style={styles.inputLabel}>HEIGHT</Text>
             <TextInput
               style={styles.numericInput}
-              value={heightCm}
-              onChangeText={setHeightCm}
-              keyboardType="number-pad"
-              placeholderTextColor="#64748B"
-              maxLength={3}
+              value={heightInput}
+              onChangeText={(t) => {
+                setHeightInput(t);
+                if (validationError) setValidationError(null);
+              }}
+              keyboardType="numeric"
+              maxLength={5}
+              placeholder={unitSystem === 'METRIC' ? '175' : '69'}
+              placeholderTextColor={Theme.colors.textMuted}
             />
-            <Text style={styles.unitLabel}>{unitSystem === 'METRIC' ? 'cm' : 'in'}</Text>
+            <Text style={styles.unitTag}>{unitSystem === 'METRIC' ? 'cm' : 'in'}</Text>
           </View>
 
+          {/* Weight */}
           <View style={styles.metricInputCard}>
             <Text style={styles.inputLabel}>WEIGHT</Text>
             <TextInput
               style={styles.numericInput}
-              value={weightKg}
-              onChangeText={setWeightKg}
-              keyboardType="decimal-pad"
-              placeholderTextColor="#64748B"
-              maxLength={4}
+              value={weightInput}
+              onChangeText={(t) => {
+                setWeightInput(t);
+                if (validationError) setValidationError(null);
+              }}
+              keyboardType="numeric"
+              maxLength={5}
+              placeholder={unitSystem === 'METRIC' ? '75' : '165'}
+              placeholderTextColor={Theme.colors.textMuted}
             />
-            <Text style={styles.unitLabel}>{unitSystem === 'METRIC' ? 'kg' : 'lbs'}</Text>
+            <Text style={styles.unitTag}>{unitSystem === 'METRIC' ? 'kg' : 'lbs'}</Text>
           </View>
         </View>
 
-        {/* Experience Level */}
-        <Text style={[styles.sectionLabel, { marginTop: 16 }]}>TRAINING MATURITY</Text>
+        {/* Dynamic BMI Calculation Card (Section 9) */}
+        <View style={styles.bmiCard}>
+          <View style={styles.bmiHeader}>
+            <Text style={styles.bmiTitle}>BODY MASS INDEX (BMI)</Text>
+            <StatusBadge
+              label={bmiResult.categoryLabel}
+              status={
+                bmiResult.category === 'HEALTHY_RANGE'
+                  ? 'success'
+                  : bmiResult.category === 'OVERWEIGHT'
+                  ? 'warning'
+                  : bmiResult.category === 'OBESITY_RANGE'
+                  ? 'neutral'
+                  : 'neutral'
+              }
+            />
+          </View>
+
+          <View style={styles.bmiDisplayRow}>
+            <Text style={styles.bmiNumber}>
+              {bmiResult.value !== null ? bmiResult.value.toFixed(1) : 'Unavailable'}
+            </Text>
+            <Text style={styles.bmiScaleText}>
+              {bmiResult.value !== null ? 'kg/m²' : 'Enter height & weight above'}
+            </Text>
+          </View>
+
+          <Text style={styles.bmiDisclaimer}>{bmiResult.disclaimer}</Text>
+        </View>
+
+        {/* Dynamic Training Maturity (Section 10) */}
+        <View style={styles.maturityCard}>
+          <View style={styles.maturityHeader}>
+            <Text style={styles.maturityTitle}>TRAINING MATURITY</Text>
+            <StatusBadge label={trainingMaturity.label} status="info" />
+          </View>
+          <Text style={styles.maturityDesc}>{trainingMaturity.description}</Text>
+        </View>
+
+        {/* Experience Level Selection */}
+        <Text style={[styles.sectionLabel, { marginTop: 8 }]}>TRAINING EXPERIENCE</Text>
         <View style={styles.expList}>
           {EXPERIENCE_LEVELS.map((item) => {
             const isSelected = experienceLevel === item.id;
             return (
               <TouchableOpacity
                 key={item.id}
-                style={[styles.expPill, isSelected && styles.expPillActive]}
+                style={[styles.expCard, isSelected && styles.expCardActive]}
                 onPress={() => setExperienceLevel(item.id)}
                 activeOpacity={0.8}
               >
-                <View style={styles.expHeader}>
-                  <Text style={[styles.expTitle, isSelected && styles.expTitleActive]}>
+                <View style={styles.expRow}>
+                  <Text style={[styles.expLabel, isSelected && styles.expLabelActive]}>
                     {item.label}
                   </Text>
-                  <View style={[styles.radio, isSelected && styles.radioActive]}>
-                    {isSelected && <View style={styles.radioDot} />}
-                  </View>
+                  {isSelected && <Text style={styles.checkIcon}>✓</Text>}
                 </View>
                 <Text style={styles.expDesc}>{item.desc}</Text>
               </TouchableOpacity>
             );
           })}
         </View>
-      </ScrollView>
 
-      <View style={styles.footer}>
-        <PrimaryButton title="Continue to Preferences" onPress={handleNext} />
-      </View>
+        <PrimaryButton
+          title="Continue to Training Preferences"
+          onPress={handleNext}
+          style={styles.continueBtn}
+        />
+      </ScrollView>
     </AlphaScreen>
   );
 };
 
 const styles = StyleSheet.create({
   content: {
-    paddingVertical: 8,
-    paddingBottom: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    gap: 16,
   },
   leadText: {
     color: Theme.colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: Theme.typography.fontBody,
+  },
+  errorBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.4)',
+    borderRadius: Theme.borderRadius.md,
+    padding: 12,
+  },
+  errorText: {
+    color: '#EF4444',
     fontSize: 13,
-    lineHeight: 19,
-    marginBottom: 20,
+    fontWeight: '600',
+    fontFamily: Theme.typography.fontBody,
   },
   sectionLabel: {
+    color: Theme.colors.textMuted,
     fontSize: 11,
-    fontFamily: Theme.typography.telemetry.fontFamily,
-    color: Theme.colors.cyanGlow,
-    letterSpacing: 1.2,
     fontWeight: '700',
-    marginBottom: 10,
+    letterSpacing: 1.5,
+    fontFamily: Theme.typography.fontMono,
   },
   toggleRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 20,
+    gap: 10,
   },
   toggleBtn: {
     flex: 1,
-    paddingVertical: 12,
-    backgroundColor: Theme.colors.surfaceElevated,
+    height: 44,
     borderRadius: Theme.borderRadius.md,
+    backgroundColor: Theme.colors.surface,
     borderWidth: 1,
     borderColor: Theme.colors.border,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   toggleBtnActive: {
     borderColor: Theme.colors.cyanGlow,
-    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
   },
   toggleBtnText: {
     color: Theme.colors.textSecondary,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '700',
-    letterSpacing: 0.5,
+    fontFamily: Theme.typography.fontBody,
   },
   toggleBtnTextActive: {
     color: Theme.colors.cyanGlow,
   },
   rowBetween: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    justifyContent: 'space-between',
+    marginTop: 4,
   },
   miniToggle: {
     flexDirection: 'row',
-    backgroundColor: Theme.colors.surfaceElevated,
-    borderRadius: Theme.borderRadius.sm,
+    backgroundColor: Theme.colors.surface,
+    borderRadius: Theme.borderRadius.pill,
     borderWidth: 1,
     borderColor: Theme.colors.border,
-    overflow: 'hidden',
+    padding: 2,
   },
   miniToggleBtn: {
     paddingHorizontal: 10,
     paddingVertical: 4,
+    borderRadius: Theme.borderRadius.pill,
   },
   miniToggleBtnActive: {
     backgroundColor: Theme.colors.cyanGlow,
   },
   miniToggleText: {
+    color: Theme.colors.textMuted,
     fontSize: 10,
     fontWeight: '700',
-    color: Theme.colors.textSecondary,
+    fontFamily: Theme.typography.fontMono,
   },
   miniToggleTextActive: {
     color: '#05070B',
@@ -245,11 +375,10 @@ const styles = StyleSheet.create({
   metricsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 20,
   },
   metricInputCard: {
     flex: 1,
-    backgroundColor: Theme.colors.surfaceElevated,
+    backgroundColor: Theme.colors.surface,
     borderRadius: Theme.borderRadius.lg,
     borderWidth: 1,
     borderColor: Theme.colors.border,
@@ -257,77 +386,134 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   inputLabel: {
-    fontSize: 10,
-    fontFamily: Theme.typography.telemetry.fontFamily,
     color: Theme.colors.textMuted,
-    letterSpacing: 1,
+    fontSize: 10,
     fontWeight: '700',
+    fontFamily: Theme.typography.fontMono,
     marginBottom: 4,
   },
   numericInput: {
-    fontSize: 24,
-    fontFamily: Theme.typography.display.fontFamily,
-    fontWeight: '800',
     color: Theme.colors.textPrimary,
+    fontSize: 22,
+    fontWeight: '800',
+    fontFamily: Theme.typography.fontDisplay,
     textAlign: 'center',
-    paddingVertical: 2,
-    minWidth: 50,
+    height: 36,
+    width: '100%',
   },
-  unitLabel: {
-    fontSize: 11,
+  unitTag: {
     color: Theme.colors.textSecondary,
+    fontSize: 11,
+    fontFamily: Theme.typography.fontBody,
   },
-  expList: {
-    gap: 10,
-  },
-  expPill: {
+  bmiCard: {
     backgroundColor: Theme.colors.surfaceElevated,
+    borderRadius: Theme.borderRadius.lg,
     borderWidth: 1,
     borderColor: Theme.colors.border,
-    borderRadius: Theme.borderRadius.md,
-    padding: 14,
+    padding: 16,
+    gap: 8,
   },
-  expPillActive: {
+  bmiHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  bmiTitle: {
+    color: Theme.colors.textMuted,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1,
+    fontFamily: Theme.typography.fontMono,
+  },
+  bmiDisplayRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+  },
+  bmiNumber: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 32,
+    fontWeight: '900',
+    fontFamily: Theme.typography.fontDisplay,
+  },
+  bmiScaleText: {
+    color: Theme.colors.textSecondary,
+    fontSize: 13,
+    fontFamily: Theme.typography.fontBody,
+  },
+  bmiDisclaimer: {
+    color: Theme.colors.textMuted,
+    fontSize: 11,
+    lineHeight: 16,
+    fontFamily: Theme.typography.fontBody,
+  },
+  maturityCard: {
+    backgroundColor: Theme.colors.surface,
+    borderRadius: Theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    padding: 14,
+    gap: 6,
+  },
+  maturityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  maturityTitle: {
+    color: Theme.colors.textMuted,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1,
+    fontFamily: Theme.typography.fontMono,
+  },
+  maturityDesc: {
+    color: Theme.colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: Theme.typography.fontBody,
+  },
+  expList: {
+    gap: 8,
+  },
+  expCard: {
+    backgroundColor: Theme.colors.surface,
+    borderRadius: Theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    padding: 14,
+    gap: 4,
+  },
+  expCardActive: {
     borderColor: Theme.colors.cyanGlow,
     backgroundColor: 'rgba(0, 240, 255, 0.08)',
   },
-  expHeader: {
+  expRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    justifyContent: 'space-between',
   },
-  expTitle: {
-    fontSize: 14,
-    fontWeight: '700',
+  expLabel: {
     color: Theme.colors.textPrimary,
+    fontSize: 15,
+    fontWeight: '700',
+    fontFamily: Theme.typography.fontBody,
   },
-  expTitleActive: {
+  expLabelActive: {
     color: Theme.colors.cyanGlow,
   },
+  checkIcon: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 16,
+    fontWeight: '900',
+  },
   expDesc: {
-    fontSize: 12,
     color: Theme.colors.textSecondary,
+    fontSize: 12,
+    fontFamily: Theme.typography.fontBody,
   },
-  radio: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 1.5,
-    borderColor: Theme.colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioActive: {
-    borderColor: Theme.colors.cyanGlow,
-  },
-  radioDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Theme.colors.cyanGlow,
-  },
-  footer: {
-    paddingTop: 16,
+  continueBtn: {
+    marginTop: 8,
   },
 });

@@ -18,6 +18,7 @@ import {
 import { Theme } from '../../theme/tokens';
 import { useAuth } from '../../context/AuthContext';
 import { usePerformance } from '../../context/PerformanceContext';
+import { getGreeting } from '../../utils/timezone';
 
 interface HomeScreenProps {
   onStartWorkout: () => void;
@@ -64,18 +65,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [noteModalVisible, setNoteModalVisible] = useState(false);
   const [noteInput, setNoteInput] = useState(dailyNote);
 
-  // Time-aware greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'GOOD MORNING';
-    if (hour < 18) return 'GOOD AFTERNOON';
-    return 'GOOD EVENING';
-  };
+  const timeGreeting = getGreeting();
 
   const athleteName =
     (user as any)?.fullName ||
     user?.email?.split('@')[0]?.replace(/^\w/, (c: string) => c.toUpperCase()) ||
-    'Sagar';
+    'Athlete';
 
   const currentDateFormatted = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -112,7 +107,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <View style={styles.onlineDot} />
           </TouchableOpacity>
           <View>
-            <Text style={styles.greetingLabel}>{getGreeting()}</Text>
+            <Text style={styles.greetingLabel}>{timeGreeting}</Text>
             <Text style={styles.athleteNameText}>{athleteName}</Text>
             <Text style={styles.dateText}>{currentDateFormatted}</Text>
           </View>
@@ -120,8 +115,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         <View style={styles.headerRight}>
           <View style={styles.streakPill}>
-            <FlameIcon size={14} color="#F59E0B" />
-            <Text style={styles.streakPillText}>{streak.label}</Text>
+            <FlameIcon size={14} color={streak.days > 0 ? '#F59E0B' : Theme.colors.textMuted} />
+            <Text style={[styles.streakPillText, streak.days === 0 && { color: Theme.colors.textMuted }]}>
+              {streak.label}
+            </Text>
           </View>
 
           <TouchableOpacity
@@ -140,100 +137,146 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* 2. Today's Workout — Hero Card (Sections 11, 12, 13) */}
-        <View style={styles.workoutHeroCard}>
-          <View style={styles.cardHeaderRow}>
-            <View>
-              <Text style={styles.sectionLabel}>TODAY'S WORKOUT</Text>
-              <View style={styles.titleRow}>
-                <Text style={styles.workoutTitle}>{workout.name}</Text>
-                <View style={styles.categoryBadge}>
-                  <Text style={styles.categoryBadgeText}>{workout.category}</Text>
-                </View>
-              </View>
-            </View>
-            <Text style={styles.metaTime}>
-              {workout.totalExercises} Exercises · {workout.totalSets} Sets · ~{workout.estimatedMinutes} min
-            </Text>
-          </View>
-
-          {/* Planned vs Actual Volume Callouts */}
-          <View style={styles.volumeCompareBlock}>
-            <View style={styles.volumeCol}>
-              <Text style={styles.volumeLabel}>TARGET VOLUME (PLAN)</Text>
-              <Text style={styles.volumeVal}>{workout.targetVolumeKg.toLocaleString()} KG</Text>
-            </View>
-            <View style={styles.volumeDivider} />
-            <View style={styles.volumeCol}>
-              <Text style={styles.volumeLabel}>COMPLETED VOLUME (ACTUAL)</Text>
-              <Text
-                style={[
-                  styles.volumeVal,
-                  workout.completedVolumeKg > 0 ? { color: Theme.colors.cyanGlow } : { color: Theme.colors.textMuted },
-                ]}
-              >
-                {workout.completedVolumeKg.toLocaleString()} KG
-              </Text>
-            </View>
-          </View>
-
-          {/* Session Progress Bar */}
-          <View style={styles.progressBlock}>
-            <View style={styles.progressRow}>
-              <Text style={styles.progressText}>
-                Session Progress: {workout.completedExercisesCount} / {workout.totalExercises} exercises · {workout.completedSetsCount} / {workout.totalSets} sets
-              </Text>
-              <Text style={styles.progressPercent}>
-                {Math.round((workout.completedExercisesCount / workout.totalExercises) * 100)}%
-              </Text>
-            </View>
-            <View style={styles.progressBarTrack}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { width: `${Math.min((workout.completedExercisesCount / workout.totalExercises) * 100, 100)}%` },
-                ]}
-              />
-            </View>
-          </View>
-
-          {/* Structured Exercise Lineup (Compact 01 - 06) */}
-          <View style={styles.exercisesList}>
-            {workout.exercises.map((ex) => (
-              <View key={ex.number} style={styles.exerciseRowItem}>
-                <Text style={styles.exerciseNum}>{ex.number}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.exerciseItemName}>{ex.name}</Text>
-                  <Text style={styles.exerciseItemPresc}>{ex.prescription}</Text>
-                </View>
-                {ex.isCompleted ? (
-                  <View style={styles.completedTag}>
-                    <CheckIcon size={12} color="#10B981" />
-                    <Text style={styles.completedTagText}>Done</Text>
+        {/* 2. Today's Workout / Rest Day Hero Card (Sections 11, 12, 13) */}
+        {workout.isRestDay ? (
+          <View style={styles.workoutHeroCard}>
+            <View style={styles.cardHeaderRow}>
+              <View>
+                <Text style={styles.sectionLabel}>TODAY'S SCHEDULE: RECOVERY</Text>
+                <View style={styles.titleRow}>
+                  <Text style={styles.workoutTitle}>Active Rest & Regeneration</Text>
+                  <View style={[styles.categoryBadge, { borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
+                    <Text style={[styles.categoryBadgeText, { color: '#10B981' }]}>REST DAY</Text>
                   </View>
-                ) : (
-                  <Text style={styles.pendingTagText}>Pending</Text>
-                )}
+                </View>
               </View>
-            ))}
-          </View>
+              <Text style={styles.metaTime}>
+                Tissue Repair · Neurological Reset
+              </Text>
+            </View>
 
-          {/* Actions */}
-          <View style={styles.workoutActionRow}>
-            <PrimaryButton
-              title={workoutCtaTitle}
-              onPress={isWorkoutCompleted ? onNavigateToWorkout : onStartWorkout}
-              style={{ flex: 1 }}
-            />
-            <TouchableOpacity
-              style={styles.fullPlanLink}
-              onPress={onNavigateToWorkout}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.fullPlanText}>View Full Plan →</Text>
-            </TouchableOpacity>
+            <View style={{ marginVertical: 14, padding: 14, backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)' }}>
+              <Text style={{ fontSize: 13, color: Theme.colors.textSecondary, lineHeight: 20 }}>
+                No heavy resistance training programmed today. Focus on meeting your daily hydration goal ({activity.waterTarget}L), hitting your protein target ({nutrition.proteinTarget}g), and allowing central nervous system adaptation.
+              </Text>
+            </View>
+
+            <View style={styles.workoutActionRow}>
+              <PrimaryButton
+                title="LOG RECOVERY CARDIO"
+                onPress={onNavigateToActivity}
+                style={{ flex: 1 }}
+              />
+              <TouchableOpacity
+                style={styles.fullPlanLink}
+                onPress={onNavigateToWorkout}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.fullPlanText}>View Weekly Plan →</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        ) : (
+          <View style={styles.workoutHeroCard}>
+            <View style={styles.cardHeaderRow}>
+              <View>
+                <Text style={styles.sectionLabel}>TODAY'S WORKOUT</Text>
+                <View style={styles.titleRow}>
+                  <Text style={styles.workoutTitle}>{workout.name}</Text>
+                  <View style={styles.categoryBadge}>
+                    <Text style={styles.categoryBadgeText}>{workout.category}</Text>
+                  </View>
+                </View>
+              </View>
+              <Text style={styles.metaTime}>
+                {workout.totalExercises} Exercises · {workout.totalSets} Sets · ~{workout.estimatedMinutes} min
+              </Text>
+            </View>
+
+            {/* Planned vs Actual Volume Callouts */}
+            <View style={styles.volumeCompareBlock}>
+              <View style={styles.volumeCol}>
+                <Text style={styles.volumeLabel}>TARGET VOLUME (PLAN)</Text>
+                <Text style={styles.volumeVal}>{workout.targetVolumeKg.toLocaleString()} KG</Text>
+              </View>
+              <View style={styles.volumeDivider} />
+              <View style={styles.volumeCol}>
+                <Text style={styles.volumeLabel}>COMPLETED VOLUME (ACTUAL)</Text>
+                <Text
+                  style={[
+                    styles.volumeVal,
+                    workout.completedVolumeKg > 0 ? { color: Theme.colors.cyanGlow } : { color: Theme.colors.textMuted },
+                  ]}
+                >
+                  {workout.completedVolumeKg.toLocaleString()} KG
+                </Text>
+              </View>
+            </View>
+
+            {/* Session Progress Bar */}
+            <View style={styles.progressBlock}>
+              <View style={styles.progressRow}>
+                <Text style={styles.progressText}>
+                  Session Progress: {workout.completedExercisesCount} / {workout.totalExercises} exercises · {workout.completedSetsCount} / {workout.totalSets} sets
+                </Text>
+                <Text style={styles.progressPercent}>
+                  {workout.totalExercises > 0
+                    ? Math.round((workout.completedExercisesCount / workout.totalExercises) * 100)
+                    : 0}%
+                </Text>
+              </View>
+              <View style={styles.progressBarTrack}>
+                <View
+                  style={[
+                    styles.progressBarFill,
+                    {
+                      width: `${workout.totalExercises > 0
+                        ? Math.min((workout.completedExercisesCount / workout.totalExercises) * 100, 100)
+                        : 0}%`,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+
+            {/* Structured Exercise Lineup (Compact 01 - 06) */}
+            <View style={styles.exercisesList}>
+              {workout.exercises.map((ex) => (
+                <View key={ex.number} style={styles.exerciseRowItem}>
+                  <Text style={styles.exerciseNum}>{ex.number}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.exerciseItemName}>{ex.name}</Text>
+                    <Text style={styles.exerciseItemPresc}>{ex.prescription}</Text>
+                  </View>
+                  {ex.isCompleted ? (
+                    <View style={styles.completedTag}>
+                      <CheckIcon size={12} color="#10B981" />
+                      <Text style={styles.completedTagText}>Done</Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.pendingTagText}>Pending</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+
+            {/* Actions */}
+            <View style={styles.workoutActionRow}>
+              <PrimaryButton
+                title={workoutCtaTitle}
+                onPress={isWorkoutCompleted ? onNavigateToWorkout : onStartWorkout}
+                style={{ flex: 1 }}
+              />
+              <TouchableOpacity
+                style={styles.fullPlanLink}
+                onPress={onNavigateToWorkout}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.fullPlanText}>View Full Plan →</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
         {/* 3. Today's Daily Scorecard (Section 14) */}
         <View style={styles.scorecardSection}>

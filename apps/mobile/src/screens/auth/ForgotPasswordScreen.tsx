@@ -17,7 +17,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
 
   const handleSendReset = async () => {
     if (!email.trim() || !email.includes('@')) {
-      setError('Please provide a valid athlete email address');
+      setError('Please provide a valid email address');
       return;
     }
     setError(null);
@@ -28,12 +28,10 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
       if (res.success) {
         setSent(true);
       } else {
-        // Even if endpoint returns failure (or not configured in backend mock), allow clean UX feedback
-        setSent(true);
+        setError(res.error?.message || 'Unable to process reset request. Please check the email entered.');
       }
     } catch {
-      // Graceful fallback for offline / development
-      setSent(true);
+      setError('Network error. Unable to reach ALPHA services.');
     } finally {
       setLoading(false);
     }
@@ -43,7 +41,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
     <AlphaScreen>
       <AlphaHeader
         title="Account Recovery"
-        subtitle="Protocol Access Reset"
+        subtitle="Password Reset"
         onBack={onBackToLogin}
       />
 
@@ -53,10 +51,10 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
             <View style={styles.sentRing}>
               <Text style={styles.sentIcon}>✉️</Text>
             </View>
-            <Text style={styles.sentTitle}>TRANSMISSION DISPATCHED</Text>
+            <Text style={styles.sentTitle}>PASSWORD RESET SENT</Text>
             <Text style={styles.sentDesc}>
-              A secure access recovery link has been transmitted to{' '}
-              <Text style={styles.emailHighlight}>{email}</Text>. Check your inbox or spam folder.
+              A secure password reset link has been sent to{' '}
+              <Text style={styles.emailHighlight}>{email}</Text>. Please check your inbox or spam folder to complete your password update.
             </Text>
             <PrimaryButton
               title="Return to Sign In"
@@ -67,7 +65,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
         ) : (
           <View style={styles.formContainer}>
             <Text style={styles.leadText}>
-              Enter the primary email address registered with your ALPHA protocol. We will dispatch a single-use verification link.
+              Enter your registered email address. We will send you a secure verification link to reset your password.
             </Text>
 
             {error && (
@@ -77,7 +75,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
             )}
 
             <GlassInput
-              label="Athlete Email"
+              label="Email Address"
               value={email}
               onChangeText={(text) => {
                 setEmail(text);
@@ -90,13 +88,13 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
 
             <View style={styles.actions}>
               <PrimaryButton
-                title={loading ? 'Transmitting...' : 'Send Recovery Protocol'}
+                title={loading ? 'Sending Link...' : 'Send Reset Link'}
                 onPress={handleSendReset}
                 loading={loading}
               />
 
               <TouchableOpacity style={styles.backBtn} onPress={onBackToLogin}>
-                <Text style={styles.backBtnText}>Cancel and return</Text>
+                <Text style={styles.backBtnText}>Cancel and return to Sign In</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -109,33 +107,36 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
 const styles = StyleSheet.create({
   content: {
     flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 16,
     justifyContent: 'center',
-    paddingVertical: 16,
   },
   formContainer: {
     gap: 16,
   },
   leadText: {
     color: Theme.colors.textSecondary,
-    fontSize: 13,
+    fontSize: 14,
     lineHeight: 20,
+    fontFamily: Theme.typography.fontBody,
     marginBottom: 8,
   },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderWidth: 1,
-    borderColor: Theme.colors.crimsonError,
+    borderColor: 'rgba(239, 68, 68, 0.4)',
     borderRadius: Theme.borderRadius.md,
     padding: 12,
   },
   errorText: {
-    color: Theme.colors.crimsonError,
-    fontSize: 12,
+    color: '#EF4444',
+    fontSize: 13,
     fontWeight: '600',
+    fontFamily: Theme.typography.fontBody,
   },
   actions: {
-    marginTop: 16,
-    gap: 12,
+    marginTop: 12,
+    gap: 14,
   },
   backBtn: {
     alignItems: 'center',
@@ -143,40 +144,43 @@ const styles = StyleSheet.create({
   },
   backBtnText: {
     color: Theme.colors.textMuted,
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600',
+    fontFamily: Theme.typography.fontBody,
   },
   sentContainer: {
     alignItems: 'center',
-    paddingHorizontal: 16,
+    gap: 14,
+    paddingHorizontal: 12,
   },
   sentRing: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
     borderWidth: 1.5,
     borderColor: Theme.colors.cyanGlow,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: 8,
   },
   sentIcon: {
-    fontSize: 32,
+    fontSize: 28,
   },
   sentTitle: {
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '800',
-    fontFamily: Theme.typography.display.fontFamily,
-    color: Theme.colors.textPrimary,
-    letterSpacing: 1,
-    marginBottom: 10,
+    letterSpacing: 2,
+    fontFamily: Theme.typography.fontDisplay,
+    textAlign: 'center',
   },
   sentDesc: {
-    fontSize: 13,
     color: Theme.colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 22,
     textAlign: 'center',
-    lineHeight: 20,
+    fontFamily: Theme.typography.fontBody,
   },
   emailHighlight: {
     color: Theme.colors.cyanGlow,

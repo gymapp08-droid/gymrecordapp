@@ -11,6 +11,8 @@ import {
 import { Theme } from '../../theme/tokens';
 import { GlassCard } from '../../components/GlassCard';
 import { NeonButton } from '../../components/NeonButton';
+import { getTodayDayOfWeek } from '../../utils/timezone';
+import { usePerformance } from '../../context/PerformanceContext';
 
 interface DaySchedule {
   dayOfWeek: number;
@@ -22,8 +24,8 @@ interface DaySchedule {
 }
 
 const WEEK_SCHEDULE: DaySchedule[] = [
-  { dayOfWeek: 1, dayShort: 'Mon', dayFull: 'Monday', title: 'Chest + Triceps', isCompleted: true, colorAccent: '#3882F6' },
-  { dayOfWeek: 2, dayShort: 'Tue', dayFull: 'Tuesday', title: 'Back + Biceps', isCompleted: true, colorAccent: '#818CF8' },
+  { dayOfWeek: 1, dayShort: 'Mon', dayFull: 'Monday', title: 'Chest + Triceps', isCompleted: false, colorAccent: '#3882F6' },
+  { dayOfWeek: 2, dayShort: 'Tue', dayFull: 'Tuesday', title: 'Back + Biceps', isCompleted: false, colorAccent: '#818CF8' },
   { dayOfWeek: 3, dayShort: 'Wed', dayFull: 'Wednesday', title: 'Shoulders + Abs', isCompleted: false, colorAccent: '#00F0FF' },
   { dayOfWeek: 4, dayShort: 'Thu', dayFull: 'Thursday', title: 'Legs', isCompleted: false, colorAccent: '#3882F6' },
   { dayOfWeek: 5, dayShort: 'Fri', dayFull: 'Friday', title: 'Upper Body', isCompleted: false, colorAccent: '#C084FC' },
@@ -36,9 +38,21 @@ interface WorkoutPlanScreenProps {
 }
 
 export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWorkout }) => {
-  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const { weeklyMomentum } = usePerformance();
+  const todayDow = getTodayDayOfWeek();
+  const [selectedDay, setSelectedDay] = useState<number>(todayDow);
 
-  const activeDaySchedule: DaySchedule = WEEK_SCHEDULE.find((d) => d.dayOfWeek === selectedDay) || WEEK_SCHEDULE[0]!;
+  const scheduleWithStatus = WEEK_SCHEDULE.map((day) => {
+    const momentum = weeklyMomentum?.days?.find((d) => d.dayOfWeek === day.dayOfWeek);
+    const isCompleted = momentum ? momentum.status === 'COMPLETED' : false;
+    return {
+      ...day,
+      isCompleted,
+    };
+  });
+
+  const activeDaySchedule: DaySchedule =
+    scheduleWithStatus.find((d) => d.dayOfWeek === selectedDay) || scheduleWithStatus[0]!;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -62,7 +76,7 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
 
       {/* Weekday Selector Bar */}
       <View style={styles.daySelectorContainer}>
-        {WEEK_SCHEDULE.map((day) => {
+        {scheduleWithStatus.map((day) => {
           const isSelected = day.dayOfWeek === selectedDay;
           return (
             <TouchableOpacity
@@ -85,7 +99,7 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.sectionHeading}>Weekly Schedule</Text>
-        {WEEK_SCHEDULE.map((item) => {
+        {scheduleWithStatus.map((item) => {
           const isSelected = item.dayOfWeek === selectedDay;
           return (
             <TouchableOpacity

@@ -32,6 +32,7 @@ import {
   GoalSelectionScreen,
   ProfileOnboardingScreen,
   TrainingPreferencesScreen,
+  ProgramRecommendationScreen,
   UserProfileData,
   TrainingPreferencesData,
 } from './src/screens/onboarding';
@@ -87,6 +88,7 @@ type AuthRoute =
   | 'GOAL'
   | 'PROFILE'
   | 'PREFERENCES'
+  | 'RECOMMENDATION'
   | 'REGISTER'
   | 'LOGIN'
   | 'FORGOT_PASSWORD'
@@ -122,6 +124,11 @@ function MainNavigator() {
   const [authRoute, setAuthRoute] = useState<AuthRoute>('SPLASH');
   const [activeTab, setActiveTab] = useState<MainTab>('HOME');
   const [activeSubView, setActiveSubView] = useState<SubView>(null);
+
+  // Onboarding user configuration state across multi-step flow
+  const [onboardingGoal, setOnboardingGoal] = useState<string>('MUSCLE_HYPERTROPHY');
+  const [onboardingProfile, setOnboardingProfile] = useState<UserProfileData | null>(null);
+  const [onboardingPreferences, setOnboardingPreferences] = useState<TrainingPreferencesData | null>(null);
 
   // Subview context states
   const [selectedExercise, setSelectedExercise] = useState<ExerciseDetailData | undefined>(undefined);
@@ -166,7 +173,7 @@ function MainNavigator() {
   if (status !== 'authenticated' && authRoute !== 'SUCCESS') {
     switch (authRoute) {
       case 'SPLASH':
-        return <SplashScreen onComplete={() => setAuthRoute('WELCOME')} />;
+        return <SplashScreen onComplete={() => setAuthRoute(status === 'authenticated' ? 'SUCCESS' : 'WELCOME')} />;
       case 'WELCOME':
         return (
           <WelcomeScreen
@@ -178,21 +185,42 @@ function MainNavigator() {
         return (
           <GoalSelectionScreen
             onBack={() => setAuthRoute('WELCOME')}
-            onNext={() => setAuthRoute('PROFILE')}
+            onNext={(goalId?: string) => {
+              if (goalId) setOnboardingGoal(goalId);
+              setAuthRoute('PROFILE');
+            }}
           />
         );
       case 'PROFILE':
         return (
           <ProfileOnboardingScreen
             onBack={() => setAuthRoute('GOAL')}
-            onNext={(_profile: UserProfileData) => setAuthRoute('PREFERENCES')}
+            onNext={(profile: UserProfileData) => {
+              setOnboardingProfile(profile);
+              setAuthRoute('PREFERENCES');
+            }}
           />
         );
       case 'PREFERENCES':
         return (
           <TrainingPreferencesScreen
             onBack={() => setAuthRoute('PROFILE')}
-            onFinish={(_prefs: TrainingPreferencesData) => setAuthRoute('REGISTER')}
+            onFinish={(prefs: TrainingPreferencesData) => {
+              setOnboardingPreferences(prefs);
+              setAuthRoute('RECOMMENDATION');
+            }}
+          />
+        );
+      case 'RECOMMENDATION':
+        return (
+          <ProgramRecommendationScreen
+            goal={onboardingGoal}
+            profile={onboardingProfile}
+            preferences={onboardingPreferences}
+            onBack={() => setAuthRoute('PREFERENCES')}
+            onSelectProgram={(_programId: string) => {
+              setAuthRoute('REGISTER');
+            }}
           />
         );
       case 'REGISTER':

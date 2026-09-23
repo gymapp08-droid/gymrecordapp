@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { AlphaScreen, AlphaHeader, StatusBadge } from '../../components';
 import { Theme } from '../../theme/tokens';
+import { usePerformance } from '../../context/PerformanceContext';
 
 export interface MacroTarget {
   current: number;
@@ -20,59 +21,36 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
   onOpenMealDetail,
   onOpenHydration,
 }) => {
-  const [caloriesConsumed] = useState(1950);
-  const [caloriesTarget] = useState(2600);
-  const [protein] = useState<MacroTarget>({ current: 155, target: 180, unit: 'g' });
-  const [carbs] = useState<MacroTarget>({ current: 190, target: 280, unit: 'g' });
-  const [fats] = useState<MacroTarget>({ current: 62, target: 75, unit: 'g' });
-  const [waterLiters, setWaterLiters] = useState(2.6);
-  const waterTarget = 3.5;
+  const { nutrition, activity, addWater } = usePerformance();
 
-  const meals = [
-    {
-      type: 'BREAKFAST',
-      title: 'Morning Fuel Protocol',
-      plannedCals: 627,
-      actualCals: 627,
-      protein: 42,
-      status: 'COMPLETED AS PLANNED',
-      statusType: 'success' as const,
-      items: '4 Whole Large Eggs, 80g Rolled Oats, 30g Whey Isolate',
-    },
-    {
-      type: 'LUNCH',
-      title: 'Midday Recomp Protocol',
-      plannedCals: 670,
-      actualCals: 645,
-      protein: 58,
-      status: 'COMPLETED — MODIFIED',
-      statusType: 'warning' as const,
-      items: '180g Grilled Chicken Breast, 160g Jasmine Rice, Broccoli & Olive Oil',
-    },
-    {
-      type: 'SNACK',
-      title: 'Pre-Workout Glycogen Charge',
-      plannedCals: 320,
-      actualCals: 0,
-      protein: 25,
-      status: 'PENDING',
-      statusType: 'neutral' as const,
-      items: '170g Greek Yogurt 0%, 80g Organic Blueberries',
-    },
-    {
-      type: 'DINNER',
-      title: 'Night Myofibrillar Recovery',
-      plannedCals: 530,
-      actualCals: 0,
-      protein: 39,
-      status: 'PENDING',
-      statusType: 'neutral' as const,
-      items: '180g Wild Alaskan Salmon, 150g Sweet Potato, Asparagus',
-    },
-  ];
+  const caloriesConsumed = nutrition.caloriesConsumed;
+  const caloriesTarget = nutrition.caloriesTarget;
+  const protein = { current: nutrition.proteinConsumed, target: nutrition.proteinTarget, unit: 'g' };
+  const carbs = { current: nutrition.carbsConsumed, target: nutrition.carbsTarget, unit: 'g' };
+  const fats = { current: nutrition.fatConsumed, target: nutrition.fatTarget, unit: 'g' };
+  const waterLiters = activity.waterLiters;
+  const waterTarget = activity.waterTarget;
 
-  const calPercent = Math.min(Math.round((caloriesConsumed / caloriesTarget) * 100), 100);
+  const meals = nutrition.meals.map((m) => {
+    let statusType: 'success' | 'warning' | 'neutral' = 'neutral';
+    if (m.status === 'COMPLETED_PLANNED') statusType = 'success';
+    else if (m.status === 'COMPLETED_MODIFIED' || m.status === 'PARTIAL') statusType = 'warning';
+
+    return {
+      type: m.type,
+      title: m.title,
+      plannedCals: m.plannedCals,
+      actualCals: m.actualCals,
+      protein: m.proteinGrams,
+      status: m.statusLabel,
+      statusType,
+      items: m.itemsSummary,
+    };
+  });
+
+  const calPercent = Math.min(Math.round((caloriesConsumed / (caloriesTarget || 1)) * 100), 100);
   const remainingCals = Math.max(caloriesTarget - caloriesConsumed, 0);
+  const completedMealsCount = nutrition.meals.filter((m) => m.status.startsWith('COMPLETED')).length;
 
   return (
     <AlphaScreen>
@@ -153,13 +131,15 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
           <View style={styles.adherenceDivider} />
           <View style={styles.adherenceCol}>
             <Text style={styles.adherenceLabel}>MEALS LOGGED</Text>
-            <Text style={styles.adherenceVal}>2 / 4</Text>
-            <Text style={styles.adherenceSub}>50% logged today</Text>
+            <Text style={styles.adherenceVal}>{completedMealsCount} / {nutrition.meals.length}</Text>
+            <Text style={styles.adherenceSub}>{nutrition.meals.length > 0 ? Math.round((completedMealsCount / nutrition.meals.length) * 100) : 0}% logged today</Text>
           </View>
           <View style={styles.adherenceDivider} />
           <View style={styles.adherenceCol}>
             <Text style={styles.adherenceLabel}>CALORIC DEFICIT</Text>
-            <Text style={styles.adherenceVal}>-350</Text>
+            <Text style={styles.adherenceVal}>
+              {caloriesConsumed - caloriesTarget > 0 ? `+${caloriesConsumed - caloriesTarget}` : `${caloriesConsumed - caloriesTarget}`}
+            </Text>
             <Text style={styles.adherenceSub}>Lean Recomp State</Text>
           </View>
         </View>
@@ -179,7 +159,7 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
             </View>
             <TouchableOpacity
               style={styles.waterQuickAdd}
-              onPress={() => setWaterLiters((prev) => Math.min(prev + 0.25, 6))}
+              onPress={() => addWater(0.25)}
               activeOpacity={0.7}
             >
               <Text style={styles.waterQuickText}>+250ml</Text>

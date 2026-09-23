@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { AlphaScreen, PrimaryButton, SecondaryButton } from '../../components';
 import { Theme } from '../../theme/tokens';
+import { usePerformance, WorkoutExerciseSummary } from '../../context/PerformanceContext';
+import { SecureStorage } from '../../services/secureStorage';
 
 export type SetType = 'WARMUP' | 'WORKING' | 'TOP_SET' | 'BACKOFF' | 'DROP_SET' | 'FAILURE';
 
@@ -63,138 +65,111 @@ interface WorkoutSessionScreenProps {
   onOpenExerciseDetail?: (exerciseId: string) => void;
 }
 
-const INITIAL_EXERCISES: WorkoutExerciseState[] = [
-  {
-    id: 'ex-1',
-    name: 'Barbell Bench Press',
-    muscleGroup: 'Chest',
-    targetArea: 'Mid & Sternal Pectoralis',
-    equipment: 'Barbell, Flat Bench',
-    isSkipped: false,
-    previousPerformance: {
-      sets: [
-        { weightKg: 60, reps: 12 },
-        { weightKg: 60, reps: 11 },
-        { weightKg: 55, reps: 10 },
-      ],
-      totalVolumeKg: 1930,
-    },
-    sets: [
-      { id: 's-1-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 60, targetReps: 12, actualWeightKg: 60, actualReps: 12, rpe: 8, isCompleted: true },
-      { id: 's-1-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 60, targetReps: 12, actualWeightKg: 60, actualReps: 11, rpe: 8.5, isCompleted: true },
-      { id: 's-1-3', setNumber: 3, setType: 'WORKING', targetWeightKg: 60, targetReps: 12, actualWeightKg: 55, actualReps: 10, rpe: 9, isCompleted: false },
-    ],
-  },
-  {
-    id: 'ex-2',
-    name: 'Incline Dumbbell Press',
-    muscleGroup: 'Upper Chest',
-    targetArea: 'Clavicular Head & Front Deltoids',
-    equipment: 'Incline Bench (30°), Dumbbells',
-    isSkipped: false,
-    previousPerformance: {
-      sets: [
-        { weightKg: 24, reps: 10 },
-        { weightKg: 24, reps: 10 },
-        { weightKg: 22, reps: 9 },
-      ],
-      totalVolumeKg: 678,
-    },
-    sets: [
-      { id: 's-2-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 24, targetReps: 10, actualWeightKg: 24, actualReps: 0, isCompleted: false },
-      { id: 's-2-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 24, targetReps: 10, actualWeightKg: 24, actualReps: 0, isCompleted: false },
-      { id: 's-2-3', setNumber: 3, setType: 'WORKING', targetWeightKg: 24, targetReps: 10, actualWeightKg: 22, actualReps: 0, isCompleted: false },
-    ],
-  },
-  {
-    id: 'ex-3',
-    name: 'Chest Fly (Dumbbell / Machine)',
-    muscleGroup: 'Chest',
-    targetArea: 'Sternal Pectoralis Stretch',
-    equipment: 'Pec Deck / Flat Bench',
-    isSkipped: false,
-    previousPerformance: {
-      sets: [
-        { weightKg: 45, reps: 12 },
-        { weightKg: 45, reps: 12 },
-      ],
-      totalVolumeKg: 1080,
-    },
-    sets: [
-      { id: 's-3-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 45, targetReps: 12, actualWeightKg: 45, actualReps: 0, isCompleted: false },
-      { id: 's-3-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 45, targetReps: 12, actualWeightKg: 45, actualReps: 0, isCompleted: false },
-    ],
-  },
-  {
-    id: 'ex-4',
-    name: 'Cable Crossover',
-    muscleGroup: 'Lower Chest',
-    targetArea: 'Abdominal Pectoralis Peak Contraction',
-    equipment: 'Dual Cable Tower',
-    isSkipped: false,
-    previousPerformance: {
-      sets: [
-        { weightKg: 15, reps: 15 },
-        { weightKg: 15, reps: 14 },
-      ],
-      totalVolumeKg: 435,
-    },
-    sets: [
-      { id: 's-4-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 15, targetReps: 15, actualWeightKg: 15, actualReps: 0, isCompleted: false },
-      { id: 's-4-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 15, targetReps: 15, actualWeightKg: 15, actualReps: 0, isCompleted: false },
-    ],
-  },
-  {
-    id: 'ex-5',
-    name: 'Tricep Rope Pushdown',
-    muscleGroup: 'Triceps',
-    targetArea: 'Lateral & Medial Head',
-    equipment: 'Cable Tower, Rope Attachment',
-    isSkipped: false,
-    previousPerformance: {
-      sets: [
-        { weightKg: 25, reps: 12 },
-        { weightKg: 25, reps: 12 },
-        { weightKg: 25, reps: 10 },
-      ],
-      totalVolumeKg: 850,
-    },
-    sets: [
-      { id: 's-5-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 25, targetReps: 12, actualWeightKg: 25, actualReps: 0, isCompleted: false },
-      { id: 's-5-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 25, targetReps: 12, actualWeightKg: 25, actualReps: 0, isCompleted: false },
-      { id: 's-5-3', setNumber: 3, setType: 'WORKING', targetWeightKg: 25, targetReps: 12, actualWeightKg: 25, actualReps: 0, isCompleted: false },
-    ],
-  },
-  {
-    id: 'ex-6',
-    name: 'Overhead Tricep Extension',
-    muscleGroup: 'Triceps',
-    targetArea: 'Long Head Stretch Focus',
-    equipment: 'Dumbbell / Cable Rope',
-    isSkipped: false,
-    previousPerformance: {
-      sets: [
-        { weightKg: 22.5, reps: 10 },
-        { weightKg: 22.5, reps: 10 },
-      ],
-      totalVolumeKg: 450,
-    },
-    sets: [
-      { id: 's-6-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 22.5, targetReps: 10, actualWeightKg: 22.5, actualReps: 0, isCompleted: false },
-      { id: 's-6-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 22.5, targetReps: 10, actualWeightKg: 22.5, actualReps: 0, isCompleted: false },
-    ],
-  },
-];
+function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): WorkoutExerciseState[] {
+  if (!workoutExercises || workoutExercises.length === 0) {
+    return [
+      {
+        id: 'ex-1',
+        name: 'Barbell Bench Press',
+        muscleGroup: 'Chest',
+        targetArea: 'Mid & Sternal Pectoralis',
+        equipment: 'Barbell, Flat Bench',
+        isSkipped: false,
+        previousPerformance: { sets: [{ weightKg: 60, reps: 10 }], totalVolumeKg: 600 },
+        sets: [
+          { id: 's-1-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 60, targetReps: 10, actualWeightKg: 60, actualReps: 0, isCompleted: false },
+          { id: 's-1-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 60, targetReps: 10, actualWeightKg: 60, actualReps: 0, isCompleted: false },
+          { id: 's-1-3', setNumber: 3, setType: 'WORKING', targetWeightKg: 60, targetReps: 10, actualWeightKg: 60, actualReps: 0, isCompleted: false },
+        ],
+      },
+    ];
+  }
+
+  return workoutExercises.map((ex, idx) => {
+    let setCount = 3;
+    let repCount = 10;
+    let weightKg = 40;
+
+    const setMatch = ex.prescription.match(/(\d+)\s*sets?/i);
+    if (setMatch && setMatch[1]) setCount = parseInt(setMatch[1], 10);
+
+    const repMatch = ex.prescription.match(/(\d+)\s*reps?/i);
+    if (repMatch && repMatch[1]) repCount = parseInt(repMatch[1], 10);
+
+    const weightMatch = ex.prescription.match(/@\s*(\d+(\.\d+)?)\s*kg/i);
+    if (weightMatch && weightMatch[1]) weightKg = parseFloat(weightMatch[1]);
+
+    const sets: RecordedSet[] = Array.from({ length: setCount }, (_, sIdx) => ({
+      id: `s-${idx + 1}-${sIdx + 1}`,
+      setNumber: sIdx + 1,
+      setType: 'WORKING',
+      targetWeightKg: weightKg,
+      targetReps: repCount,
+      actualWeightKg: weightKg,
+      actualReps: 0,
+      isCompleted: false,
+    }));
+
+    return {
+      id: `ex-${idx + 1}`,
+      name: ex.name,
+      muscleGroup: 'Prescribed Movement',
+      targetArea: ex.name,
+      equipment: 'Standard Gym Equipment',
+      isSkipped: false,
+      previousPerformance: {
+        sets: [{ weightKg, reps: repCount }],
+        totalVolumeKg: weightKg * repCount,
+      },
+      sets,
+    };
+  });
+}
 
 export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
   onBack,
   onCompleteWorkout,
   onOpenExerciseDetail,
 }) => {
-  // Session timer
-  const [elapsedSeconds, setElapsedSeconds] = useState<number>(1420); // 23:40 active
-  const [exercises, setExercises] = useState<WorkoutExerciseState[]>(INITIAL_EXERCISES);
+  const { workout } = usePerformance();
+
+  // Session timer - starts fresh at 0 unless restored from an active draft
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [exercises, setExercises] = useState<WorkoutExerciseState[]>(() =>
+    buildSessionExercises(workout.exercises)
+  );
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  // Restore active draft if present
+  useEffect(() => {
+    SecureStorage.getItem('active_workout_draft')
+      .then((draft) => {
+        if (draft) {
+          try {
+            const parsed = JSON.parse(draft);
+            if (Array.isArray(parsed.exercises) && parsed.exercises.length > 0) {
+              setExercises(parsed.exercises);
+              if (typeof parsed.elapsedSeconds === 'number') {
+                setElapsedSeconds(parsed.elapsedSeconds);
+              }
+            }
+          } catch {
+            // Keep default fresh state
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Save workout draft to storage
+  useEffect(() => {
+    if (exercises && exercises.length > 0) {
+      SecureStorage.setItem(
+        'active_workout_draft',
+        JSON.stringify({ exercises, elapsedSeconds })
+      ).catch(() => {});
+    }
+  }, [exercises, elapsedSeconds]);
 
   // Rest timer
   const [restSeconds, setRestSeconds] = useState<number>(90);
@@ -208,7 +183,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
   // Session reflection note
   const [sessionNotes] = useState<string>('Standard progressive overload session recorded.');
 
-  const currentExercise = exercises[currentIndex]!;
+  const currentExercise = exercises[currentIndex] || exercises[0]!;
   const totalExercises = exercises.length;
 
   // Session clock
@@ -403,8 +378,10 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
       .filter((ex) => ex.isSkipped)
       .map((ex) => ({ name: ex.name, reason: ex.skipReason || 'Skipped' }));
 
+    SecureStorage.removeItem('active_workout_draft').catch(() => {});
+
     onCompleteWorkout?.({
-      sessionTitle: 'Chest + Triceps Hypertrophy',
+      sessionTitle: workout?.name || 'Strength & Conditioning',
       durationSeconds: elapsedSeconds,
       totalVolumeKg: totalVolume,
       totalSetsCompleted: completedSetsCount,
@@ -438,7 +415,10 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                 {
                   text: 'Discard Workout',
                   style: 'destructive',
-                  onPress: onBack,
+                  onPress: () => {
+                    SecureStorage.removeItem('active_workout_draft').catch(() => {});
+                    onBack?.();
+                  },
                 },
               ]
             );
@@ -448,7 +428,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
-          <Text style={styles.sessionCategory}>CHEST + TRICEPS · SPLIT</Text>
+          <Text style={styles.sessionCategory}>{(workout?.name || 'WORKOUT').toUpperCase()} · SESSION</Text>
           <Text style={styles.elapsedTimer}>{formatTimer(elapsedSeconds)}</Text>
         </View>
 

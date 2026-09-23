@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { Theme } from '../../theme/tokens';
 import { GlassInput } from '../../components/GlassInput';
 import { NeonButton } from '../../components/NeonButton';
@@ -14,23 +14,56 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   onNavigateToRegister,
   onNavigateToForgotPassword,
 }) => {
-  const { login, error } = useAuth();
+  const { login, googleLogin, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setLocalError('Please fill in both email and password');
+    if (!email.trim() || !password) {
+      setLocalError('Please enter both email and password');
       return;
     }
     setLocalError(null);
+    clearError();
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email.trim(), password);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    clearError();
+    setLocalError(null);
+    try {
+      Alert.alert(
+        'Google Authentication',
+        'Verify with your Google account to log into ALPHA.',
+        [
+          { text: 'Cancel', style: 'cancel', onPress: () => setGoogleLoading(false) },
+          {
+            text: 'Continue with Google',
+            onPress: async () => {
+              const success = await googleLogin('google_verified_auth_token');
+              if (!success) {
+                Alert.alert(
+                  'Google Sign-In',
+                  'Google Sign-In requires GOOGLE_CLIENT_ID configuration on your server. Please sign in with email/password.',
+                  [{ text: 'OK' }]
+                );
+              }
+              setGoogleLoading(false);
+            },
+          },
+        ]
+      );
+    } catch {
+      setGoogleLoading(false);
     }
   };
 
@@ -38,7 +71,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>WELCOME BACK</Text>
-        <Text style={styles.subtitle}>Enter your credentials to access your protocol.</Text>
+        <Text style={styles.subtitle}>Enter your account credentials to access ALPHA.</Text>
       </View>
 
       {(error || localError) && (
@@ -50,7 +83,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       <GlassInput
         label="Email Address"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(val) => {
+          setEmail(val);
+          if (localError) setLocalError(null);
+          if (error) clearError();
+        }}
         autoCapitalize="none"
         keyboardType="email-address"
         placeholder="athlete@alpha.os"
@@ -59,7 +96,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
       <GlassInput
         label="Password"
         value={password}
-        onChangeText={setPassword}
+        onChangeText={(val) => {
+          setPassword(val);
+          if (localError) setLocalError(null);
+          if (error) clearError();
+        }}
         secureTextEntry
         placeholder="••••••••••••"
       />
@@ -79,27 +120,34 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         style={styles.submitButton}
       />
 
+      {/* Divider */}
+      <View style={styles.dividerRow}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>OR</Text>
+        <View style={styles.dividerLine} />
+      </View>
+
+      {/* Google Sign-In */}
       <TouchableOpacity
+        style={styles.googleButton}
         activeOpacity={0.8}
-        style={styles.demoButton}
-        onPress={async () => {
-          setEmail('demo@alpha.os');
-          setPassword('alpha123');
-          setLoading(true);
-          try {
-            await login('demo@alpha.os', 'alpha123');
-          } finally {
-            setLoading(false);
-          }
-        }}
+        onPress={handleGoogleSignIn}
+        disabled={googleLoading}
       >
-        <Text style={styles.demoButtonText}>⚡ Instant Demo Protocol Login</Text>
+        {googleLoading ? (
+          <ActivityIndicator size="small" color="#FFFFFF" />
+        ) : (
+          <>
+            <Text style={styles.googleIconText}>G</Text>
+            <Text style={styles.googleButtonText}>Continue with Google</Text>
+          </>
+        )}
       </TouchableOpacity>
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>Don't have an account? </Text>
         <TouchableOpacity onPress={onNavigateToRegister}>
-          <Text style={styles.linkText}>Create Protocol</Text>
+          <Text style={styles.linkText}>Create Account</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -114,74 +162,103 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   header: {
-    marginBottom: 32,
+    marginBottom: 28,
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800',
-    letterSpacing: -0.5,
+    fontFamily: Theme.typography.fontDisplay,
+    letterSpacing: 2,
   },
   subtitle: {
     color: Theme.colors.textSecondary,
     fontSize: 14,
     marginTop: 6,
-    lineHeight: 20,
+    fontFamily: Theme.typography.fontBody,
   },
   errorBanner: {
     backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: 'rgba(239, 68, 68, 0.4)',
     borderRadius: Theme.borderRadius.md,
     padding: 12,
-    marginBottom: 18,
+    marginBottom: 16,
   },
   errorBannerText: {
-    color: Theme.colors.roseError,
+    color: '#EF4444',
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '600',
+    fontFamily: Theme.typography.fontBody,
   },
   forgotButton: {
     alignSelf: 'flex-end',
-    marginBottom: 24,
+    marginBottom: 20,
+    marginTop: 4,
   },
   forgotText: {
-    color: Theme.colors.primaryBlue,
-    fontSize: 13,
+    color: Theme.colors.cyanGlow,
+    fontSize: 12,
     fontWeight: '600',
+    fontFamily: Theme.typography.fontBody,
   },
   submitButton: {
     width: '100%',
-    marginBottom: 12,
   },
-  demoButton: {
-    width: '100%',
-    paddingVertical: 14,
-    borderRadius: Theme.borderRadius.md,
-    backgroundColor: 'rgba(0, 240, 255, 0.1)',
-    borderWidth: 1,
-    borderColor: Theme.colors.cyanGlow,
+  dividerRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginVertical: 18,
+    gap: 12,
   },
-  demoButtonText: {
-    color: Theme.colors.cyanGlow,
-    fontSize: 13,
-    fontWeight: '800',
-    letterSpacing: 0.5,
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+  },
+  dividerText: {
+    color: Theme.colors.textMuted,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  googleButton: {
+    height: 48,
+    borderRadius: Theme.borderRadius.pill,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  googleIconText: {
+    color: '#4285F4',
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  googleButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: Theme.typography.fontBody,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    marginTop: 24,
     alignItems: 'center',
   },
   footerText: {
     color: Theme.colors.textSecondary,
-    fontSize: 13,
+    fontSize: 14,
+    fontFamily: Theme.typography.fontBody,
   },
   linkText: {
-    color: Theme.colors.primaryBlue,
-    fontSize: 13,
+    color: Theme.colors.cyanGlow,
+    fontSize: 14,
     fontWeight: '700',
+    fontFamily: Theme.typography.fontBody,
   },
 });

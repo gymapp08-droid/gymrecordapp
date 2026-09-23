@@ -51,6 +51,15 @@ export class WorkoutsController {
     return this.workoutsService.getActiveProgram(user.id);
   }
 
+  @Get('today')
+  async getTodayWorkout(
+    @CurrentUser() user: IAuthUser,
+    @Query('dayOfWeek') dayOfWeek?: string,
+  ) {
+    const dow = dayOfWeek ? parseInt(dayOfWeek, 10) : undefined;
+    return this.workoutsService.getTodayWorkout(user.id, dow);
+  }
+
   // --- Sessions & Execution ---
   @Post('sessions/start')
   async startSession(@CurrentUser() user: IAuthUser, @Body() dto: StartWorkoutSessionDto) {
