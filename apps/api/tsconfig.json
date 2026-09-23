@@ -10,7 +10,17 @@
     "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "paths": {
+      "@alpha/types": ["../../packages/types/src/index"],
+      "@alpha/types/*": ["../../packages/types/src/*"],
+      "@alpha/utils": ["../../packages/utils/src/index"],
+      "@alpha/utils/*": ["../../packages/utils/src/*"],
+      "@alpha/validation": ["../../packages/validation/src/index"],
+      "@alpha/validation/*": ["../../packages/validation/src/*"],
+      "@alpha/database": ["../../packages/database/src/index"],
+      "@alpha/database/*": ["../../packages/database/src/*"]
+    }
   },
   "include": ["src/**/*", "test/**/*"]
 }

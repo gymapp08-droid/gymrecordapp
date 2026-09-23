@@ -109,7 +109,7 @@ export class PrivacyService {
     const records = {} as Record<ConsentCategory, IConsentRecord>;
     const outdatedCategories: ConsentCategory[] = [];
 
-    for (const category of Object.values(ConsentCategory)) {
+    for (const category of Object.values(ConsentCategory) as ConsentCategory[]) {
       const activeVersion = ACTIVE_PRIVACY_POLICIES[category];
       const existing = userConsents.get(category);
 

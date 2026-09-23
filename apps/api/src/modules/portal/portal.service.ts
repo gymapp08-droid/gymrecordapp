@@ -1660,14 +1660,14 @@ export class PortalService {
     });
 
     const stepGoal = goal?.targetDailySteps || 10000;
-    const totalSteps = activities.reduce((acc, a) => acc + a.stepCount, 0);
+    const totalSteps = activities.reduce((acc: number, a: any) => acc + (a.stepCount || 0), 0);
     const averageDailySteps = activities.length > 0 ? Math.round(totalSteps / activities.length) : 0;
-    const stepGoalAchievedDays = activities.filter((a) => a.stepCount >= stepGoal).length;
+    const stepGoalAchievedDays = activities.filter((a: any) => (a.stepCount || 0) >= stepGoal).length;
 
-    const totalCardioSeconds = cardios.reduce((acc, c) => acc + c.durationSeconds, 0);
+    const totalCardioSeconds = cardios.reduce((acc: number, c: any) => acc + (c.durationSeconds || 0), 0);
     const weeklyCardioMinutes = Math.round(totalCardioSeconds / 60);
 
-    const cardioSessions = cardios.map((c) => ({
+    const cardioSessions = cardios.map((c: any) => ({
       id: c.id,
       type: c.activityType,
       durationMinutes: Math.round(c.durationSeconds / 60),
@@ -1845,7 +1845,7 @@ export class PortalService {
       orderBy: { startDateTime: 'asc' },
     });
 
-    return events.map((e) => ({
+    return events.map((e: any) => ({
       id: e.id,
       clientId: e.clientId,
       clientName: e.client.profile?.fullName || 'Athlete',
@@ -2131,7 +2131,7 @@ export class PortalService {
       orderBy: { createdAt: 'asc' },
     });
 
-    return messages.map((m) => ({
+    return messages.map((m: any) => ({
       id: m.id,
       coachId: m.coachId,
       clientId: m.clientId,
@@ -2369,7 +2369,7 @@ export class PortalService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return drafts.map((d) => ({
+    return drafts.map((d: any) => ({
       id: d.id,
       coachId: d.coachId,
       clientId: d.clientId,
@@ -2435,7 +2435,7 @@ export class PortalService {
       take: filters?.limit || 50,
     });
 
-    return logs.map((l) => ({
+    return logs.map((l: any) => ({
       id: l.id,
       userId: l.userId,
       actorName: user.profile?.fullName || user.email.split('@')[0],
