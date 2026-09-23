@@ -7,6 +7,8 @@ pnpm-debug.log*
 
 # Build outputs
 dist/
+!/apps/mobile/packages/types/dist
+!/apps/mobile/packages/types/dist/**
 build/
 .next/
 out/
