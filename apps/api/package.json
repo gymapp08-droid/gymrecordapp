@@ -5,6 +5,7 @@
   "scripts": {
     "prebuild": "npx prisma generate --schema=../../packages/database/prisma/schema.prisma",
     "build": "nest build",
+    "postbuild": "node scripts/ensure-entry.js",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
