@@ -79,6 +79,23 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         style={styles.submitButton}
       />
 
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={styles.demoButton}
+        onPress={async () => {
+          setEmail('demo@alpha.os');
+          setPassword('alpha123');
+          setLoading(true);
+          try {
+            await login('demo@alpha.os', 'alpha123');
+          } finally {
+            setLoading(false);
+          }
+        }}
+      >
+        <Text style={styles.demoButtonText}>⚡ Instant Demo Protocol Login</Text>
+      </TouchableOpacity>
+
       <View style={styles.footer}>
         <Text style={styles.footerText}>Don't have an account? </Text>
         <TouchableOpacity onPress={onNavigateToRegister}>
@@ -135,7 +152,23 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     width: '100%',
+    marginBottom: 12,
+  },
+  demoButton: {
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: Theme.borderRadius.md,
+    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: Theme.colors.cyanGlow,
+    alignItems: 'center',
     marginBottom: 24,
+  },
+  demoButtonText: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 13,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   footer: {
     flexDirection: 'row',

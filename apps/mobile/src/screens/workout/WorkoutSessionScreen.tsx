@@ -5,58 +5,232 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
+  TextInput,
+  Modal,
+  Alert,
 } from 'react-native';
+import { AlphaScreen, PrimaryButton, SecondaryButton } from '../../components';
 import { Theme } from '../../theme/tokens';
-import { GlassCard } from '../../components/GlassCard';
 
-interface ActiveSet {
+export type SetType = 'WARMUP' | 'WORKING' | 'TOP_SET' | 'BACKOFF' | 'DROP_SET' | 'FAILURE';
+
+export interface RecordedSet {
+  id: string;
   setNumber: number;
+  setType: SetType;
+  targetWeightKg: number;
   targetReps: number;
+  actualWeightKg: number;
   actualReps: number;
-  weightKg: number;
+  rpe?: number;
+  rir?: number;
+  notes?: string;
   isCompleted: boolean;
+}
+
+export interface WorkoutExerciseState {
+  id: string;
+  name: string;
+  muscleGroup: string;
+  targetArea: string;
+  equipment: string;
+  isSkipped: boolean;
+  skipReason?: string;
+  previousPerformance: {
+    sets: { weightKg: number; reps: number }[];
+    totalVolumeKg: number;
+  };
+  sets: RecordedSet[];
+}
+
+export interface WorkoutSummaryResult {
+  sessionTitle: string;
+  durationSeconds: number;
+  totalVolumeKg: number;
+  totalSetsCompleted: number;
+  totalRepsCompleted: number;
+  exercisesCompletedCount: number;
+  totalExercisesCount: number;
+  isPartial: boolean;
+  prsAchieved: string[];
+  skippedExercises: { name: string; reason: string }[];
+  sessionNotes: string;
 }
 
 interface WorkoutSessionScreenProps {
   onBack?: () => void;
-  onCompleteWorkout?: (totalVolumeKg: number) => void;
+  onCompleteWorkout?: (summary: WorkoutSummaryResult) => void;
+  onOpenExerciseDetail?: (exerciseId: string) => void;
 }
+
+const INITIAL_EXERCISES: WorkoutExerciseState[] = [
+  {
+    id: 'ex-1',
+    name: 'Barbell Bench Press',
+    muscleGroup: 'Chest',
+    targetArea: 'Mid & Sternal Pectoralis',
+    equipment: 'Barbell, Flat Bench',
+    isSkipped: false,
+    previousPerformance: {
+      sets: [
+        { weightKg: 60, reps: 12 },
+        { weightKg: 60, reps: 11 },
+        { weightKg: 55, reps: 10 },
+      ],
+      totalVolumeKg: 1930,
+    },
+    sets: [
+      { id: 's-1-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 60, targetReps: 12, actualWeightKg: 60, actualReps: 12, rpe: 8, isCompleted: true },
+      { id: 's-1-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 60, targetReps: 12, actualWeightKg: 60, actualReps: 11, rpe: 8.5, isCompleted: true },
+      { id: 's-1-3', setNumber: 3, setType: 'WORKING', targetWeightKg: 60, targetReps: 12, actualWeightKg: 55, actualReps: 10, rpe: 9, isCompleted: false },
+    ],
+  },
+  {
+    id: 'ex-2',
+    name: 'Incline Dumbbell Press',
+    muscleGroup: 'Upper Chest',
+    targetArea: 'Clavicular Head & Front Deltoids',
+    equipment: 'Incline Bench (30°), Dumbbells',
+    isSkipped: false,
+    previousPerformance: {
+      sets: [
+        { weightKg: 24, reps: 10 },
+        { weightKg: 24, reps: 10 },
+        { weightKg: 22, reps: 9 },
+      ],
+      totalVolumeKg: 678,
+    },
+    sets: [
+      { id: 's-2-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 24, targetReps: 10, actualWeightKg: 24, actualReps: 0, isCompleted: false },
+      { id: 's-2-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 24, targetReps: 10, actualWeightKg: 24, actualReps: 0, isCompleted: false },
+      { id: 's-2-3', setNumber: 3, setType: 'WORKING', targetWeightKg: 24, targetReps: 10, actualWeightKg: 22, actualReps: 0, isCompleted: false },
+    ],
+  },
+  {
+    id: 'ex-3',
+    name: 'Chest Fly (Dumbbell / Machine)',
+    muscleGroup: 'Chest',
+    targetArea: 'Sternal Pectoralis Stretch',
+    equipment: 'Pec Deck / Flat Bench',
+    isSkipped: false,
+    previousPerformance: {
+      sets: [
+        { weightKg: 45, reps: 12 },
+        { weightKg: 45, reps: 12 },
+      ],
+      totalVolumeKg: 1080,
+    },
+    sets: [
+      { id: 's-3-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 45, targetReps: 12, actualWeightKg: 45, actualReps: 0, isCompleted: false },
+      { id: 's-3-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 45, targetReps: 12, actualWeightKg: 45, actualReps: 0, isCompleted: false },
+    ],
+  },
+  {
+    id: 'ex-4',
+    name: 'Cable Crossover',
+    muscleGroup: 'Lower Chest',
+    targetArea: 'Abdominal Pectoralis Peak Contraction',
+    equipment: 'Dual Cable Tower',
+    isSkipped: false,
+    previousPerformance: {
+      sets: [
+        { weightKg: 15, reps: 15 },
+        { weightKg: 15, reps: 14 },
+      ],
+      totalVolumeKg: 435,
+    },
+    sets: [
+      { id: 's-4-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 15, targetReps: 15, actualWeightKg: 15, actualReps: 0, isCompleted: false },
+      { id: 's-4-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 15, targetReps: 15, actualWeightKg: 15, actualReps: 0, isCompleted: false },
+    ],
+  },
+  {
+    id: 'ex-5',
+    name: 'Tricep Rope Pushdown',
+    muscleGroup: 'Triceps',
+    targetArea: 'Lateral & Medial Head',
+    equipment: 'Cable Tower, Rope Attachment',
+    isSkipped: false,
+    previousPerformance: {
+      sets: [
+        { weightKg: 25, reps: 12 },
+        { weightKg: 25, reps: 12 },
+        { weightKg: 25, reps: 10 },
+      ],
+      totalVolumeKg: 850,
+    },
+    sets: [
+      { id: 's-5-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 25, targetReps: 12, actualWeightKg: 25, actualReps: 0, isCompleted: false },
+      { id: 's-5-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 25, targetReps: 12, actualWeightKg: 25, actualReps: 0, isCompleted: false },
+      { id: 's-5-3', setNumber: 3, setType: 'WORKING', targetWeightKg: 25, targetReps: 12, actualWeightKg: 25, actualReps: 0, isCompleted: false },
+    ],
+  },
+  {
+    id: 'ex-6',
+    name: 'Overhead Tricep Extension',
+    muscleGroup: 'Triceps',
+    targetArea: 'Long Head Stretch Focus',
+    equipment: 'Dumbbell / Cable Rope',
+    isSkipped: false,
+    previousPerformance: {
+      sets: [
+        { weightKg: 22.5, reps: 10 },
+        { weightKg: 22.5, reps: 10 },
+      ],
+      totalVolumeKg: 450,
+    },
+    sets: [
+      { id: 's-6-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 22.5, targetReps: 10, actualWeightKg: 22.5, actualReps: 0, isCompleted: false },
+      { id: 's-6-2', setNumber: 2, setType: 'WORKING', targetWeightKg: 22.5, targetReps: 10, actualWeightKg: 22.5, actualReps: 0, isCompleted: false },
+    ],
+  },
+];
 
 export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
   onBack,
   onCompleteWorkout,
+  onOpenExerciseDetail,
 }) => {
-  // Main session elapsed timer
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(3504); // 58:24
+  // Session timer
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(1420); // 23:40 active
+  const [exercises, setExercises] = useState<WorkoutExerciseState[]>(INITIAL_EXERCISES);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+
   // Rest timer
   const [restSeconds, setRestSeconds] = useState<number>(90);
-  const [isRestActive, setIsRestActive] = useState<boolean>(true);
+  const [initialRestDuration] = useState<number>(90);
+  const [isRestActive, setIsRestActive] = useState<boolean>(false);
 
-  const [currentExerciseIndex] = useState<number>(1);
-  const totalExercises = 6;
+  // Skip modal
+  const [skipModalVisible, setSkipModalVisible] = useState(false);
+  const [skipReason, setSkipReason] = useState('Equipment unavailable');
 
-  const [sets, setSets] = useState<ActiveSet[]>([
-    { setNumber: 1, targetReps: 15, actualReps: 12, weightKg: 60, isCompleted: true },
-    { setNumber: 2, targetReps: 15, actualReps: 11, weightKg: 60, isCompleted: true },
-    { setNumber: 3, targetReps: 15, actualReps: 0, weightKg: 60, isCompleted: false },
-  ]);
+  // Session reflection note
+  const [sessionNotes] = useState<string>('Standard progressive overload session recorded.');
 
-  // Main countdown timer
+  const currentExercise = exercises[currentIndex]!;
+  const totalExercises = exercises.length;
+
+  // Session clock
   useEffect(() => {
     const timer = setInterval(() => {
-      setSecondsRemaining((prev) => (prev > 0 ? prev - 1 : 0));
+      setElapsedSeconds((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Rest countdown timer
+  // Rest countdown clock
   useEffect(() => {
     let restTimer: any;
     if (isRestActive && restSeconds > 0) {
       restTimer = setInterval(() => {
-        setRestSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+        setRestSeconds((prev) => {
+          if (prev <= 1) {
+            setIsRestActive(false);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
     }
     return () => clearInterval(restTimer);
@@ -68,499 +242,1091 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const toggleSetCompleted = (index: number) => {
-    setSets((prev) =>
-      prev.map((item, i) => {
-        if (i === index) {
-          const nextCompleted = !item.isCompleted;
-          return {
-            ...item,
-            isCompleted: nextCompleted,
-            actualReps: nextCompleted && item.actualReps === 0 ? item.targetReps : item.actualReps,
-          };
-        }
-        return item;
+  // Deterministic Volume calculation: Σ (weight × reps) across all completed sets
+  const calculateTotalVolume = () => {
+    let vol = 0;
+    exercises.forEach((ex) => {
+      if (!ex.isSkipped) {
+        ex.sets.forEach((s) => {
+          if (s.isCompleted && s.actualReps > 0 && s.actualWeightKg > 0) {
+            vol += s.actualWeightKg * s.actualReps;
+          }
+        });
+      }
+    });
+    return vol;
+  };
+
+  // Completed sets count across all exercises
+  const totalSetsCount = exercises.reduce((acc, ex) => acc + (ex.isSkipped ? 0 : ex.sets.length), 0);
+  const completedSetsCount = exercises.reduce(
+    (acc, ex) => acc + (ex.isSkipped ? 0 : ex.sets.filter((s) => s.isCompleted).length),
+    0
+  );
+
+  // Set toggle handler
+  const handleToggleSet = (setId: string) => {
+    setExercises((prev) =>
+      prev.map((ex, exIdx) => {
+        if (exIdx !== currentIndex) return ex;
+        return {
+          ...ex,
+          sets: ex.sets.map((s) => {
+            if (s.id !== setId) return s;
+            const nextCompleted = !s.isCompleted;
+            // If checking off and actual reps is currently 0, pre-prompt user to keep or change target reps
+            const nextActualReps = nextCompleted && s.actualReps === 0 ? s.targetReps : s.actualReps;
+            return {
+              ...s,
+              isCompleted: nextCompleted,
+              actualReps: nextActualReps,
+            };
+          }),
+        };
       })
     );
-    // Restart rest interval upon set completion
-    setRestSeconds(90);
+
+    // Trigger rest timer on completing a set
+    setRestSeconds(initialRestDuration);
     setIsRestActive(true);
   };
 
-  const addSet = () => {
-    setSets((prev) => [
-      ...prev,
+  // Update actual reps for a set (User Controlled)
+  const handleUpdateReps = (setId: string, repsText: string) => {
+    const num = parseInt(repsText, 10) || 0;
+    setExercises((prev) =>
+      prev.map((ex, exIdx) => {
+        if (exIdx !== currentIndex) return ex;
+        return {
+          ...ex,
+          sets: ex.sets.map((s) => (s.id === setId ? { ...s, actualReps: num } : s)),
+        };
+      })
+    );
+  };
+
+  // Update actual weight for a set (User Controlled)
+  const handleUpdateWeight = (setId: string, weightText: string) => {
+    const num = parseFloat(weightText) || 0;
+    setExercises((prev) =>
+      prev.map((ex, exIdx) => {
+        if (exIdx !== currentIndex) return ex;
+        return {
+          ...ex,
+          sets: ex.sets.map((s) => (s.id === setId ? { ...s, actualWeightKg: num } : s)),
+        };
+      })
+    );
+  };
+
+  // Add Set dynamically
+  const handleAddSet = () => {
+    const lastSet = currentExercise.sets[currentExercise.sets.length - 1];
+    const newSetNumber = currentExercise.sets.length + 1;
+    const newSet: RecordedSet = {
+      id: `s-${currentIndex + 1}-${newSetNumber}`,
+      setNumber: newSetNumber,
+      setType: 'WORKING',
+      targetWeightKg: lastSet ? lastSet.targetWeightKg : 60,
+      targetReps: lastSet ? lastSet.targetReps : 10,
+      actualWeightKg: lastSet ? lastSet.actualWeightKg : 60,
+      actualReps: 0,
+      isCompleted: false,
+    };
+
+    setExercises((prev) =>
+      prev.map((ex, exIdx) => (exIdx === currentIndex ? { ...ex, sets: [...ex.sets, newSet] } : ex))
+    );
+  };
+
+  // Delete Set
+  const handleDeleteSet = (setId: string) => {
+    Alert.alert('Delete Set', 'Remove this set record from the workout?', [
+      { text: 'Cancel', style: 'cancel' },
       {
-        setNumber: prev.length + 1,
-        targetReps: 12,
-        actualReps: 0,
-        weightKg: 60,
-        isCompleted: false,
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          setExercises((prev) =>
+            prev.map((ex, exIdx) => {
+              if (exIdx !== currentIndex) return ex;
+              const filtered = ex.sets.filter((s) => s.id !== setId);
+              // Re-number
+              const renumbered = filtered.map((s, idx) => ({ ...s, setNumber: idx + 1 }));
+              return { ...ex, sets: renumbered };
+            })
+          );
+        },
       },
     ]);
   };
 
-  // Calculate accumulated session volume (weight * reps)
-  const totalVolumeKg = sets
-    .filter((s) => s.isCompleted)
-    .reduce((acc, s) => acc + s.weightKg * s.actualReps, 0);
+  // Skip current exercise with reason
+  const handleConfirmSkip = () => {
+    setExercises((prev) =>
+      prev.map((ex, idx) =>
+        idx === currentIndex ? { ...ex, isSkipped: true, skipReason } : ex
+      )
+    );
+    setSkipModalVisible(false);
+    // Advance to next if available
+    if (currentIndex < totalExercises - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  };
+
+  // Workout Completion & PR detection
+  const handleFinishWorkout = () => {
+    const totalVolume = calculateTotalVolume();
+    const completedExCount = exercises.filter((ex) => !ex.isSkipped && ex.sets.some((s) => s.isCompleted)).length;
+    const isPartial = completedExCount < totalExercises;
+
+    const prs: string[] = [];
+    // Check if any actual set broke previous record
+    exercises.forEach((ex) => {
+      const maxPrevWeight = Math.max(...ex.previousPerformance.sets.map((s) => s.weightKg), 0);
+      ex.sets.forEach((s) => {
+        if (s.isCompleted && s.actualWeightKg > maxPrevWeight) {
+          prs.push(`${ex.name}: ${s.actualWeightKg} kg × ${s.actualReps} (Overload PR)`);
+        }
+      });
+    });
+
+    let repsTotal = 0;
+    exercises.forEach((ex) => {
+      ex.sets.forEach((s) => {
+        if (s.isCompleted) repsTotal += s.actualReps;
+      });
+    });
+
+    const skipped = exercises
+      .filter((ex) => ex.isSkipped)
+      .map((ex) => ({ name: ex.name, reason: ex.skipReason || 'Skipped' }));
+
+    onCompleteWorkout?.({
+      sessionTitle: 'Chest + Triceps Hypertrophy',
+      durationSeconds: elapsedSeconds,
+      totalVolumeKg: totalVolume,
+      totalSetsCompleted: completedSetsCount,
+      totalRepsCompleted: repsTotal,
+      exercisesCompletedCount: completedExCount,
+      totalExercisesCount: totalExercises,
+      isPartial,
+      prsAchieved: prs,
+      skippedExercises: skipped,
+      sessionNotes,
+    });
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Theme.colors.background} />
-
-      {/* Workout Header Bar */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.iconButton} onPress={onBack}>
-          <Text style={styles.backChevron}>‹</Text>
+    <AlphaScreen>
+      {/* Top Header Bar */}
+      <View style={styles.topHeader}>
+        <TouchableOpacity
+          style={styles.exitBtn}
+          onPress={() => {
+            Alert.alert(
+              'Exit Workout Session',
+              'Do you want to abandon or save partial progress?',
+              [
+                { text: 'Keep Training', style: 'cancel' },
+                {
+                  text: 'Save & Exit Partial',
+                  style: 'default',
+                  onPress: handleFinishWorkout,
+                },
+                {
+                  text: 'Discard Workout',
+                  style: 'destructive',
+                  onPress: onBack,
+                },
+              ]
+            );
+          }}
+        >
+          <Text style={styles.exitIcon}>✕</Text>
         </TouchableOpacity>
+
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Chest + Triceps</Text>
-          <Text style={styles.headerSubtitle}>Total Volume: {totalVolumeKg} KG</Text>
+          <Text style={styles.sessionCategory}>CHEST + TRICEPS · SPLIT</Text>
+          <Text style={styles.elapsedTimer}>{formatTimer(elapsedSeconds)}</Text>
         </View>
-        <TouchableOpacity style={styles.iconButton}>
-          <Text style={styles.iconText}>⋯</Text>
+
+        <TouchableOpacity style={styles.finishTopBtn} onPress={handleFinishWorkout}>
+          <Text style={styles.finishTopText}>FINISH</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Main Countdown Timer HUD */}
-      <View style={styles.timerHud}>
-        <Text style={styles.timerDigital}>{formatTimer(secondsRemaining)}</Text>
-        <Text style={styles.timerLabel}>WORKOUT TIME REMAINING</Text>
+      {/* Exercise Progress Indicator (1 of 6 ... 6 of 6) */}
+      <View style={styles.progressContainer}>
+        <View style={styles.progressLabelRow}>
+          <Text style={styles.exerciseCounter}>
+            EXERCISE {currentIndex + 1} OF {totalExercises}
+          </Text>
+          <Text style={styles.setsProgress}>
+            {completedSetsCount}/{totalSetsCount} Sets Completed
+          </Text>
+        </View>
+
+        <View style={styles.progressBarTrack}>
+          <View
+            style={[
+              styles.progressBarFill,
+              { width: `${((currentIndex + 1) / totalExercises) * 100}%` },
+            ]}
+          />
+        </View>
+
+        {/* Exercise Quick Selector Pills */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.selectorScroll}>
+          {exercises.map((ex, idx) => {
+            const isSelected = idx === currentIndex;
+            const hasCompletedSets = ex.sets.some((s) => s.isCompleted);
+            return (
+              <TouchableOpacity
+                key={ex.id}
+                style={[
+                  styles.selectorPill,
+                  isSelected && styles.selectorPillActive,
+                  ex.isSkipped && styles.selectorPillSkipped,
+                ]}
+                onPress={() => setCurrentIndex(idx)}
+              >
+                <Text style={[styles.selectorPillIndex, isSelected && styles.selectorPillIndexActive]}>
+                  {idx + 1}
+                </Text>
+                <Text style={[styles.selectorPillText, isSelected && styles.selectorPillTextActive]} numberOfLines={1}>
+                  {ex.name}
+                </Text>
+                {hasCompletedSets && !ex.isSkipped && <Text style={styles.doneCheck}>✓</Text>}
+                {ex.isSkipped && <Text style={styles.skippedTag}>SKIPPED</Text>}
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Current Exercise Overview Card */}
-        <GlassCard style={styles.exerciseCard}>
-          <View style={styles.exerciseCardHeader}>
-            <Text style={styles.exerciseTitle}>Barbell Bench Press</Text>
-            <View style={styles.exercisePill}>
-              <Text style={styles.exercisePillText}>
-                0{currentExerciseIndex} / 0{totalExercises}
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Current Exercise Title & Anatomical Target Area */}
+        <View style={styles.exerciseHeroCard}>
+          <View style={styles.exerciseHeroTop}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.targetMuscleLabel}>
+                {currentExercise.muscleGroup.toUpperCase()} · {currentExercise.targetArea.toUpperCase()}
               </Text>
+              <Text style={styles.currentExerciseName}>{currentExercise.name}</Text>
+              <Text style={styles.equipmentText}>Equipment: {currentExercise.equipment}</Text>
             </View>
-          </View>
-          <View style={styles.targetBadge}>
-            <Text style={styles.targetPrefix}>Target</Text>
-            <Text style={styles.targetDetails}>15 Reps • 60 KG</Text>
-          </View>
-        </GlassCard>
 
-        {/* Set Tracking List */}
-        <GlassCard style={styles.setTrackingCard}>
-          <View style={styles.setsTableHeader}>
-            <Text style={styles.setsTableCol}>SET</Text>
-            <Text style={styles.setsTableCol}>REPS</Text>
-            <Text style={styles.setsTableCol}>WEIGHT</Text>
-            <Text style={[styles.setsTableCol, { textAlign: 'right' }]}>DONE</Text>
-          </View>
-
-          {sets.map((s, index) => (
-            <View
-              key={s.setNumber}
-              style={[
-                styles.setRow,
-                s.isCompleted && styles.setRowCompleted,
-              ]}
-            >
-              <Text style={styles.setNumberText}>Set {s.setNumber}</Text>
-              <View style={styles.repsContainer}>
-                <Text style={[styles.repsActual, s.isCompleted && styles.repsActualCompleted]}>
-                  {s.actualReps}
-                </Text>
-                <Text style={styles.repsDivider}>/</Text>
-                <Text style={styles.repsTarget}>{s.targetReps}</Text>
-              </View>
-              <Text style={styles.weightText}>{s.weightKg} kg</Text>
+            {onOpenExerciseDetail && (
               <TouchableOpacity
-                style={[styles.checkButton, s.isCompleted && styles.checkButtonCompleted]}
-                onPress={() => toggleSetCompleted(index)}
-                activeOpacity={0.7}
+                style={styles.infoBtn}
+                onPress={() => onOpenExerciseDetail(currentExercise.id)}
               >
-                {s.isCompleted && <Text style={styles.checkIcon}>✓</Text>}
+                <Text style={styles.infoBtnText}>FORM & ANATOMY ›</Text>
               </TouchableOpacity>
-            </View>
-          ))}
+            )}
+          </View>
 
-          {/* Add Set Button */}
-          <TouchableOpacity style={styles.addSetButton} onPress={addSet} activeOpacity={0.7}>
-            <Text style={styles.addSetText}>+ Add Set</Text>
-          </TouchableOpacity>
-        </GlassCard>
-
-        {/* Rest Timer Widget */}
-        <GlassCard style={styles.restTimerCard}>
-          <View style={styles.restTimerLeft}>
-            <View style={styles.pulsingRadar}>
-              <View style={styles.radarDot} />
+          {/* Last Session Historical Baseline (For Progressive Overload) */}
+          <View style={styles.lastSessionBox}>
+            <View style={styles.lastSessionHeader}>
+              <Text style={styles.lastSessionTitle}>LAST SESSION PERFORMANCE</Text>
+              <Text style={styles.lastSessionVol}>Vol: {currentExercise.previousPerformance.totalVolumeKg} kg</Text>
             </View>
+            <View style={styles.lastSessionSetsRow}>
+              {currentExercise.previousPerformance.sets.map((ps, pi) => (
+                <View key={pi} style={styles.prevSetChip}>
+                  <Text style={styles.prevSetText}>
+                    Set {pi + 1}: <Text style={styles.prevSetBold}>{ps.weightKg}kg × {ps.reps}</Text>
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+
+        {/* Set Logging Matrix (Plan vs Actual) */}
+        <View style={styles.setsCard}>
+          <View style={styles.setHeaderRow}>
+            <Text style={[styles.setTh, { width: 36 }]}>SET</Text>
+            <Text style={[styles.setTh, { flex: 1 }]}>TARGET</Text>
+            <Text style={[styles.setTh, { width: 72, textAlign: 'center' }]}>ACTUAL KG</Text>
+            <Text style={[styles.setTh, { width: 64, textAlign: 'center' }]}>REPS</Text>
+            <Text style={[styles.setTh, { width: 44, textAlign: 'center' }]}>DONE</Text>
+          </View>
+
+          {currentExercise.sets.map((set) => {
+            const diff = set.actualReps - set.targetReps;
+            return (
+              <View
+                key={set.id}
+                style={[styles.setRow, set.isCompleted && styles.setRowCompleted]}
+              >
+                <View style={styles.setIndexWrap}>
+                  <Text style={styles.setIndexText}>{set.setNumber}</Text>
+                  <Text style={styles.setTypeSub}>{set.setType === 'WORKING' ? 'W' : 'T'}</Text>
+                </View>
+
+                {/* Plan Target */}
+                <View style={styles.targetCol}>
+                  <Text style={styles.targetPlanText}>
+                    {set.targetWeightKg}kg × {set.targetReps}
+                  </Text>
+                  {set.isCompleted && diff !== 0 && (
+                    <Text
+                      style={[
+                        styles.diffBadge,
+                        diff > 0 ? styles.diffPositive : styles.diffNegative,
+                      ]}
+                    >
+                      {diff > 0 ? `+${diff}` : `${diff}`} reps
+                    </Text>
+                  )}
+                </View>
+
+                {/* Actual Weight (User Controlled) */}
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    style={styles.numericInput}
+                    keyboardType="decimal-pad"
+                    value={set.actualWeightKg.toString()}
+                    onChangeText={(t) => handleUpdateWeight(set.id, t)}
+                    selectTextOnFocus
+                  />
+                </View>
+
+                {/* Actual Reps (User Controlled) */}
+                <View style={styles.inputWrap}>
+                  <TextInput
+                    style={[styles.numericInput, set.actualReps > 0 && styles.numericInputActive]}
+                    keyboardType="number-pad"
+                    value={set.actualReps > 0 ? set.actualReps.toString() : ''}
+                    placeholder="0"
+                    placeholderTextColor="#64748B"
+                    onChangeText={(t) => handleUpdateReps(set.id, t)}
+                    selectTextOnFocus
+                  />
+                </View>
+
+                {/* Completion Toggle */}
+                <TouchableOpacity
+                  style={[styles.checkBtn, set.isCompleted && styles.checkBtnActive]}
+                  onPress={() => handleToggleSet(set.id)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.checkMark, set.isCompleted && styles.checkMarkActive]}>
+                    ✓
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
+
+          {/* Add Set & Set Controls */}
+          <View style={styles.setActionRow}>
+            <TouchableOpacity style={styles.addSetBtn} onPress={handleAddSet}>
+              <Text style={styles.addSetText}>+ ADD SET</Text>
+            </TouchableOpacity>
+
+            {currentExercise.sets.length > 1 && (
+              <TouchableOpacity
+                style={styles.deleteSetBtn}
+                onPress={() => handleDeleteSet(currentExercise.sets[currentExercise.sets.length - 1]!.id)}
+              >
+                <Text style={styles.deleteSetText}>- Remove Last Set</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {/* Rest Timer Banner */}
+        <View style={styles.restBanner}>
+          <View style={styles.restLeft}>
+            <Text style={styles.restIcon}>⏱️</Text>
             <View>
-              <Text style={styles.restTimerLabel}>REST TIMER</Text>
-              <Text style={styles.restTimerValue}>{formatTimer(restSeconds)}</Text>
+              <Text style={styles.restLabel}>REST INTERVAL COUNTDOWN</Text>
+              <Text style={styles.restDigits}>{formatTimer(restSeconds)}</Text>
             </View>
           </View>
 
-          <View style={styles.restTimerControls}>
+          <View style={styles.restControls}>
             <TouchableOpacity
-              style={styles.restControlButton}
+              style={styles.restMiniBtn}
               onPress={() => setRestSeconds((prev) => prev + 30)}
             >
-              <Text style={styles.restControlText}>+30s</Text>
+              <Text style={styles.restMiniBtnText}>+30s</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
-              style={[styles.restControlButton, isRestActive && styles.restControlButtonActive]}
-              onPress={() => setIsRestActive(!isRestActive)}
+              style={[styles.restMiniBtn, isRestActive && styles.restMiniBtnActive]}
+              onPress={() => setIsRestActive((prev) => !prev)}
             >
-              <Text style={styles.restControlText}>{isRestActive ? '❚❚' : '▶'}</Text>
+              <Text style={[styles.restMiniBtnText, isRestActive && styles.restMiniBtnTextActive]}>
+                {isRestActive ? 'PAUSE' : 'START'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.restMiniBtn}
+              onPress={() => {
+                setIsRestActive(false);
+                setRestSeconds(0);
+              }}
+            >
+              <Text style={styles.restMiniBtnText}>SKIP</Text>
             </TouchableOpacity>
           </View>
-        </GlassCard>
+        </View>
+
+        {/* Exercise Flow Navigation Controls */}
+        <View style={styles.exerciseNavRow}>
+          <TouchableOpacity
+            style={[styles.navExBtn, currentIndex === 0 && styles.navExBtnDisabled]}
+            disabled={currentIndex === 0}
+            onPress={() => setCurrentIndex((prev) => Math.max(prev - 1, 0))}
+          >
+            <Text style={styles.navExBtnText}>‹ Previous Exercise</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.skipExBtn}
+            onPress={() => setSkipModalVisible(true)}
+          >
+            <Text style={styles.skipExBtnText}>Skip Exercise</Text>
+          </TouchableOpacity>
+
+          {currentIndex < totalExercises - 1 ? (
+            <TouchableOpacity
+              style={styles.navExBtnNext}
+              onPress={() => setCurrentIndex((prev) => Math.min(prev + 1, totalExercises - 1))}
+            >
+              <Text style={styles.navExBtnNextText}>Next Exercise ›</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.navExBtnComplete} onPress={handleFinishWorkout}>
+              <Text style={styles.navExBtnCompleteText}>Complete Workout</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Live Session Telemetry Aggregator */}
+        <View style={styles.volumeCard}>
+          <View style={styles.volItem}>
+            <Text style={styles.volKey}>TOTAL VOLUME</Text>
+            <Text style={styles.volValue}>{calculateTotalVolume().toLocaleString()} <Text style={styles.volUnit}>kg</Text></Text>
+          </View>
+          <View style={styles.volItem}>
+            <Text style={styles.volKey}>EXERCISES</Text>
+            <Text style={styles.volValue}>
+              {exercises.filter((ex) => !ex.isSkipped && ex.sets.some((s) => s.isCompleted)).length} / {totalExercises}
+            </Text>
+          </View>
+          <View style={styles.volItem}>
+            <Text style={styles.volKey}>COMPLETED SETS</Text>
+            <Text style={styles.volValue}>{completedSetsCount}</Text>
+          </View>
+        </View>
       </ScrollView>
 
-      {/* Bottom Exercise Controls */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.prevButton} activeOpacity={0.8}>
-          <Text style={styles.prevButtonText}>‹ Previous</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.nextButton}
-          activeOpacity={0.8}
-          onPress={() => onCompleteWorkout && onCompleteWorkout(totalVolumeKg)}
-        >
-          <Text style={styles.nextButtonText}>Complete Workout ›</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      {/* Skip Exercise Reason Modal */}
+      <Modal visible={skipModalVisible} transparent animationType="fade">
+        <View style={styles.modalBackdrop}>
+          <View style={styles.skipModalBox}>
+            <Text style={styles.skipModalTitle}>Skip {currentExercise.name}?</Text>
+            <Text style={styles.skipModalSub}>Select the reason for omitting this exercise from today's performance record:</Text>
+
+            {['Equipment unavailable', 'Time constraint', 'Fatigue / Recovery capacity', 'Joint discomfort / Injury precaution', 'Personal substitution'].map((reason) => (
+              <TouchableOpacity
+                key={reason}
+                style={[styles.reasonPill, skipReason === reason && styles.reasonPillActive]}
+                onPress={() => setSkipReason(reason)}
+              >
+                <Text style={[styles.reasonText, skipReason === reason && styles.reasonTextActive]}>
+                  {reason}
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            <View style={styles.skipModalActions}>
+              <SecondaryButton
+                title="Cancel"
+                onPress={() => setSkipModalVisible(false)}
+                style={{ flex: 1 }}
+              />
+              <PrimaryButton
+                title="Confirm Skip"
+                onPress={handleConfirmSkip}
+                style={{ flex: 1 }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </AlphaScreen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Theme.colors.background,
-  },
-  header: {
+  topHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 10,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    marginBottom: 8,
+  },
+  exitBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Theme.colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  exitIcon: {
+    color: Theme.colors.textMuted,
+    fontSize: 14,
+    fontWeight: '700',
   },
   headerCenter: {
     alignItems: 'center',
   },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: Theme.colors.textPrimary,
+  sessionCategory: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
+    letterSpacing: 1,
   },
-  headerSubtitle: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: Theme.colors.primaryBlue,
+  elapsedTimer: {
+    fontSize: 18,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    fontWeight: '900',
+    color: Theme.colors.textPrimary,
     marginTop: 2,
   },
-  iconButton: {
-    width: 38,
-    height: 38,
-    borderRadius: Theme.borderRadius.pill,
-    backgroundColor: Theme.colors.surfaceElevated,
+  finishTopBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
     borderWidth: 1,
-    borderColor: Theme.colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: Theme.colors.emeraldSuccess,
+    borderRadius: Theme.borderRadius.sm,
   },
-  backChevron: {
-    fontSize: 22,
-    color: Theme.colors.textPrimary,
-    fontWeight: '300',
-    marginTop: -2,
-  },
-  iconText: {
-    fontSize: 14,
-    color: Theme.colors.textSecondary,
-  },
-  timerHud: {
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  timerDigital: {
-    fontSize: 44,
-    fontWeight: '900',
-    fontFamily: 'monospace',
-    color: Theme.colors.textPrimary,
-    letterSpacing: 1,
-  },
-  timerLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: Theme.colors.textMuted,
-    letterSpacing: 1.5,
-    marginTop: 4,
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 110,
-    gap: 12,
-  },
-  exerciseCard: {
-    padding: 16,
-  },
-  exerciseCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  exerciseTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: Theme.colors.textPrimary,
-  },
-  exercisePill: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    backgroundColor: 'rgba(56, 130, 246, 0.15)',
-    borderRadius: Theme.borderRadius.pill,
-    borderWidth: 1,
-    borderColor: 'rgba(56, 130, 246, 0.4)',
-  },
-  exercisePillText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: Theme.colors.primaryBlue,
-  },
-  targetBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(30, 41, 59, 0.6)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    gap: 6,
-  },
-  targetPrefix: {
+  finishTopText: {
+    color: Theme.colors.emeraldSuccess,
     fontSize: 11,
     fontWeight: '800',
-    color: Theme.colors.primaryBlue,
+    letterSpacing: 0.5,
   },
-  targetDetails: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: Theme.colors.textSecondary,
+  progressContainer: {
+    paddingVertical: 6,
+    gap: 6,
   },
-  setTrackingCard: {
-    padding: 14,
-  },
-  setsTableHeader: {
+  progressLabelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    marginBottom: 8,
   },
-  setsTableCol: {
+  exerciseCounter: {
     fontSize: 10,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  setsProgress: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    fontWeight: '600',
+  },
+  progressBarTrack: {
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: Theme.colors.cyanGlow,
+    borderRadius: 2,
+  },
+  selectorScroll: {
+    flexDirection: 'row',
+    gap: 6,
+    paddingVertical: 4,
+  },
+  selectorPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Theme.colors.surfaceElevated,
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    gap: 6,
+    maxWidth: 180,
+  },
+  selectorPillActive: {
+    borderColor: Theme.colors.cyanGlow,
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+  },
+  selectorPillSkipped: {
+    opacity: 0.5,
+  },
+  selectorPillIndex: {
+    fontSize: 10,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+    fontWeight: '800',
+  },
+  selectorPillIndexActive: {
+    color: Theme.colors.cyanGlow,
+  },
+  selectorPillText: {
+    fontSize: 11,
+    color: Theme.colors.textSecondary,
+    fontWeight: '600',
+  },
+  selectorPillTextActive: {
+    color: Theme.colors.textPrimary,
     fontWeight: '700',
+  },
+  doneCheck: {
+    color: Theme.colors.emeraldSuccess,
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  skippedTag: {
+    color: Theme.colors.crimsonError,
+    fontSize: 8,
+    fontWeight: '800',
+  },
+  content: {
+    paddingVertical: 8,
+    paddingBottom: 36,
+    gap: 14,
+  },
+  exerciseHeroCard: {
+    backgroundColor: Theme.colors.surfaceElevated,
+    borderRadius: Theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    padding: 16,
+    gap: 12,
+  },
+  exerciseHeroTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  targetMuscleLabel: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  currentExerciseName: {
+    fontSize: 20,
+    fontFamily: Theme.typography.display.fontFamily,
+    fontWeight: '900',
+    color: Theme.colors.textPrimary,
+    marginTop: 2,
+  },
+  equipmentText: {
+    fontSize: 11,
+    color: Theme.colors.textMuted,
+    marginTop: 2,
+  },
+  infoBtn: {
+    backgroundColor: 'rgba(56, 130, 246, 0.15)',
+    borderWidth: 1,
+    borderColor: '#3882F6',
+    borderRadius: Theme.borderRadius.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  infoBtnText: {
+    color: '#3882F6',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  lastSessionBox: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    padding: 10,
+    gap: 6,
+  },
+  lastSessionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  lastSessionTitle: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
     color: Theme.colors.textMuted,
     letterSpacing: 1,
-    width: 60,
+    fontWeight: '700',
+  },
+  lastSessionVol: {
+    fontSize: 10,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '700',
+  },
+  lastSessionSetsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  prevSetChip: {
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: Theme.borderRadius.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  prevSetText: {
+    fontSize: 10,
+    color: Theme.colors.textSecondary,
+  },
+  prevSetBold: {
+    color: Theme.colors.textPrimary,
+    fontWeight: '700',
+  },
+  setsCard: {
+    backgroundColor: Theme.colors.surfaceElevated,
+    borderRadius: Theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    padding: 14,
+    gap: 8,
+  },
+  setHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  setTh: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+    fontWeight: '800',
+    letterSpacing: 0.8,
   },
   setRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.04)',
   },
   setRowCompleted: {
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-    backgroundColor: 'rgba(16, 185, 129, 0.05)',
+    backgroundColor: 'rgba(16, 185, 129, 0.04)',
   },
-  setNumberText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Theme.colors.textSecondary,
-    width: 50,
-  },
-  repsContainer: {
-    flexDirection: 'row',
+  setIndexWrap: {
+    width: 36,
     alignItems: 'center',
-    gap: 2,
-    width: 60,
   },
-  repsActual: {
-    fontSize: 13,
-    fontWeight: '700',
+  setIndexText: {
+    fontSize: 14,
+    fontFamily: Theme.typography.display.fontFamily,
+    fontWeight: '800',
     color: Theme.colors.textPrimary,
-    fontFamily: 'monospace',
   },
-  repsActualCompleted: {
-    color: Theme.colors.primaryBlue,
-  },
-  repsDivider: {
-    fontSize: 12,
+  setTypeSub: {
+    fontSize: 8,
     color: Theme.colors.textMuted,
+    fontWeight: '700',
   },
-  repsTarget: {
-    fontSize: 12,
-    color: Theme.colors.textMuted,
-    fontFamily: 'monospace',
+  targetCol: {
+    flex: 1,
   },
-  weightText: {
+  targetPlanText: {
     fontSize: 12,
-    fontWeight: '600',
     color: Theme.colors.textSecondary,
-    fontFamily: 'monospace',
-    width: 60,
+    fontWeight: '600',
   },
-  checkButton: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+  diffBadge: {
+    fontSize: 9,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  diffPositive: {
+    color: Theme.colors.emeraldSuccess,
+  },
+  diffNegative: {
+    color: Theme.colors.crimsonError,
+  },
+  inputWrap: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    marginHorizontal: 4,
+    paddingHorizontal: 4,
+  },
+  numericInput: {
+    fontSize: 14,
+    fontFamily: Theme.typography.display.fontFamily,
+    fontWeight: '800',
+    color: Theme.colors.textPrimary,
+    textAlign: 'center',
+    paddingVertical: 4,
+  },
+  numericInputActive: {
+    color: Theme.colors.cyanGlow,
+  },
+  checkBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    marginLeft: 6,
   },
-  checkButtonCompleted: {
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+  checkBtnActive: {
+    backgroundColor: Theme.colors.emeraldSuccess,
     borderColor: Theme.colors.emeraldSuccess,
   },
-  checkIcon: {
-    color: Theme.colors.emeraldSuccess,
-    fontSize: 14,
+  checkMark: {
+    fontSize: 16,
+    color: Theme.colors.textMuted,
     fontWeight: '900',
   },
-  addSetButton: {
-    paddingVertical: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
+  checkMarkActive: {
+    color: '#05070B',
   },
-  addSetText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Theme.colors.textSecondary,
-  },
-  restTimerCard: {
+  setActionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 14,
-    borderColor: 'rgba(56, 130, 246, 0.35)',
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    paddingTop: 8,
   },
-  restTimerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+  addSetBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: Theme.colors.cyanGlow,
   },
-  pulsingRadar: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: 'rgba(56, 130, 246, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radarDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: Theme.colors.primaryBlue,
-  },
-  restTimerLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: Theme.colors.textMuted,
-    letterSpacing: 1,
-  },
-  restTimerValue: {
-    fontSize: 22,
+  addSetText: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 11,
     fontWeight: '800',
-    fontFamily: 'monospace',
-    color: Theme.colors.textPrimary,
   },
-  restTimerControls: {
+  deleteSetBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
+  deleteSetText: {
+    color: Theme.colors.crimsonError,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  restBanner: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#0A101C',
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.25)',
+    padding: 12,
+  },
+  restLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  restIcon: {
+    fontSize: 20,
+  },
+  restLabel: {
+    fontSize: 8,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    letterSpacing: 1,
+    fontWeight: '800',
+  },
+  restDigits: {
+    fontSize: 18,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    fontWeight: '900',
+    color: Theme.colors.textPrimary,
+    marginTop: 2,
+  },
+  restControls: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  restMiniBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  restMiniBtnActive: {
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    borderColor: Theme.colors.amberWarning,
+  },
+  restMiniBtnText: {
+    color: Theme.colors.textSecondary,
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  restMiniBtnTextActive: {
+    color: Theme.colors.amberWarning,
+  },
+  exerciseNavRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     gap: 8,
   },
-  restControlButton: {
+  navExBtn: {
+    paddingVertical: 10,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
-  },
-  restControlButtonActive: {
-    backgroundColor: 'rgba(56, 130, 246, 0.25)',
-    borderColor: Theme.colors.primaryBlue,
-  },
-  restControlText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Theme.colors.textPrimary,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    padding: 16,
-    gap: 12,
-    backgroundColor: 'rgba(5, 7, 11, 0.95)',
-    borderTopWidth: 1,
-    borderTopColor: Theme.colors.border,
-  },
-  prevButton: {
-    flex: 1,
-    height: 50,
-    borderRadius: Theme.borderRadius.pill,
-    borderWidth: 1,
-    borderColor: Theme.colors.border,
     backgroundColor: Theme.colors.surfaceElevated,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
   },
-  prevButtonText: {
-    fontSize: 13,
+  navExBtnDisabled: {
+    opacity: 0.35,
+  },
+  navExBtnText: {
+    fontSize: 11,
     fontWeight: '700',
     color: Theme.colors.textSecondary,
   },
-  nextButton: {
-    flex: 1.5,
-    height: 50,
-    borderRadius: Theme.borderRadius.pill,
-    backgroundColor: Theme.colors.primaryBlue,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Theme.colors.primaryBlue,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-    elevation: 8,
+  skipExBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 8,
   },
-  nextButtonText: {
-    fontSize: 13,
+  skipExBtnText: {
+    fontSize: 11,
+    color: Theme.colors.textMuted,
+    fontWeight: '600',
+  },
+  navExBtnNext: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.cyanGlow,
+  },
+  navExBtnNextText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Theme.colors.cyanGlow,
+  },
+  navExBtnComplete: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.emeraldSuccess,
+  },
+  navExBtnCompleteText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Theme.colors.emeraldSuccess,
+  },
+  volumeCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: Theme.colors.surfaceElevated,
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    padding: 12,
+  },
+  volItem: {
+    alignItems: 'center',
+  },
+  volKey: {
+    fontSize: 8,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+    letterSpacing: 0.8,
     fontWeight: '700',
-    color: '#FFFFFF',
+  },
+  volValue: {
+    fontSize: 16,
+    fontFamily: Theme.typography.display.fontFamily,
+    fontWeight: '900',
+    color: Theme.colors.textPrimary,
+    marginTop: 2,
+  },
+  volUnit: {
+    fontSize: 10,
+    color: Theme.colors.cyanGlow,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  skipModalBox: {
+    backgroundColor: '#0D1118',
+    borderRadius: Theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    padding: 20,
+    gap: 12,
+  },
+  skipModalTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: Theme.colors.textPrimary,
+  },
+  skipModalSub: {
+    fontSize: 12,
+    color: Theme.colors.textSecondary,
+    lineHeight: 18,
+  },
+  reasonPill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  reasonPillActive: {
+    borderColor: Theme.colors.cyanGlow,
+    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+  },
+  reasonText: {
+    fontSize: 12,
+    color: Theme.colors.textSecondary,
+    fontWeight: '600',
+  },
+  reasonTextActive: {
+    color: Theme.colors.cyanGlow,
+    fontWeight: '700',
+  },
+  skipModalActions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 8,
   },
 });

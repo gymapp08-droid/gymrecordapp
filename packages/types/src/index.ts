@@ -97,6 +97,7 @@ export enum SocialProvider {
 export interface IAuthUser {
   id: string;
   email: string;
+  fullName?: string;
   role: UserRole;
   status: AccountStatus;
   isEmailVerified: boolean;
