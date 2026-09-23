@@ -20,6 +20,10 @@ export * from './components/MessagesView';
 export * from './components/CoachAiDrawer';
 export * from './components/AuditLogsView';
 export * from './components/A11yHelpers';
+export * from './components/LoginView';
+export * from './components/AuthGuard';
+export * from './components/WeeklyCheckInsView';
+export * from './components/AdminDashboardView';
 
 // Screens
 export * from './screens/CoachPortalApp';

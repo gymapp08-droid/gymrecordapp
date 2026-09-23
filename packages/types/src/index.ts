@@ -2140,3 +2140,77 @@ export interface IHealthSyncJobResult {
   error?: string;
   processedAt: string;
 }
+
+// -------------------------------------------------------------
+// WEEKLY CHECK-IN & ADMIN OS CONTRACTS
+// -------------------------------------------------------------
+
+export interface IWeeklyCheckIn {
+  id: string;
+  userId: string;
+  userFullName?: string;
+  userEmail?: string;
+  weekStartDate: string;
+  weightKg: number;
+  previousWeightKg?: number | null;
+  weightChangeKg?: number | null;
+  heightCm?: number | null;
+  bmi?: number | null;
+  previousBmi?: number | null;
+  bmiChange?: number | null;
+  workoutsPlanned: number;
+  workoutsCompleted: number;
+  adherencePercent: number;
+  totalVolumeKg: number;
+  mealsPlanned: number;
+  mealsLogged: number;
+  nutritionAdherencePct: number;
+  energyRecoveryScore?: number | null;
+  notes?: string | null;
+  frontPhotoUrl?: string | null;
+  sidePhotoUrl?: string | null;
+  backPhotoUrl?: string | null;
+  status: 'PENDING' | 'SUBMITTED' | 'REVIEWED';
+  reviewedById?: string | null;
+  reviewerName?: string | null;
+  reviewNotes?: string | null;
+  reviewedAt?: string | null;
+  submittedAt: string;
+  createdAt: string;
+}
+
+export interface IWeeklyCheckInSubmission {
+  weightKg: number;
+  heightCm?: number;
+  notes?: string;
+  energyRecoveryScore?: number;
+  frontPhotoUrl?: string;
+  sidePhotoUrl?: string;
+  backPhotoUrl?: string;
+}
+
+export interface IWeeklyCheckInReview {
+  reviewNotes: string;
+}
+
+export interface IAdminUserSummary {
+  id: string;
+  email: string;
+  fullName: string;
+  role: UserRole;
+  status: AccountStatus;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  lastLoginAt?: string | null;
+  createdAt: string;
+  assignedTrainerId?: string | null;
+  assignedTrainerName?: string | null;
+}
+
+export interface IAdminSystemConfig {
+  defaultWorkoutReminderTime: string;
+  defaultMealReminderTimes: string[];
+  defaultWeeklyCheckInDay: number; // 7 = Sunday
+  defaultWeeklyCheckInTime: string;
+  primaryTimezone: string;
+}

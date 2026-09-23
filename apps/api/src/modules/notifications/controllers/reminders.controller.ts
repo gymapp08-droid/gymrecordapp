@@ -56,4 +56,22 @@ export class RemindersController {
   ): Promise<{ success: boolean }> {
     return this.remindersService.deleteReminder(user.id, id);
   }
+
+  @Post(':id/snooze')
+  async snooze(
+    @CurrentUser() user: IAuthUser,
+    @Param('id') id: string,
+    @Body('minutes') minutes?: number,
+  ) {
+    return this.remindersService.snoozeReminder(user.id, id, minutes);
+  }
+
+  @Get(':id/evaluate')
+  async evaluate(
+    @CurrentUser() user: IAuthUser,
+    @Param('id') id: string,
+  ) {
+    return this.remindersService.shouldSuppressReminder(user.id, id);
+  }
 }
+

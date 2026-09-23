@@ -195,6 +195,8 @@ model User {
   aiInsights              AIInsight[]
   aiUsageRecords          AIUsageRecord[]
   sentInvitations         ClientInvitation[]        @relation("CoachSentInvitations")
+  weeklyCheckIns          WeeklyCheckIn[]           @relation("UserWeeklyCheckIns")
+  reviewedCheckIns        WeeklyCheckIn[]           @relation("ReviewerWeeklyCheckIns")
 
   // Coach-Client Explicit Relationships
   clientsAsCoach          CoachClientRelationship[] @relation("CoachRelationship")
@@ -775,6 +777,46 @@ model ProgressPhoto {
   @@index([userId])
   @@index([takenAt])
   @@map("progress_photos")
+}
+
+model WeeklyCheckIn {
+  id                    String    @id @default(uuid())
+  userId                String    @map("user_id")
+  weekStartDate         DateTime  @map("week_start_date")
+  weightKg              Float     @map("weight_kg")
+  previousWeightKg      Float?    @map("previous_weight_kg")
+  weightChangeKg        Float?    @map("weight_change_kg")
+  heightCm              Float?    @map("height_cm")
+  bmi                   Float?
+  previousBmi           Float?    @map("previous_bmi")
+  bmiChange             Float?    @map("bmi_change")
+  workoutsPlanned       Int       @default(0) @map("workouts_planned")
+  workoutsCompleted     Int       @default(0) @map("workouts_completed")
+  adherencePercent      Float     @default(0) @map("adherence_percent")
+  totalVolumeKg         Float     @default(0) @map("total_volume_kg")
+  mealsPlanned          Int       @default(0) @map("meals_planned")
+  mealsLogged           Int       @default(0) @map("meals_logged")
+  nutritionAdherencePct Float     @default(0) @map("nutrition_adherence_pct")
+  energyRecoveryScore   Int?      @map("energy_recovery_score")
+  notes                 String?
+  frontPhotoUrl         String?   @map("front_photo_url")
+  sidePhotoUrl          String?   @map("side_photo_url")
+  backPhotoUrl          String?   @map("back_photo_url")
+  status                String    @default("SUBMITTED") // PENDING, SUBMITTED, REVIEWED
+  reviewedById          String?   @map("reviewed_by_id")
+  reviewNotes           String?   @map("review_notes")
+  reviewedAt            DateTime? @map("reviewed_at")
+  submittedAt           DateTime  @default(now()) @map("submitted_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user                  User      @relation("UserWeeklyCheckIns", fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy            User?     @relation("ReviewerWeeklyCheckIns", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([weekStartDate])
+  @@index([status])
+  @@map("weekly_check_ins")
 }
 
 model BodyMeasurement {

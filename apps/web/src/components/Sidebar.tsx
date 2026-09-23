@@ -10,6 +10,8 @@ export type PortalTab =
   | 'nutrition'
   | 'calendar'
   | 'progress'
+  | 'check-ins'
+  | 'admin'
   | 'messages'
   | 'reports'
   | 'settings';
@@ -18,11 +20,13 @@ interface SidebarProps {
   activeTab: PortalTab;
   onSelectTab: (tab: PortalTab) => void;
   currentRole: UserRole;
+  onLogout?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, currentRole }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, currentRole, onLogout }) => {
   const isTrainer = currentRole === UserRole.TRAINER;
   const isNutritionist = currentRole === UserRole.NUTRITIONIST;
+  const isAdmin = currentRole === UserRole.ADMIN;
 
   const navItems: { id: PortalTab; label: string; icon: string; disabled?: boolean; hint?: string }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: '⚡' },
@@ -44,6 +48,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, curren
     },
     { id: 'calendar', label: 'Calendar', icon: '📅' },
     { id: 'progress', label: 'Progress', icon: '📈' },
+    { id: 'check-ins', label: 'Check-Ins', icon: '📋' },
+    ...(isAdmin ? [{ id: 'admin' as PortalTab, label: 'Admin Control', icon: '🛡️' }] : []),
     { id: 'messages', label: 'Messages', icon: '💬' },
     { id: 'reports', label: 'Reports', icon: '📊' },
     { id: 'settings', label: 'Settings', icon: '⚙️' },
@@ -211,10 +217,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, curren
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
+            marginBottom: onLogout ? '8px' : 0,
           }}
         >
           Apex Performance Lab
         </div>
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            style={{
+              width: '100%',
+              padding: '6px 10px',
+              borderRadius: '6px',
+              border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+              backgroundColor: 'rgba(255, 59, 48, 0.1)',
+              color: STITCH_THEME.colors.accentCrimson,
+              fontSize: '11px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+            }}
+          >
+            <span>🚪</span> Sign Out
+          </button>
+        )}
       </div>
     </aside>
   );

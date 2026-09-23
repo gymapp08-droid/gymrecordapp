@@ -77,7 +77,9 @@ import {
 import {
   NotificationCenterScreen,
   RemindersScreen,
+  ReminderSettingsScreen,
 } from './src/screens/notifications';
+import { WeeklyCheckInScreen } from './src/screens/progress/WeeklyCheckInScreen';
 import { IntegrationsScreen } from './src/screens/integrations';
 
 type MainTab = 'HOME' | 'WORKOUT' | 'NUTRITION' | 'ACTIVITY' | 'PROGRESS';
@@ -116,7 +118,9 @@ type SubView =
   | 'REMINDERS'
   | 'NOTIFICATIONS'
   | 'SETTINGS'
-  | 'AI_COACH';
+  | 'AI_COACH'
+  | 'WEEKLY_CHECKIN'
+  | 'REMINDER_SETTINGS';
 
 function MainNavigator() {
   const { status } = useAuth();
@@ -278,6 +282,8 @@ function MainNavigator() {
             onOpenCommandHub={() => setActiveSubView('COMMAND_HUB')}
             onOpenIntegrations={() => setActiveSubView('INTEGRATIONS')}
             onOpenCalendarHistory={() => setActiveSubView('CALENDAR')}
+            onOpenWeeklyCheckIn={() => setActiveSubView('WEEKLY_CHECKIN')}
+            onOpenReminderSettings={() => setActiveSubView('REMINDER_SETTINGS')}
           />
         )}
 
@@ -561,6 +567,14 @@ function MainNavigator() {
 
           {activeSubView === 'AI_COACH' && (
             <AICoachScreen onBack={() => setActiveSubView(null)} />
+          )}
+
+          {activeSubView === 'WEEKLY_CHECKIN' && (
+            <WeeklyCheckInScreen onBack={() => setActiveSubView(null)} />
+          )}
+
+          {activeSubView === 'REMINDER_SETTINGS' && (
+            <ReminderSettingsScreen onBack={() => setActiveSubView(null)} />
           )}
 
           {/* Metric modal inside Body Metrics */}

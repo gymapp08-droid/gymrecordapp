@@ -30,6 +30,8 @@ interface HomeScreenProps {
   onOpenCommandHub: () => void;
   onOpenIntegrations: () => void;
   onOpenCalendarHistory: () => void;
+  onOpenWeeklyCheckIn?: () => void;
+  onOpenReminderSettings?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -42,6 +44,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenCommandHub,
   onOpenIntegrations,
   onOpenCalendarHistory,
+  onOpenWeeklyCheckIn,
+  onOpenReminderSettings,
 }) => {
   const { user } = useAuth();
   const {
@@ -311,6 +315,68 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Text style={styles.scorecardValue}>{activity.waterLiters.toFixed(1)} L</Text>
               <Text style={styles.scorecardSub}>/ {activity.waterTarget} L</Text>
             </View>
+          </View>
+        </View>
+
+        {/* 3B. Weekly Progress & Check-In Card */}
+        <View style={styles.weeklyProgressCard}>
+          <View style={styles.cardHeaderRow}>
+            <View>
+              <Text style={styles.sectionLabel}>WEEKLY PROGRESS</Text>
+              <Text style={styles.weeklyProgressTitle}>Week Performance Ledger</Text>
+            </View>
+            <View style={styles.checkInStatusBadge}>
+              <Text style={styles.checkInStatusText}>
+                {new Date().getDay() === 0 ? 'DUE TODAY' : 'ON TRACK'}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.weeklyMetricsRow}>
+            <View style={styles.weeklyMetricCol}>
+              <Text style={styles.weeklyMetricLabel}>WORKOUTS</Text>
+              <Text style={styles.weeklyMetricVal}>
+                {weeklyMomentum?.completedCount || 4} / {(weeklyMomentum?.completedCount || 0) + (weeklyMomentum?.missedCount || 0) || 4}
+              </Text>
+              <Text style={styles.weeklyMetricSub}>completed</Text>
+            </View>
+
+            <View style={styles.weeklyMetricCol}>
+              <Text style={styles.weeklyMetricLabel}>NUTRITION</Text>
+              <Text style={[styles.weeklyMetricVal, { color: Theme.colors.emeraldSuccess }]}>
+                93%
+              </Text>
+              <Text style={styles.weeklyMetricSub}>compliance</Text>
+            </View>
+
+            <View style={styles.weeklyMetricCol}>
+              <Text style={styles.weeklyMetricLabel}>WEIGHT CHANGE</Text>
+              <Text style={[styles.weeklyMetricVal, { color: Theme.colors.cyanGlow }]}>
+                -0.4 kg
+              </Text>
+              <Text style={styles.weeklyMetricSub}>vs last week</Text>
+            </View>
+          </View>
+
+          <View style={styles.weeklyActionRow}>
+            {onOpenWeeklyCheckIn && (
+              <TouchableOpacity
+                style={styles.weeklyCheckInCtaBtn}
+                onPress={onOpenWeeklyCheckIn}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.weeklyCheckInCtaText}>COMPLETE WEEKLY CHECK-IN →</Text>
+              </TouchableOpacity>
+            )}
+            {onOpenReminderSettings && (
+              <TouchableOpacity
+                style={styles.reminderSettingsIconBtn}
+                onPress={onOpenReminderSettings}
+                activeOpacity={0.8}
+              >
+                <Text style={{ fontSize: 16 }}>⚙️</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
@@ -1686,4 +1752,94 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 4,
   },
+  weeklyProgressCard: {
+    backgroundColor: Theme.colors.backgroundSecondary,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.25)',
+    borderRadius: Theme.borderRadius.md,
+    padding: 16,
+    marginBottom: 16,
+  },
+  weeklyProgressTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginTop: 2,
+  },
+  checkInStatusBadge: {
+    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.3)',
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  checkInStatusText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Theme.colors.cyanGlow,
+    letterSpacing: 0.5,
+  },
+  weeklyMetricsRow: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 12,
+    justifyContent: 'space-between',
+  },
+  weeklyMetricCol: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  weeklyMetricLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: Theme.colors.textMuted,
+    letterSpacing: 0.5,
+  },
+  weeklyMetricVal: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginTop: 2,
+  },
+  weeklyMetricSub: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    marginTop: 2,
+  },
+  weeklyActionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  weeklyCheckInCtaBtn: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 240, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: Theme.colors.cyanGlow,
+    borderRadius: Theme.borderRadius.sm,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  weeklyCheckInCtaText: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  reminderSettingsIconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: Theme.borderRadius.sm,
+    backgroundColor: Theme.colors.surface,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
+

@@ -16,6 +16,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { EnterpriseModule } from './modules/enterprise/enterprise.module';
 import { PrivacyModule } from './modules/privacy/privacy.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
     EnterpriseModule,
     PrivacyModule,
     IntegrationsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

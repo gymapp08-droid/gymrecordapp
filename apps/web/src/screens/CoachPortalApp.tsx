@@ -32,6 +32,10 @@ import { ReportsView } from '../components/ReportsView';
 import { MessagesView } from '../components/MessagesView';
 import { CoachAiDrawer } from '../components/CoachAiDrawer';
 import { AuditLogsView } from '../components/AuditLogsView';
+import { WeeklyCheckInsView } from '../components/WeeklyCheckInsView';
+import { AdminDashboardView } from '../components/AdminDashboardView';
+import { AuthGuard } from '../components/AuthGuard';
+import { IAuthUser } from '@alpha/types';
 
 // Initial seed programs
 const INITIAL_PROGRAMS: IProgramDetail[] = [
@@ -367,10 +371,19 @@ const INITIAL_AUDIT_LOGS: IAuditLogRecord[] = [
   },
 ];
 
-export const CoachPortalApp: React.FC = () => {
+interface CoachPortalAppProps {
+  authenticatedUser?: IAuthUser;
+  onLogout?: () => void;
+}
+
+export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUser, onLogout }) => {
   // Navigation & Role Simulation State
-  const [currentRole, setCurrentRole] = useState<UserRole>(UserRole.COACH);
-  const [activeTab, setActiveTab] = useState<PortalTab>('clients');
+  const [currentRole, setCurrentRole] = useState<UserRole>(
+    (authenticatedUser?.role as UserRole) || UserRole.COACH,
+  );
+  const [activeTab, setActiveTab] = useState<PortalTab>(
+    authenticatedUser?.role === UserRole.ADMIN ? 'admin' : 'clients',
+  );
   const [searchQuery, setSearchQuery] = useState('');
 
   // Data State
@@ -758,6 +771,7 @@ export const CoachPortalApp: React.FC = () => {
           setSelectedClientId(null);
         }}
         currentRole={currentRole}
+        onLogout={onLogout}
       />
 
       {/* Main Workspace Layout */}
@@ -1032,6 +1046,12 @@ export const CoachPortalApp: React.FC = () => {
               onSendMessage={handleSendMessage}
               onOpenAiAssistant={handleOpenAiAssistant}
             />
+          ) : activeTab === 'check-ins' ? (
+            /* Weekly Progress Check-Ins Review */
+            <WeeklyCheckInsView />
+          ) : activeTab === 'admin' ? (
+            /* Full System Administration & Governance */
+            <AdminDashboardView auditLogs={auditLogs} />
           ) : activeTab === 'settings' ? (
             /* Security, Audit Trail & Tenant Compliance */
             <AuditLogsView logs={auditLogs} onRefresh={() => {}} />
@@ -1128,3 +1148,12 @@ export const CoachPortalApp: React.FC = () => {
     </div>
   );
 };
+
+export const GuardedCoachPortalApp: React.FC = () => {
+  return (
+    <AuthGuard>
+      {(authUser, onLogout) => <CoachPortalApp authenticatedUser={authUser} onLogout={onLogout} />}
+    </AuthGuard>
+  );
+};
+
