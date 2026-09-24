@@ -3,7 +3,6 @@ import { STITCH_THEME } from '../styles/stitch-theme';
 import {
   IPortalClientSummary,
   AnalyticsTimePeriod,
-  DataFreshness,
   KPIUnit,
 } from '@alpha/types';
 
@@ -19,7 +18,6 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ clients,
   const [period, setPeriod] = useState<AnalyticsTimePeriod>('30_DAYS');
   const [selectedClientId, setSelectedClientId] = useState<string>('ALL');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [freshness] = useState<DataFreshness>('LIVE');
   const [lastCalculated] = useState<string>(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
   // Filter clients based on selection
@@ -112,20 +110,8 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ clients,
     <div style={{ ...STITCH_THEME.styles.glassCard, padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <span style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+          <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
             {title}
-          </span>
-          <span
-            style={{
-              fontSize: '10px',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              backgroundColor: freshness === 'LIVE' ? 'rgba(0, 240, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-              color: freshness === 'LIVE' ? STITCH_THEME.colors.accentCyan : STITCH_THEME.colors.textMuted,
-              fontFamily: STITCH_THEME.typography.fontMono,
-            }}
-          >
-            {freshness}
           </span>
         </div>
 
@@ -134,7 +120,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ clients,
             Insufficient Data
           </div>
         ) : (
-          <div style={{ fontSize: '28px', fontWeight: 800, color: accentColor, marginTop: '4px' }}>
+          <div style={{ fontSize: '32px', fontWeight: 900, color: accentColor, marginTop: '4px' }}>
             {value}
             {unit === 'PERCENTAGE' && '%'}
           </div>
@@ -168,7 +154,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ clients,
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
             <h1 style={{ fontSize: '24px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>
-              Advanced Intelligence & Analytics
+              Analytics
             </h1>
             <div style={{ display: 'flex', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '6px', padding: '2px' }}>
               <button
@@ -184,7 +170,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ clients,
                   cursor: 'pointer',
                 }}
               >
-                Coach Portfolio (L2)
+                Coach View
               </button>
               <button
                 onClick={() => setViewMode('ORGANIZATION_EXECUTIVE')}
@@ -199,7 +185,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ clients,
                   cursor: 'pointer',
                 }}
               >
-                Executive Org Overview (L3)
+                Org Overview
               </button>
             </div>
           </div>
@@ -280,18 +266,39 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ clients,
 
       {/* Loading Skeleton */}
       {isLoading ? (
-        <div style={{ ...STITCH_THEME.styles.glassCard, padding: '48px', textAlign: 'center' }}>
-          <div style={{ fontSize: '14px', color: STITCH_THEME.colors.accentCyan, fontWeight: 600 }}>
-            Rebuilding deterministic aggregations from authoritative records...
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} style={{ ...STITCH_THEME.styles.glassCard, padding: '20px', height: '110px' }}>
+              <div style={{ height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.06)', borderRadius: '4px', width: '60%', marginBottom: '16px' }} />
+              <div style={{ height: '28px', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '6px', width: '40%', marginBottom: '8px' }} />
+              <div style={{ height: '10px', backgroundColor: 'rgba(255, 255, 255, 0.04)', borderRadius: '4px', width: '80%' }} />
+            </div>
+          ))}
         </div>
       ) : clients.length === 0 ? (
         /* Empty State */
-        <div style={{ ...STITCH_THEME.styles.glassCard, padding: '48px', textAlign: 'center' }}>
-          <div style={{ fontSize: '36px', marginBottom: '12px' }}>📊</div>
-          <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 8px 0' }}>No analytics available yet</h3>
+        <div style={{ ...STITCH_THEME.styles.glassCard, padding: '64px 48px', textAlign: 'center' }}>
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '12px',
+              backgroundColor: STITCH_THEME.colors.accentCyanDim,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px',
+              color: STITCH_THEME.colors.accentCyan,
+              margin: '0 auto 20px',
+              fontFamily: STITCH_THEME.typography.fontMono,
+              fontWeight: 700,
+            }}
+          >
+            ▦
+          </div>
+          <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 8px 0' }}>No analytics yet</h3>
           <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, maxWidth: '420px', margin: '0 auto' }}>
-            Analytics will appear deterministically as athletes begin generating workout completions, meal logs, and activity records.
+            Analytics will populate as athletes log workouts, meals, and check-ins.
           </p>
         </div>
       ) : (

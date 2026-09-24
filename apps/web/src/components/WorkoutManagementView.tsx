@@ -217,15 +217,15 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
-            Standalone Workout Templates & Builder
+          <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+            Workout Templates
           </h1>
           <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
-            Engineer modular training sessions, calibrate target sets/reps/RPE, and assign directly to athlete splits.
+            Modular session templates, prescribed sets, reps, and RPE targets.
           </p>
         </div>
         <button onClick={handleOpenCreate} style={STITCH_THEME.styles.primaryButton}>
-          + Create Workout Template
+          + Create Template
         </button>
       </div>
 
@@ -264,7 +264,7 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
                   {tpl.category || 'Hypertrophy'} • {tpl.difficulty || 'INTERMEDIATE'}
                 </span>
                 <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
-                  ⏱ {tpl.estimatedMinutes || 60} min
+                  {tpl.estimatedMinutes || 60} min
                 </span>
               </div>
 

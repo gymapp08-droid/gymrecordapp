@@ -202,11 +202,11 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
       {/* Header and Actions */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
-            Enterprise Exercise Library & Coaching Science
+          <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+            Exercise Library
           </h1>
           <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
-            Curate verified movement mechanics, anatomical targets, tempos, and safety guidelines synchronized to user mobile devices.
+            Verified biomechanics, movement patterns, anatomical targets, and safety standards.
           </p>
         </div>
         <button
@@ -404,7 +404,7 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
               </h3>
 
               <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, marginBottom: '8px' }}>
-                🎯 <strong style={{ color: STITCH_THEME.colors.textPrimary }}>{ex.targetArea || ex.primaryMuscle}</strong> ({ex.equipment})
+                <strong style={{ color: STITCH_THEME.colors.textPrimary }}>{ex.targetArea || ex.primaryMuscle}</strong> · {ex.equipment}
               </div>
 
               {ex.description && (
@@ -436,7 +436,7 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
                       color: STITCH_THEME.colors.textSecondary,
                     }}
                   >
-                    ⏱ {ex.tempo}
+                    Tempo: {ex.tempo}
                   </span>
                 )}
                 {ex.defaultRest && (
@@ -450,7 +450,7 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
                       color: STITCH_THEME.colors.textSecondary,
                     }}
                   >
-                    💤 {ex.defaultRest}s Rest
+                    Rest: {ex.defaultRest}s
                   </span>
                 )}
               </div>
@@ -475,7 +475,7 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
                   color: STITCH_THEME.colors.accentCyan,
                 }}
               >
-                🔬 View Dossier
+                View Details
               </button>
               <div style={{ display: 'flex', gap: '6px' }}>
                 <button

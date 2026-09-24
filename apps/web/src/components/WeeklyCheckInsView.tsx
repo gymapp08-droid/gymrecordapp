@@ -131,14 +131,11 @@ export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header */}
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '24px' }}>📋</span>
-          <h1 style={{ fontSize: '24px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>
-            Weekly Progress Check-Ins
-          </h1>
-        </div>
-        <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: '6px 0 0 0' }}>
-          Authoritative review of athlete weekly weigh-ins, recalculated BMI, adherence metrics, and private progress photos.
+        <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+          Weekly Check-Ins
+        </h1>
+        <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
+          Athlete weekly weigh-ins, adherence metrics, and progress photos awaiting review.
         </p>
       </div>
 
@@ -291,8 +288,8 @@ export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
                   padding: '14px',
                 }}
               >
-                <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>CURRENT WEIGHT</div>
-                <div style={{ fontSize: '20px', fontWeight: 800, marginTop: '4px', color: '#FFFFFF' }}>
+                  <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary }}>Current Weight</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, marginTop: '4px', color: '#FFFFFF' }}>
                   {selectedCheckIn.weightKg} kg
                 </div>
                 <div
@@ -317,8 +314,8 @@ export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
                   padding: '14px',
                 }}
               >
-                <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>RECALCULATED BMI</div>
-                <div style={{ fontSize: '20px', fontWeight: 800, marginTop: '4px', color: '#FFFFFF' }}>
+                <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary }}>BMI</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, marginTop: '4px', color: '#FFFFFF' }}>
                   {selectedCheckIn.bmi || 'N/A'}
                 </div>
                 <div style={{ fontSize: '10px', marginTop: '4px', color: STITCH_THEME.colors.textMuted }}>
@@ -334,8 +331,8 @@ export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
                   padding: '14px',
                 }}
               >
-                <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>WORKOUT ADHERENCE</div>
-                <div style={{ fontSize: '20px', fontWeight: 800, marginTop: '4px', color: STITCH_THEME.colors.accentCyan }}>
+                <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary }}>Workout Adherence</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, marginTop: '4px', color: STITCH_THEME.colors.accentCyan }}>
                   {selectedCheckIn.adherencePercent}%
                 </div>
                 <div style={{ fontSize: '11px', marginTop: '4px', color: STITCH_THEME.colors.textMuted }}>
@@ -351,8 +348,8 @@ export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
                   padding: '14px',
                 }}
               >
-                <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>NUTRITION ADHERENCE</div>
-                <div style={{ fontSize: '20px', fontWeight: 800, marginTop: '4px', color: STITCH_THEME.colors.accentEmerald }}>
+                <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary }}>Nutrition Adherence</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, marginTop: '4px', color: STITCH_THEME.colors.accentEmerald }}>
                   {selectedCheckIn.nutritionAdherencePct}%
                 </div>
                 <div style={{ fontSize: '11px', marginTop: '4px', color: STITCH_THEME.colors.textMuted }}>
@@ -380,8 +377,8 @@ export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
 
             {/* Athlete Notes */}
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: STITCH_THEME.colors.textSecondary, marginBottom: '6px' }}>
-                ATHLETE NOTES & FEEDBACK
+              <div style={{ fontSize: '12px', fontWeight: 600, color: STITCH_THEME.colors.textSecondary, marginBottom: '6px' }}>
+                Athlete Notes
               </div>
               <div
                 style={{
@@ -400,8 +397,8 @@ export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
 
             {/* Progress Photos */}
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: STITCH_THEME.colors.textSecondary, marginBottom: '8px' }}>
-                PROGRESS PHOTOS (SECURE STORAGE)
+              <div style={{ fontSize: '12px', fontWeight: 600, color: STITCH_THEME.colors.textSecondary, marginBottom: '8px' }}>
+                Progress Photos
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
                 {[
@@ -432,8 +429,8 @@ export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
                       />
                     ) : (
                       <div style={{ textAlign: 'center', color: STITCH_THEME.colors.textMuted, padding: '12px' }}>
-                        <span style={{ fontSize: '24px', display: 'block', marginBottom: '4px' }}>📷</span>
-                        <span style={{ fontSize: '12px' }}>{label} Photo Skipped</span>
+                        <div style={{ fontSize: '18px', color: STITCH_THEME.colors.textDisabled, marginBottom: '4px', fontFamily: STITCH_THEME.typography.fontMono }}>◫</div>
+                        <span style={{ fontSize: '12px' }}>{label} — Not submitted</span>
                       </div>
                     )}
                     <div
@@ -467,8 +464,8 @@ export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
                 gap: '12px',
               }}
             >
-              <div style={{ fontSize: '12px', fontWeight: 700, color: STITCH_THEME.colors.accentCyan }}>
-                COACH / TRAINER EVALUATION & DIRECTIVES
+              <div style={{ fontSize: '13px', fontWeight: 600, color: STITCH_THEME.colors.textSecondary }}>
+                Coach Feedback
               </div>
 
               {feedback && (

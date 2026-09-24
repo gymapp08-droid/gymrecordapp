@@ -76,17 +76,17 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({ currentR
   };
 
   const rbacMatrix = [
-    { capability: 'View & Log Own Workouts / Meals', athlete: '✅ Yes', trainer: '❌ No', admin: '❌ No' },
-    { capability: 'Submit Weekly Progress Check-In', athlete: '✅ Yes', trainer: '❌ No', admin: '❌ No' },
-    { capability: 'Access Web Management Portal', athlete: '⛔ 403 Forbidden', trainer: '✅ Yes', admin: '✅ Yes' },
-    { capability: 'View Assigned Clients Roster', athlete: '❌ No', trainer: '✅ Assigned Only', admin: '✅ All Athletes' },
-    { capability: 'Exercise Science & Biomechanics Library', athlete: 'Read Only (Mobile)', trainer: '✅ Full Management', admin: '✅ Full Management' },
-    { capability: 'Standalone Workout Templates & Builder', athlete: 'Execution (Mobile)', trainer: '✅ Full Management', admin: '✅ Full Management' },
-    { capability: 'Review Weekly Check-Ins & Photos', athlete: '❌ No', trainer: '✅ Assigned Clients', admin: '✅ All Clients' },
-    { capability: 'Direct Coach-to-Athlete Messaging', athlete: 'Mobile App', trainer: '✅ Web Portal', admin: '✅ Web Portal' },
-    { capability: 'Certified Trainer Onboarding & Client Assignment', athlete: '❌ No', trainer: '❌ No', admin: '✅ Superuser' },
-    { capability: 'System Defaults & Timezone Protocols', athlete: '❌ No', trainer: '❌ No', admin: '✅ Superuser' },
-    { capability: 'Enterprise Security Audit Trail Logs', athlete: '❌ No', trainer: '❌ No', admin: '✅ Superuser' },
+    { capability: 'View & Log Own Workouts / Meals', athlete: 'Yes', trainer: 'No', admin: 'No' },
+    { capability: 'Submit Weekly Progress Check-In', athlete: 'Yes', trainer: 'No', admin: 'No' },
+    { capability: 'Access Web Management Portal', athlete: '403 Forbidden', trainer: 'Yes', admin: 'Yes' },
+    { capability: 'View Assigned Clients Roster', athlete: 'No', trainer: 'Assigned Only', admin: 'All Athletes' },
+    { capability: 'Exercise Science & Biomechanics Library', athlete: 'Read Only (Mobile)', trainer: 'Full Management', admin: 'Full Management' },
+    { capability: 'Standalone Workout Templates & Builder', athlete: 'Execution (Mobile)', trainer: 'Full Management', admin: 'Full Management' },
+    { capability: 'Review Weekly Check-Ins & Photos', athlete: 'No', trainer: 'Assigned Clients', admin: 'All Clients' },
+    { capability: 'Direct Coach-to-Athlete Messaging', athlete: 'Mobile App', trainer: 'Web Portal', admin: 'Web Portal' },
+    { capability: 'Certified Trainer Onboarding & Client Assignment', athlete: 'No', trainer: 'No', admin: 'Superuser' },
+    { capability: 'System Defaults & Timezone Protocols', athlete: 'No', trainer: 'No', admin: 'Superuser' },
+    { capability: 'Enterprise Security Audit Trail Logs', athlete: 'No', trainer: 'No', admin: 'Superuser' },
   ];
 
   return (
@@ -94,7 +94,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({ currentR
       {/* Header */}
       <div>
         <h1 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
-          System Configuration & Enterprise Governance
+          System Settings
         </h1>
         <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
           Manage global notification protocols, Indian Standard Time (IST) operational cadence, and RBAC authorization matrices.
@@ -110,10 +110,10 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({ currentR
             border: `1px solid ${STITCH_THEME.colors.accentCyan}`,
             color: STITCH_THEME.colors.accentCyan,
             fontSize: '13px',
-            fontWeight: 700,
+            fontWeight: 600,
           }}
         >
-          ✓ System Configuration successfully saved & recorded in security audit logs.
+          Settings saved.
         </div>
       )}
 
@@ -230,13 +230,35 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({ currentR
                   <td style={{ padding: '12px 14px', fontWeight: 600, color: STITCH_THEME.colors.textPrimary }}>
                     {row.capability}
                   </td>
-                  <td style={{ padding: '12px 14px', color: row.athlete.includes('Forbidden') ? STITCH_THEME.colors.accentRose : STITCH_THEME.colors.textSecondary }}>
+                  <td style={{
+                    padding: '12px 14px',
+                    color: row.athlete === 'Yes'
+                      ? STITCH_THEME.colors.accentEmerald
+                      : row.athlete.includes('Forbidden')
+                      ? STITCH_THEME.colors.accentRose
+                      : STITCH_THEME.colors.textMuted,
+                  }}>
                     {row.athlete}
                   </td>
-                  <td style={{ padding: '12px 14px', color: STITCH_THEME.colors.textSecondary }}>
+                  <td style={{
+                    padding: '12px 14px',
+                    color: row.trainer === 'Yes' || row.trainer.includes('Full') || row.trainer.includes('Assigned')
+                      ? STITCH_THEME.colors.accentEmerald
+                      : row.trainer === 'No'
+                      ? STITCH_THEME.colors.textMuted
+                      : STITCH_THEME.colors.textSecondary,
+                  }}>
                     {row.trainer}
                   </td>
-                  <td style={{ padding: '12px 14px', fontWeight: 700, color: STITCH_THEME.colors.accentCyan }}>
+                  <td style={{
+                    padding: '12px 14px',
+                    fontWeight: 600,
+                    color: row.admin === 'Yes' || row.admin.includes('Full') || row.admin.includes('All') || row.admin.includes('Superuser')
+                      ? STITCH_THEME.colors.accentCyan
+                      : row.admin === 'No'
+                      ? STITCH_THEME.colors.textMuted
+                      : STITCH_THEME.colors.textSecondary,
+                  }}>
                     {row.admin}
                   </td>
                 </tr>

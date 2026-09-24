@@ -861,7 +861,7 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
               <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                 <div>
                   <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
-                    Athlete Roster
+                    Athletes
                   </h1>
                   <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
                     Monitor compliance, manage prescriptions, and review historical performance analytics.
@@ -893,7 +893,7 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px 0' }}>Workout Programs Library</h1>
+                  <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px 0' }}>Training Programs</h1>
                   <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
                     Immutable versioned programs, multi-day splits, and exercise prescriptions.
                   </p>
@@ -909,6 +909,12 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                 {programs.map((prog) => (
                   <div
                     key={prog.id}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                    }}
                     style={{
                       ...STITCH_THEME.styles.glassCard,
                       padding: '24px',
@@ -916,22 +922,24 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                       flexDirection: 'column',
                       justifyContent: 'space-between',
                       border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                      transition: 'transform 0.15s ease',
                     }}
                   >
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <span
                           style={{
-                            fontSize: '11px',
+                            fontSize: '10px',
                             fontFamily: STITCH_THEME.typography.fontMono,
-                            padding: '3px 8px',
+                            padding: '2px 7px',
                             borderRadius: '4px',
-                            backgroundColor: 'rgba(0, 240, 255, 0.1)',
+                            backgroundColor: STITCH_THEME.colors.accentCyanDim,
                             color: STITCH_THEME.colors.accentCyan,
-                            fontWeight: 700,
+                            fontWeight: 600,
+                            letterSpacing: '0.03em',
                           }}
                         >
-                          V{prog.version} • {prog.status}
+                          v{prog.version} · {prog.status}
                         </span>
                         <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
                           {prog.weeksCount} Weeks • {prog.days.length} Days/wk
@@ -971,7 +979,7 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px 0' }}>Nutrition & Meal Plans</h1>
+                  <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px 0' }}>Nutrition Plans</h1>
                   <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
                     Macro-balanced daily nutrition plans, meal timing, and portion recommendations.
                   </p>

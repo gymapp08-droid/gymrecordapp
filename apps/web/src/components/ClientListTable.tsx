@@ -110,23 +110,40 @@ export const ClientListTable: React.FC<ClientListTableProps> = ({
             <tr
               style={{
                 borderBottom: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-                backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
               }}
             >
-              <th style={thStyle}>ATHLETE</th>
-              <th style={thStyle}>PRIMARY GOAL</th>
-              <th style={thStyle}>CURRENT PROGRAM</th>
-              <th style={thStyle}>LAST WORKOUT</th>
-              <th style={thStyle}>CONSISTENCY</th>
-              <th style={thStyle}>STATUS</th>
-              <th style={{ ...thStyle, textAlign: 'right' }}>ACTIONS</th>
+              <th style={thStyle}>Athlete</th>
+              <th style={thStyle}>Goal</th>
+              <th style={thStyle}>Current Program</th>
+              <th style={thStyle}>Last Workout</th>
+              <th style={thStyle}>Consistency</th>
+              <th style={thStyle}>Status</th>
+              <th style={{ ...thStyle, textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredClients.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: '48px 24px', color: STITCH_THEME.colors.textMuted }}>
-                  <div style={{ fontSize: '28px', marginBottom: '8px' }}>👤</div>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '56px 24px', color: STITCH_THEME.colors.textMuted }}>
+                  <div
+                    style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '10px',
+                      backgroundColor: STITCH_THEME.colors.accentCyanDim,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 14px',
+                      fontSize: '18px',
+                      color: STITCH_THEME.colors.accentCyan,
+                      fontFamily: STITCH_THEME.typography.fontMono,
+                      fontWeight: 700,
+                    }}
+                  >
+                    ⊕
+                  </div>
                   <div style={{ fontSize: '14px', fontWeight: 600, color: STITCH_THEME.colors.textSecondary }}>
                     No athletes found
                   </div>
@@ -345,15 +362,15 @@ export const ClientListTable: React.FC<ClientListTableProps> = ({
 };
 
 const thStyle: React.CSSProperties = {
-  padding: '12px 18px',
+  padding: '11px 16px',
   fontSize: '11px',
-  fontWeight: 700,
+  fontWeight: 600,
   color: STITCH_THEME.colors.textMuted,
-  letterSpacing: '0.06em',
-  textTransform: 'uppercase',
+  letterSpacing: '0.02em',
 };
 
 const tdStyle: React.CSSProperties = {
-  padding: '14px 18px',
+  padding: '13px 16px',
   verticalAlign: 'middle',
+  fontSize: '13px',
 };

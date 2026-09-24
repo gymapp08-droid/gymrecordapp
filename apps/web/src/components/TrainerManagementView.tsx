@@ -9,7 +9,7 @@ interface TrainerManagementViewProps {
 
 export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
   currentRole,
-  onSimulateTrainer,
+  onSimulateTrainer: _onSimulateTrainer,
 }) => {
   const [trainers, setTrainers] = useState<ITrainerManagementSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -215,24 +215,30 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
-            Certified Trainer Management & Operations
+          <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+            Trainers
           </h1>
           <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
-            Audit coaching capacity, enforce client isolation, and assign athletes to certified trainers.
+            Roster, active capacity, and athlete assignments.
           </p>
         </div>
         {currentRole === UserRole.ADMIN && (
           <button onClick={() => setIsAddTrainerOpen(true)} style={STITCH_THEME.styles.primaryButton}>
-            + Add Certified Trainer
+            + Add Trainer
           </button>
         )}
       </div>
 
       {/* Trainers Grid */}
       {loading ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: STITCH_THEME.colors.textMuted, fontSize: '13px' }}>
-          Loading certified trainers roster...
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '20px' }}>
+          {[1, 2].map((i) => (
+            <div key={i} style={{ ...STITCH_THEME.styles.glassCard, padding: '24px', height: '200px', opacity: 0.5 }}>
+              <div style={{ height: '18px', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: '6px', marginBottom: '12px', width: '60%' }} />
+              <div style={{ height: '12px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '4px', marginBottom: '8px', width: '40%' }} />
+              <div style={{ height: '12px', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '4px', width: '80%' }} />
+            </div>
+          ))}
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '20px' }}>
@@ -275,19 +281,8 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: '20px',
-                    backgroundColor: 'rgba(0, 240, 255, 0.08)',
-                    border: '1px solid rgba(0, 240, 255, 0.2)',
-                    fontSize: '12px',
-                    fontFamily: STITCH_THEME.typography.fontMono,
-                    color: STITCH_THEME.colors.accentCyan,
-                    fontWeight: 700,
-                  }}
-                >
-                  {tr.activeClientsCount} Active Clients
+                <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
+                  {tr.activeClientsCount} {tr.activeClientsCount === 1 ? 'athlete' : 'athletes'}
                 </div>
               </div>
 
@@ -348,32 +343,17 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
             </div>
 
             {/* Actions */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: '20px',
-                paddingTop: '16px',
-                borderTop: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-              }}
-            >
-              {onSimulateTrainer && (
-                <button
-                  onClick={() => onSimulateTrainer(tr.id, tr.fullName)}
-                  style={{
-                    ...STITCH_THEME.styles.secondaryButton,
-                    fontSize: '11px',
-                    padding: '5px 10px',
-                    borderColor: STITCH_THEME.colors.accentAmber,
-                    color: STITCH_THEME.colors.accentAmber,
-                  }}
-                >
-                  👁️ Simulate Trainer View
-                </button>
-              )}
-
-              {currentRole === UserRole.ADMIN && (
+            {currentRole === UserRole.ADMIN && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  marginTop: '20px',
+                  paddingTop: '16px',
+                  borderTop: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                }}
+              >
                 <button
                   onClick={() => setAssignTargetTrainerId(tr.id)}
                   style={{
@@ -386,8 +366,8 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
                 >
                   + Assign Athlete
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         ))}
       </div>

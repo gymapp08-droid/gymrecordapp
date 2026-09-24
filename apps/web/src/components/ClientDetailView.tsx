@@ -184,7 +184,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                 padding: '8px 16px',
               }}
             >
-              🔄 Replace Program
+              Replace Program
             </button>
           )}
 
@@ -206,19 +206,20 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
           gap: '8px',
           borderBottom: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
           paddingBottom: '12px',
+          flexWrap: 'wrap',
         }}
       >
         {(
           [
-            { id: 'overview', label: 'Overview', icon: '📋' },
-            { id: 'workout', label: 'Workout Plan', icon: '🏋️' },
-            { id: 'nutrition', label: 'Nutrition Plan', icon: '🥗' },
-            { id: 'activity', label: 'Activity & Cardio', icon: '🏃' },
-            { id: 'progress', label: 'Body Metrics & PRs', icon: '📈' },
-            { id: 'goals', label: 'Goals & Profile', icon: '🎯' },
-            { id: 'checkins', label: 'Check-Ins History', icon: '📝' },
-            { id: 'coach-notes', label: 'Private Coach Notes', icon: '🔒' },
-            { id: 'reminders', label: 'Alarms & Reminders', icon: '⏰' },
+            { id: 'overview', label: 'Overview', icon: '◈' },
+            { id: 'workout', label: 'Workout Plan', icon: '◫' },
+            { id: 'nutrition', label: 'Nutrition Plan', icon: '◉' },
+            { id: 'activity', label: 'Activity & Cardio', icon: '⚡' },
+            { id: 'progress', label: 'Body Metrics & PRs', icon: '▤' },
+            { id: 'goals', label: 'Goals & Profile', icon: '◎' },
+            { id: 'checkins', label: 'Check-Ins History', icon: '◷' },
+            { id: 'coach-notes', label: 'Private Coach Notes', icon: '⊟' },
+            { id: 'reminders', label: 'Alarms & Reminders', icon: '◷' },
           ] as const
         ).map((tab) => {
           const isActive = activeTab === tab.id;
