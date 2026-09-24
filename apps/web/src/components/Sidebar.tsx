@@ -24,78 +24,84 @@ interface SidebarProps {
   onSelectTab: (tab: PortalTab) => void;
   currentRole: UserRole;
   onLogout?: () => void;
+  authenticatedUser?: { fullName?: string; role?: string; email?: string };
+}
+
+interface NavItem {
+  id: PortalTab;
+  label: string;
+  icon: string;
+  adminOnly?: boolean;
+  disabled?: boolean;
+  hint?: string;
 }
 
 interface NavGroup {
   groupName: string;
-  items: {
-    id: PortalTab;
-    label: string;
-    icon: string;
-    adminOnly?: boolean;
-    disabled?: boolean;
-    hint?: string;
-  }[];
+  items: NavItem[];
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, currentRole, onLogout }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  onSelectTab,
+  currentRole,
+  onLogout,
+  authenticatedUser,
+}) => {
   const isTrainer = currentRole === UserRole.TRAINER;
   const isNutritionist = currentRole === UserRole.NUTRITIONIST;
   const isAdmin = currentRole === UserRole.ADMIN;
 
   const navGroups: NavGroup[] = [
     {
-      groupName: 'OVERVIEW',
+      groupName: 'WORKSPACE',
       items: [
-        { id: 'overview', label: 'Executive Overview', icon: '⚡' },
-        { id: 'dashboard', label: 'Cohort Analytics', icon: '📊' },
+        { id: 'overview', label: 'Overview', icon: '◈' },
+        { id: 'dashboard', label: 'Analytics', icon: '▦' },
       ],
     },
     {
-      groupName: 'CONTENT & BUILDERS',
+      groupName: 'LIBRARY',
       items: [
-        { id: 'exercises', label: 'Exercise Library', icon: '📚', disabled: isNutritionist },
-        { id: 'workouts', label: 'Workout Templates', icon: '🏋️', disabled: isNutritionist },
-        {
-          id: 'programs',
-          label: 'Training Splits',
-          icon: '📋',
-          disabled: isNutritionist,
-          hint: isNutritionist ? 'Trainers/Coaches only' : undefined,
-        },
-        {
-          id: 'nutrition',
-          label: 'Nutrition Plans',
-          icon: '🥗',
-          disabled: isTrainer,
-          hint: isTrainer ? 'Nutritionists/Coaches only' : undefined,
-        },
+        { id: 'exercises', label: 'Exercise Library', icon: '⊞', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'workouts', label: 'Workout Templates', icon: '◫', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'programs', label: 'Training Programs', icon: '⊟', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'nutrition', label: 'Nutrition Plans', icon: '◉', disabled: isTrainer, hint: isTrainer ? 'Nutritionists only' : undefined },
       ],
     },
     {
       groupName: 'OPERATIONS',
       items: [
-        { id: 'clients', label: 'Athlete Directory', icon: '👥' },
-        { id: 'trainers', label: 'Trainers Roster', icon: '🎖️' },
-        { id: 'check-ins', label: 'Weekly Check-Ins', icon: '📝' },
-        { id: 'calendar', label: 'Schedule Calendar', icon: '📅' },
-        { id: 'messages', label: 'Athlete Messages', icon: '💬' },
-        { id: 'reports', label: 'Reports & Export', icon: '📑' },
+        { id: 'clients', label: 'Athlete Directory', icon: '⊕' },
+        { id: 'trainers', label: 'Trainers', icon: '◎' },
+        { id: 'check-ins', label: 'Weekly Check-Ins', icon: '◷' },
+        { id: 'calendar', label: 'Schedule', icon: '▦' },
+        { id: 'messages', label: 'Messages', icon: '◌' },
+        { id: 'reports', label: 'Reports', icon: '▤' },
       ],
     },
     {
-      groupName: 'SYSTEM & CONTROL',
+      groupName: 'SYSTEM',
       items: [
-        { id: 'admin', label: 'Superuser Control', icon: '🛡️', adminOnly: true },
-        { id: 'settings', label: 'System Settings', icon: '⚙️' },
+        { id: 'admin', label: 'Admin Control', icon: '◉', adminOnly: true },
+        { id: 'settings', label: 'Settings', icon: '◈' },
       ],
     },
   ];
 
+  const displayName = authenticatedUser?.fullName || 'Alpha Control';
+  const displayRole = authenticatedUser?.role || currentRole;
+  const initials = displayName
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+
   return (
     <aside
       style={{
-        width: '240px',
+        width: '220px',
         backgroundColor: STITCH_THEME.colors.bgSecondary,
         borderRight: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
         display: 'flex',
@@ -105,103 +111,77 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, curren
         top: 0,
         flexShrink: 0,
         userSelect: 'none',
+        overflowY: 'auto',
       }}
     >
-      {/* Brand Header */}
+      {/* Brand */}
       <div
         style={{
-          padding: '20px 18px',
+          padding: '18px 16px',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
+          gap: '10px',
           borderBottom: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+          flexShrink: 0,
         }}
       >
         <div
           style={{
-            width: '32px',
-            height: '32px',
+            width: '30px',
+            height: '30px',
             borderRadius: '8px',
-            background: 'linear-gradient(135deg, #00F0FF 0%, #7928CA 100%)',
+            background: 'linear-gradient(135deg, #00E5FF 0%, #7928CA 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: '16px',
-            color: '#000000',
-            boxShadow: '0 0 12px rgba(0, 240, 255, 0.35)',
+            fontWeight: 900,
+            fontSize: '15px',
+            color: '#000',
+            flexShrink: 0,
           }}
         >
           α
         </div>
         <div>
-          <div style={{ fontWeight: 800, letterSpacing: '0.08em', fontSize: '14px', color: '#F8FAFC' }}>
-            ALPHA PORTAL
+          <div style={{ fontWeight: 800, letterSpacing: '0.1em', fontSize: '13px', color: STITCH_THEME.colors.textPrimary }}>
+            ALPHA
           </div>
-          <div style={{ fontSize: '10px', color: STITCH_THEME.colors.accentCyan, letterSpacing: '0.06em', fontFamily: STITCH_THEME.typography.fontMono }}>
-            ENTERPRISE OPS
-          </div>
-        </div>
-      </div>
-
-      {/* Role Badge */}
-      <div style={{ padding: '12px 18px 6px' }}>
-        <div
-          style={{
-            padding: '5px 10px',
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-            borderRadius: '6px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <span style={{ fontSize: '10px', color: STITCH_THEME.colors.textMuted, textTransform: 'uppercase' }}>
-            Role
-          </span>
-          <span
+          <div
             style={{
-              fontSize: '10px',
-              fontWeight: 700,
+              fontSize: '9px',
+              color: STITCH_THEME.colors.accentCyan,
+              letterSpacing: '0.06em',
               fontFamily: STITCH_THEME.typography.fontMono,
-              color:
-                currentRole === UserRole.COACH
-                  ? STITCH_THEME.colors.accentCyan
-                  : currentRole === UserRole.TRAINER
-                  ? STITCH_THEME.colors.accentAmber
-                  : currentRole === UserRole.NUTRITIONIST
-                  ? STITCH_THEME.colors.accentEmerald
-                  : '#FF0055',
+              textTransform: 'uppercase',
             }}
           >
-            {currentRole}
-          </span>
+            Management Portal
+          </div>
         </div>
       </div>
 
-      {/* Navigation Groups List */}
-      <nav style={{ flex: 1, padding: '8px 12px', overflowY: 'auto' }}>
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
         {navGroups.map((group, gIdx) => {
           const visibleItems = group.items.filter((it) => !it.adminOnly || isAdmin);
           if (visibleItems.length === 0) return null;
 
           return (
-            <div key={gIdx} style={{ marginBottom: '14px' }}>
+            <div key={gIdx} style={{ marginBottom: '20px' }}>
               <div
                 style={{
                   fontSize: '9px',
-                  fontWeight: 800,
+                  fontWeight: 600,
                   color: STITCH_THEME.colors.textMuted,
-                  letterSpacing: '0.08em',
-                  padding: '4px 10px',
+                  letterSpacing: '0.1em',
+                  padding: '0 10px 6px',
                   textTransform: 'uppercase',
                 }}
               >
                 {group.groupName}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '2px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                 {visibleItems.map((item) => {
                   const isActive = activeTab === item.id;
                   return (
@@ -211,29 +191,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, curren
                       disabled={item.disabled}
                       title={item.hint}
                       style={{
+                        position: 'relative',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '10px',
-                        padding: '7px 10px',
+                        gap: '9px',
+                        padding: '7px 10px 7px 13px',
                         borderRadius: '6px',
                         border: 'none',
-                        backgroundColor: isActive ? 'rgba(0, 240, 255, 0.12)' : 'transparent',
+                        backgroundColor: isActive ? 'rgba(0, 229, 255, 0.06)' : 'transparent',
                         color: item.disabled
-                          ? STITCH_THEME.colors.textMuted
+                          ? STITCH_THEME.colors.textDisabled
                           : isActive
                           ? STITCH_THEME.colors.accentCyan
                           : STITCH_THEME.colors.textSecondary,
-                        fontSize: '12px',
-                        fontWeight: isActive ? 700 : 500,
+                        fontSize: '12.5px',
+                        fontWeight: isActive ? 600 : 400,
                         cursor: item.disabled ? 'not-allowed' : 'pointer',
                         textAlign: 'left',
                         width: '100%',
-                        transition: 'all 0.12s ease',
-                        opacity: item.disabled ? 0.45 : 1,
+                        transition: 'background-color 0.1s ease, color 0.1s ease',
+                        opacity: item.disabled ? 0.4 : 1,
+                        boxSizing: 'border-box',
+                        overflow: 'hidden',
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive && !item.disabled) {
-                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)';
+                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
                           e.currentTarget.style.color = STITCH_THEME.colors.textPrimary;
                         }
                       }}
@@ -244,18 +227,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, curren
                         }
                       }}
                     >
-                      <span style={{ fontSize: '14px', width: '16px', textAlign: 'center' }}>{item.icon}</span>
-                      <span style={{ flex: 1 }}>{item.label}</span>
+                      {/* Active left accent */}
                       {isActive && (
                         <span
                           style={{
-                            width: '4px',
-                            height: '14px',
+                            position: 'absolute',
+                            left: 0,
+                            top: '4px',
+                            bottom: '4px',
+                            width: '3px',
                             backgroundColor: STITCH_THEME.colors.accentCyan,
-                            borderRadius: '2px',
+                            borderRadius: '0 2px 2px 0',
                           }}
                         />
                       )}
+                      <span
+                        style={{
+                          fontSize: '13px',
+                          width: '15px',
+                          textAlign: 'center',
+                          flexShrink: 0,
+                          fontFamily: STITCH_THEME.typography.fontMono,
+                          opacity: isActive ? 1 : 0.7,
+                        }}
+                      >
+                        {item.icon}
+                      </span>
+                      <span style={{ flex: 1, letterSpacing: '0.01em' }}>{item.label}</span>
                     </button>
                   );
                 })}
@@ -265,43 +263,59 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, curren
         })}
       </nav>
 
-      {/* Footer Profile & Logout */}
+      {/* Footer */}
       <div
         style={{
-          padding: '14px 18px',
+          padding: '12px 14px',
           borderTop: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          gap: '10px',
+          flexShrink: 0,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div
+          style={{
+            width: '30px',
+            height: '30px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(0, 229, 255, 0.12)',
+            border: `1px solid rgba(0, 229, 255, 0.25)`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '11px',
+            fontWeight: 700,
+            color: STITCH_THEME.colors.accentCyan,
+            flexShrink: 0,
+          }}
+        >
+          {initials}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              backgroundColor: STITCH_THEME.colors.borderSubtle,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
               fontSize: '12px',
-              fontWeight: 700,
-              color: STITCH_THEME.colors.accentCyan,
+              fontWeight: 600,
+              color: STITCH_THEME.colors.textPrimary,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
           >
-            {currentRole.charAt(0)}
+            {displayName}
           </div>
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: STITCH_THEME.colors.textPrimary }}>
-              Alpha Control
-            </div>
-            <div style={{ fontSize: '10px', color: STITCH_THEME.colors.textMuted }}>
-              Asia/Kolkata
-            </div>
+          <div
+            style={{
+              fontSize: '10px',
+              color: STITCH_THEME.colors.textMuted,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {String(displayRole)}
           </div>
         </div>
-
         {onLogout && (
           <button
             onClick={onLogout}
@@ -311,12 +325,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, curren
               border: 'none',
               color: STITCH_THEME.colors.textMuted,
               cursor: 'pointer',
-              fontSize: '14px',
+              fontSize: '13px',
               padding: '4px',
               borderRadius: '4px',
+              flexShrink: 0,
+              lineHeight: 1,
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = STITCH_THEME.colors.accentCrimson)}
+            onMouseLeave={(e) => (e.currentTarget.style.color = STITCH_THEME.colors.textMuted)}
           >
-            🚪
+            ↩
           </button>
         )}
       </div>

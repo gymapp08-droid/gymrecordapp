@@ -4,126 +4,191 @@ import { STITCH_THEME } from '../styles/stitch-theme';
 
 interface TopHeaderProps {
   currentRole: UserRole;
-  onChangeRole: (role: UserRole) => void;
+  onChangeRole?: (role: UserRole) => void;
   onOpenInviteModal: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  authenticatedUser?: { fullName?: string; role?: string; email?: string };
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
   currentRole,
-  onChangeRole,
   onOpenInviteModal,
   searchQuery,
   onSearchChange,
+  authenticatedUser,
 }) => {
+  const workspaceLabel =
+    currentRole === UserRole.ADMIN
+      ? 'Admin Workspace'
+      : currentRole === UserRole.TRAINER
+      ? 'Trainer Workspace'
+      : currentRole === UserRole.NUTRITIONIST
+      ? 'Nutrition Workspace'
+      : 'Coach Workspace';
+
+  const displayName = authenticatedUser?.fullName || 'Alpha Control';
+  const initials = displayName
+    .split(' ')
+    .slice(0, 2)
+    .map((w: string) => w[0])
+    .join('')
+    .toUpperCase();
+
   return (
     <header
       style={{
-        height: '68px',
+        height: '56px',
         backgroundColor: STITCH_THEME.colors.bgSecondary,
         borderBottom: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 28px',
+        padding: '0 24px',
         position: 'sticky',
         top: 0,
         zIndex: 20,
+        flexShrink: 0,
+        gap: '16px',
       }}
     >
-      {/* Search Bar */}
-      <div style={{ position: 'relative', width: '380px' }}>
+      {/* Left: Workspace label */}
+      <div style={{ flexShrink: 0 }}>
+        <span
+          style={{
+            fontSize: '12px',
+            fontWeight: 500,
+            color: STITCH_THEME.colors.textMuted,
+            letterSpacing: '0.01em',
+          }}
+        >
+          {workspaceLabel}
+        </span>
+      </div>
+
+      {/* Center: Search */}
+      <div style={{ flex: 1, maxWidth: '360px', position: 'relative' }}>
+        <span
+          style={{
+            position: 'absolute',
+            left: '11px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            fontSize: '12px',
+            color: STITCH_THEME.colors.textMuted,
+            pointerEvents: 'none',
+          }}
+        >
+          ⌕
+        </span>
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search assigned athletes, programs, or PRs... (⌘K)"
+          placeholder="Search athletes, programs…"
           style={{
             width: '100%',
             backgroundColor: 'rgba(255, 255, 255, 0.04)',
             border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
             borderRadius: '8px',
-            padding: '9px 14px 9px 36px',
+            padding: '7px 12px 7px 30px',
             color: STITCH_THEME.colors.textPrimary,
             fontSize: '13px',
             outline: 'none',
-            transition: 'border 0.15s ease',
+            boxSizing: 'border-box',
+            transition: 'border-color 0.15s ease',
           }}
           onFocus={(e) => (e.target.style.borderColor = STITCH_THEME.colors.accentCyan)}
           onBlur={(e) => (e.target.style.borderColor = STITCH_THEME.colors.borderSubtle)}
         />
-        <span
-          style={{
-            position: 'absolute',
-            left: '12px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            fontSize: '14px',
-            color: STITCH_THEME.colors.textMuted,
-          }}
-        >
-          🔍
-        </span>
       </div>
 
-      {/* Right Controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        {/* Role Simulator Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, textTransform: 'uppercase' }}>
-            Simulate Role:
-          </span>
-          <select
-            value={currentRole}
-            onChange={(e) => onChangeRole(e.target.value as UserRole)}
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.06)',
-              border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-              color: STITCH_THEME.colors.textPrimary,
-              padding: '6px 12px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              outline: 'none',
-            }}
-          >
-            <option value={UserRole.COACH}>COACH (Full Access)</option>
-            <option value={UserRole.TRAINER}>TRAINER (No Nutrition)</option>
-            <option value={UserRole.NUTRITIONIST}>NUTRITIONIST (No Workouts)</option>
-            <option value={UserRole.ORG_ADMIN}>ORG ADMIN (All Clients)</option>
-          </select>
-        </div>
-
-        {/* Invite Client CTA */}
+      {/* Right: Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+        {/* Notifications */}
         <button
-          onClick={onOpenInviteModal}
-          style={STITCH_THEME.styles.primaryButton}
+          title="Notifications"
+          style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            background: 'none',
+            border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+            color: STITCH_THEME.colors.textMuted,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '14px',
+            transition: 'border-color 0.15s ease, color 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = STITCH_THEME.colors.borderMedium;
+            e.currentTarget.style.color = STITCH_THEME.colors.textSecondary;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = STITCH_THEME.colors.borderSubtle;
+            e.currentTarget.style.color = STITCH_THEME.colors.textMuted;
+          }}
         >
-          <span>+</span>
-          <span>Invite Client</span>
+          ◉
         </button>
 
-        {/* Coach Profile Avatar */}
-        <div
+        {/* Help */}
+        <button
+          title="Help & Documentation"
           style={{
-            width: '36px',
-            height: '36px',
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            background: 'none',
+            border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+            color: STITCH_THEME.colors.textMuted,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '13px',
+            fontWeight: 700,
+            transition: 'border-color 0.15s ease, color 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = STITCH_THEME.colors.borderMedium;
+            e.currentTarget.style.color = STITCH_THEME.colors.textSecondary;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = STITCH_THEME.colors.borderSubtle;
+            e.currentTarget.style.color = STITCH_THEME.colors.textMuted;
+          }}
+        >
+          ?
+        </button>
+
+        {/* Invite CTA */}
+        <button onClick={onOpenInviteModal} style={STITCH_THEME.styles.primaryButton}>
+          + Invite Athlete
+        </button>
+
+        {/* Avatar */}
+        <div
+          title={displayName}
+          style={{
+            width: '32px',
+            height: '32px',
             borderRadius: '50%',
-            backgroundColor: 'rgba(0, 240, 255, 0.15)',
-            border: '1px solid rgba(0, 240, 255, 0.4)',
+            backgroundColor: 'rgba(0, 229, 255, 0.1)',
+            border: `1px solid rgba(0, 229, 255, 0.3)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 700,
-            fontSize: '13px',
+            fontSize: '11px',
             color: STITCH_THEME.colors.accentCyan,
             cursor: 'pointer',
+            flexShrink: 0,
           }}
-          title="Coach Profile"
         >
-          CP
+          {initials}
         </div>
       </div>
     </header>

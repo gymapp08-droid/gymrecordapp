@@ -61,12 +61,12 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
   }, []);
 
   const stats = [
-    { label: 'Active Athletes', value: overview?.activeAthletes ?? 0, sub: `of ${overview?.totalAthletes ?? 0} enrolled`, color: STITCH_THEME.colors.accentCyan, icon: '👥', tab: 'clients' },
-    { label: 'Certified Trainers', value: overview?.totalTrainers ?? 0, sub: 'operational roster', color: STITCH_THEME.colors.accentAmber, icon: '🎖️', tab: 'trainers' },
-    { label: "Today's Workouts", value: overview?.todayWorkoutsCount ?? 0, sub: 'completed & in-progress', color: STITCH_THEME.colors.accentEmerald, icon: '⚡', tab: 'dashboard' },
-    { label: 'Pending Check-Ins', value: overview?.pendingCheckInsCount ?? 0, sub: 'awaiting coach review', color: overview?.pendingCheckInsCount ? STITCH_THEME.colors.accentRose : STITCH_THEME.colors.textMuted, icon: '📋', tab: 'check-ins' },
-    { label: 'Exercise Library', value: overview?.totalExercises ?? 0, sub: 'biomechanically verified', color: STITCH_THEME.colors.accentCyan, icon: '📚', tab: 'exercises' },
-    { label: 'Active Programs', value: overview?.totalPrograms ?? 0, sub: 'periodized splits', color: STITCH_THEME.colors.accentViolet, icon: '🏋️', tab: 'programs' },
+    { label: 'Active Athletes', value: overview?.activeAthletes ?? 0, sub: `of ${overview?.totalAthletes ?? 0} enrolled`, color: STITCH_THEME.colors.accentCyan, icon: '⊕', tab: 'clients' },
+    { label: 'Certified Trainers', value: overview?.totalTrainers ?? 0, sub: 'operational roster', color: STITCH_THEME.colors.accentAmber, icon: '◎', tab: 'trainers' },
+    { label: "Today's Workouts", value: overview?.todayWorkoutsCount ?? 0, sub: 'completed & in-progress', color: STITCH_THEME.colors.accentEmerald, icon: '◈', tab: 'dashboard' },
+    { label: 'Pending Check-Ins', value: overview?.pendingCheckInsCount ?? 0, sub: 'awaiting coach review', color: overview?.pendingCheckInsCount ? STITCH_THEME.colors.accentRose : STITCH_THEME.colors.textMuted, icon: '◷', tab: 'check-ins' },
+    { label: 'Exercise Library', value: overview?.totalExercises ?? 0, sub: 'biomechanically verified', color: STITCH_THEME.colors.accentCyan, icon: '⊞', tab: 'exercises' },
+    { label: 'Active Programs', value: overview?.totalPrograms ?? 0, sub: 'periodized splits', color: STITCH_THEME.colors.accentViolet, icon: '⊟', tab: 'programs' },
   ];
 
   return (
@@ -76,8 +76,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
         style={{
           ...STITCH_THEME.styles.glassCard,
           padding: '28px 32px',
-          background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(121, 40, 202, 0.05) 50%, rgba(10, 10, 15, 0.95) 100%)',
-          border: `1px solid rgba(0, 240, 255, 0.25)`,
+          borderLeft: `4px solid rgba(0, 240, 255, 0.4)`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -108,10 +107,10 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             </span>
           </div>
           <h1 style={{ fontSize: '28px', fontWeight: 900, margin: 0, letterSpacing: '-0.03em', color: STITCH_THEME.colors.textPrimary }}>
-            Alpha Operations Overview
+            Operations Overview
           </h1>
           <p style={{ fontSize: '14px', color: STITCH_THEME.colors.textSecondary, margin: '6px 0 0 0', maxWidth: '640px' }}>
-            Real-time management portal synchronizing coaches, exercise science standards, athlete compliance, and biometric feedback loops.
+            Real-time platform status and management shortcuts.
           </p>
         </div>
 
@@ -190,10 +189,23 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '20px' }}>⚠️</span>
+          {/* Left indicator bar */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: '3px',
+              backgroundColor: STITCH_THEME.colors.accentRose,
+              borderRadius: '10px 0 0 10px',
+            }}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingLeft: '8px' }}>
             <div>
               <div style={{ fontSize: '14px', fontWeight: 700, color: STITCH_THEME.colors.accentRose }}>
                 {overview.pendingCheckInsCount} Weekly Progress Check-In{overview.pendingCheckInsCount > 1 ? 's' : ''} Awaiting Review
@@ -219,44 +231,61 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
 
       {/* KPI Cards Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        {stats.map((s, idx) => (
-          <div
-            key={idx}
-            onClick={() => onNavigateTab(s.tab)}
-            style={{
-              ...STITCH_THEME.styles.glassCard,
-              padding: '20px',
-              cursor: 'pointer',
-              transition: 'transform 0.15s ease, border-color 0.15s ease',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = s.color;
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = STITCH_THEME.colors.borderSubtle;
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: STITCH_THEME.colors.textSecondary, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {s.label}
-              </span>
-              <span style={{ fontSize: '18px' }}>{s.icon}</span>
-            </div>
-            <div>
-              <div style={{ fontSize: '32px', fontWeight: 900, color: s.color, fontFamily: STITCH_THEME.typography.fontMono, lineHeight: 1 }}>
-                {loading ? '...' : s.value}
+        {loading
+          ? Array.from({ length: 6 }).map((_, idx) => (
+              <div
+                key={idx}
+                style={{
+                  ...STITCH_THEME.styles.glassCard,
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
+                <div style={{ height: '12px', width: '60%', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.06)' }} />
+                <div style={{ height: '36px', width: '40%', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.08)' }} />
+                <div style={{ height: '10px', width: '75%', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.04)' }} />
               </div>
-              <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, marginTop: '6px' }}>
-                {s.sub}
+            ))
+          : stats.map((s, idx) => (
+              <div
+                key={idx}
+                onClick={() => onNavigateTab(s.tab)}
+                style={{
+                  ...STITCH_THEME.styles.glassCard,
+                  padding: '20px',
+                  cursor: 'pointer',
+                  transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.18)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '';
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: STITCH_THEME.colors.textMuted }}>
+                    {s.label}
+                  </span>
+                  <span style={{ fontSize: '16px', color: s.color, fontFamily: STITCH_THEME.typography.fontMono, lineHeight: 1 }}>{s.icon}</span>
+                </div>
+                <div>
+                  <div style={{ fontSize: '36px', fontWeight: 900, color: STITCH_THEME.colors.textPrimary, fontFamily: STITCH_THEME.typography.fontMono, lineHeight: 1 }}>
+                    {s.value}
+                  </div>
+                  <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, marginTop: '6px' }}>
+                    {s.sub}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            ))}
       </div>
 
       {/* Main Split: Real-time Activity Feed & System Protocols */}
@@ -348,7 +377,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
             }}
           >
             <div style={{ fontSize: '13px', fontWeight: 800, color: STITCH_THEME.colors.accentCyan, marginBottom: '6px' }}>
-              🎯 Target vs. Actual Integrity Rule
+              Target vs. Actual Integrity Rule
             </div>
             <p style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, margin: 0, lineHeight: 1.5 }}>
               Coaches and Admins configure <strong>Target Prescriptions</strong> (sets, reps, RPE, rest intervals). Mobile athletes log <strong>Actual Performance</strong> (reps completed, weight, actual RPE). Master template parameters remain immutable.
@@ -357,8 +386,8 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
 
           {/* Quick Navigation Cards */}
           <div style={{ ...STITCH_THEME.styles.glassCard, padding: '20px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Management Modules
+            <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '14px' }}>
+              Quick Access
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button
@@ -373,7 +402,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
                   textAlign: 'left',
                 }}
               >
-                <span>📚 Exercise Library Management</span>
+                <span>Exercise Library Management</span>
                 <span style={{ color: STITCH_THEME.colors.accentCyan }}>→</span>
               </button>
               <button
@@ -388,7 +417,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
                   textAlign: 'left',
                 }}
               >
-                <span>🏋️ Workout Templates Builder</span>
+                <span>Workout Templates Builder</span>
                 <span style={{ color: STITCH_THEME.colors.accentCyan }}>→</span>
               </button>
               <button
@@ -403,7 +432,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
                   textAlign: 'left',
                 }}
               >
-                <span>👥 Athlete Directory & 360° Dossier</span>
+                <span>Athlete Directory & 360° Dossier</span>
                 <span style={{ color: STITCH_THEME.colors.accentCyan }}>→</span>
               </button>
               {currentRole === UserRole.ADMIN && (
@@ -420,7 +449,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
                     borderColor: 'rgba(255, 170, 0, 0.3)',
                   }}
                 >
-                  <span>🎖️ Trainer Operations & Roster</span>
+                  <span>Trainer Operations & Roster</span>
                   <span style={{ color: STITCH_THEME.colors.accentAmber }}>→</span>
                 </button>
               )}
@@ -437,7 +466,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
                     textAlign: 'left',
                   }}
                 >
-                  <span>⚙️ System Configuration & Audit</span>
+                  <span>System Configuration & Audit</span>
                   <span style={{ color: STITCH_THEME.colors.textMuted }}>→</span>
                 </button>
               )}

@@ -787,82 +787,46 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
           onSearchChange={setSearchQuery}
         />
 
-        {/* Role Capability Banner */}
+        {/* Quick Actions Bar — context-aware */}
         <div
           style={{
-            backgroundColor: 'rgba(12, 16, 24, 0.9)',
             borderBottom: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-            padding: '10px 28px',
+            padding: '7px 24px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: '12px',
+            justifyContent: 'flex-end',
+            gap: '8px',
+            backgroundColor: STITCH_THEME.colors.bgSecondary,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span
+          {currentRole !== UserRole.NUTRITIONIST && (
+            <button
+              onClick={() => setIsBuildingProgram(true)}
               style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor:
-                  currentRole === UserRole.COACH
-                    ? STITCH_THEME.colors.accentCyan
-                    : currentRole === UserRole.TRAINER
-                    ? STITCH_THEME.colors.accentAmber
-                    : currentRole === UserRole.NUTRITIONIST
-                    ? STITCH_THEME.colors.accentEmerald
-                    : STITCH_THEME.colors.accentViolet,
+                ...STITCH_THEME.styles.secondaryButton,
+                fontSize: '12px',
+                padding: '5px 12px',
               }}
-            />
-            <span style={{ color: STITCH_THEME.colors.textSecondary }}>
-              Active RBAC Role: <strong style={{ color: STITCH_THEME.colors.textPrimary }}>{currentRole}</strong>
-            </span>
-            <span style={{ color: STITCH_THEME.colors.textMuted }}>•</span>
-            <span style={{ color: STITCH_THEME.colors.textMuted }}>
-              {currentRole === UserRole.NUTRITIONIST
-                ? 'Nutritionist: Full Nutrition Plan authoring & assignment. Workout Program mutations are locked.'
-                : currentRole === UserRole.TRAINER
-                ? 'Trainer: Full Workout Program authoring & assignment. Nutrition mutations are locked.'
-                : currentRole === UserRole.COACH
-                ? 'Coach: Full dual-domain authority over Workout Programs & Nutrition Plans.'
-                : 'Org Admin: Superuser privileges across organization rosters, coaches, and templates.'}
-            </span>
-          </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            {currentRole !== UserRole.NUTRITIONIST && (
-              <button
-                onClick={() => setIsBuildingProgram(true)}
-                style={{
-                  ...STITCH_THEME.styles.secondaryButton,
-                  fontSize: '11px',
-                  padding: '4px 10px',
-                  borderColor: STITCH_THEME.colors.accentCyan,
-                  color: STITCH_THEME.colors.accentCyan,
-                }}
-              >
-                + New Program
-              </button>
-            )}
-            {currentRole !== UserRole.TRAINER && (
-              <button
-                onClick={() => setIsBuildingMealPlan(true)}
-                style={{
-                  ...STITCH_THEME.styles.secondaryButton,
-                  fontSize: '11px',
-                  padding: '4px 10px',
-                  borderColor: STITCH_THEME.colors.accentEmerald,
-                  color: STITCH_THEME.colors.accentEmerald,
-                }}
-              >
-                + New Meal Plan
-              </button>
-            )}
-          </div>
+            >
+              + New Program
+            </button>
+          )}
+          {currentRole !== UserRole.TRAINER && (
+            <button
+              onClick={() => setIsBuildingMealPlan(true)}
+              style={{
+                ...STITCH_THEME.styles.secondaryButton,
+                fontSize: '12px',
+                padding: '5px 12px',
+              }}
+            >
+              + New Meal Plan
+            </button>
+          )}
         </div>
 
         {/* Dynamic Main Content Area */}
-        <main style={{ flex: 1, padding: '28px', maxWidth: '1440px', width: '100%', margin: '0 auto' }}>
+        <main style={{ flex: 1, padding: '24px', maxWidth: '1440px', width: '100%', margin: '0 auto' }}>
           {selectedDossier ? (
             /* Athlete Dossier Detail View */
             <ClientDetailView
@@ -1019,8 +983,25 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                 )}
               </div>
 
-              <div style={{ ...STITCH_THEME.styles.glassCard, padding: '32px', textAlign: 'center' }}>
-                <div style={{ fontSize: '36px', marginBottom: '12px' }}>🥗</div>
+              <div style={{ ...STITCH_THEME.styles.glassCard, padding: '48px 32px', textAlign: 'center' }}>
+                <div
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '12px',
+                    backgroundColor: STITCH_THEME.colors.accentEmeraldDim,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '20px',
+                    color: STITCH_THEME.colors.accentEmerald,
+                    margin: '0 auto 16px',
+                    fontFamily: STITCH_THEME.typography.fontMono,
+                    fontWeight: 700,
+                  }}
+                >
+                  ◉
+                </div>
                 <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 8px 0' }}>Ready for Plan Assignment</h3>
                 <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, maxWidth: '460px', margin: '0 auto 20px auto' }}>
                   Create customized daily meal structures or assign calibrated caloric targets to your athletes.
@@ -1081,13 +1062,30 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
             <SystemSettingsView currentRole={currentRole} auditLogs={auditLogs} />
           ) : (
             /* Placeholder for secondary tabs */
-            <div style={{ ...STITCH_THEME.styles.glassCard, padding: '48px', textAlign: 'center' }}>
-              <div style={{ fontSize: '32px', marginBottom: '16px' }}>⚡</div>
-              <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
+            <div style={{ ...STITCH_THEME.styles.glassCard, padding: '64px 48px', textAlign: 'center' }}>
+              <div
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '12px',
+                  backgroundColor: STITCH_THEME.colors.accentCyanDim,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  color: STITCH_THEME.colors.accentCyan,
+                  margin: '0 auto 20px',
+                  fontFamily: STITCH_THEME.typography.fontMono,
+                  fontWeight: 700,
+                }}
+              >
+                ◈
+              </div>
+              <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px', marginTop: 0 }}>
                 {(activeTab as string).charAt(0).toUpperCase() + (activeTab as string).slice(1)} Dashboard
               </h2>
-              <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary }}>
-                Phase 08 Coaching Portal module operational. Select <strong>Clients</strong> to manage athletes or <strong>Programs</strong> to inspect training splits.
+              <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
+                Select <strong>Clients</strong> to manage athletes or <strong>Programs</strong> to inspect training splits.
               </p>
             </div>
           )}
