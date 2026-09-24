@@ -24,6 +24,9 @@ async function bootstrap() {
       const htmlPath = candidates.find((c) => fs.existsSync(c));
       if (htmlPath) {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         return res.sendFile(htmlPath);
       }
     }
@@ -37,6 +40,9 @@ async function bootstrap() {
       const jsPath = candidates.find((c) => fs.existsSync(c));
       if (jsPath) {
         res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         return res.sendFile(jsPath);
       }
     }
