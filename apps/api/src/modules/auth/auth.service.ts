@@ -1,5 +1,6 @@
 import {
   Injectable,
+  OnModuleInit,
   ConflictException,
   UnauthorizedException,
   ForbiddenException,
@@ -89,7 +90,7 @@ export interface FailedAttemptRecord {
 }
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   private readonly logger = new Logger(AuthService.name);
 
   // In-memory backing stores for testing and fallback execution
@@ -107,6 +108,51 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
+
+  async onModuleInit() {
+    await this.seedDefaultAdminUsers();
+  }
+
+  private async seedDefaultAdminUsers() {
+    const adminEmail = (this.configService.get<string>('ADMIN_EMAIL') || 'admin@alpha.io').toLowerCase().trim();
+    const coachEmail = (this.configService.get<string>('COACH_EMAIL') || 'coach@alpha.io').toLowerCase().trim();
+
+    if (!this.inMemoryUsers.has(adminEmail)) {
+      const adminPassword = this.configService.get<string>('ADMIN_PASSWORD') || 'Admin@Alpha2026!';
+      const passwordHash = await HashUtil.hashPassword(adminPassword);
+      this.inMemoryUsers.set(adminEmail, {
+        id: 'user_master_admin',
+        email: adminEmail,
+        passwordHash,
+        fullName: 'Master Administrator',
+        role: UserRole.ADMIN,
+        status: AccountStatus.ACTIVE,
+        isActive: true,
+        isEmailVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      this.logger.log(`Initialized default enterprise administrator account: [${adminEmail}]`);
+    }
+
+    if (!this.inMemoryUsers.has(coachEmail)) {
+      const coachPassword = this.configService.get<string>('COACH_PASSWORD') || 'Coach@Alpha2026!';
+      const passwordHash = await HashUtil.hashPassword(coachPassword);
+      this.inMemoryUsers.set(coachEmail, {
+        id: 'user_lead_coach',
+        email: coachEmail,
+        passwordHash,
+        fullName: 'Lead Performance Coach',
+        role: UserRole.COACH,
+        status: AccountStatus.ACTIVE,
+        isActive: true,
+        isEmailVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      this.logger.log(`Initialized default coach account: [${coachEmail}]`);
+    }
+  }
 
   /**
    * Account Registration

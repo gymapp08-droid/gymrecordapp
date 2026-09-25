@@ -785,6 +785,8 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
           onOpenInviteModal={() => setIsInviteModalOpen(true)}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          authenticatedUser={authenticatedUser}
+          onLogout={onLogout}
         />
 
         {/* Quick Actions Bar — context-aware */}
