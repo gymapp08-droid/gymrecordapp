@@ -25,20 +25,21 @@ const EVENT_TYPE_COLORS: Record<CalendarEventType, { bg: string; text: string; b
   NUTRITION_START: { bg: 'rgba(5, 150, 105, 0.15)', text: '#34D399', border: 'rgba(5, 150, 105, 0.35)' },
 };
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ clients, events, onCreateEvent }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({ clients = [], events = [], onCreateEvent }) => {
   const [selectedEventType, setSelectedEventType] = useState<'ALL' | CalendarEventType>('ALL');
   const [selectedClientId, setSelectedClientId] = useState<string>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // New Event Form State
   const [title, setTitle] = useState('');
-  const [clientId, setClientId] = useState(clients[0]?.clientId || '');
+  const [clientId, setClientId] = useState((clients || [])[0]?.clientId || '');
   const [eventType, setEventType] = useState<CalendarEventType>('CHECKIN');
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0] || '');
   const [startTime, setStartTime] = useState('14:00');
   const [notes, setNotes] = useState('');
 
-  const filteredEvents = events.filter((e) => {
+  const safeEvents = Array.isArray(events) ? events : [];
+  const filteredEvents = safeEvents.filter((e) => {
     const matchType = selectedEventType === 'ALL' || e.eventType === selectedEventType;
     const matchClient = selectedClientId === 'ALL' || e.clientId === selectedClientId;
     return matchType && matchClient;

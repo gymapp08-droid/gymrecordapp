@@ -11,7 +11,7 @@ interface ClientListTableProps {
 }
 
 export const ClientListTable: React.FC<ClientListTableProps> = ({
-  clients,
+  clients = [],
   onSelectClient,
   onAssignProgram,
   onOffboardClient,
@@ -20,12 +20,13 @@ export const ClientListTable: React.FC<ClientListTableProps> = ({
   const [statusFilter, setStatusFilter] = useState<'ALL' | ClientStatus>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredClients = clients.filter((c) => {
+  const safeClients = Array.isArray(clients) ? clients : [];
+  const filteredClients = safeClients.filter((c) => {
     const matchesStatus = statusFilter === 'ALL' || c.status === statusFilter;
     const matchesSearch =
-      c.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.primaryGoal.toLowerCase().includes(searchTerm.toLowerCase());
+      (c.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.primaryGoal || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 

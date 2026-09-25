@@ -39,6 +39,7 @@ import { WorkoutManagementView } from '../components/WorkoutManagementView';
 import { TrainerManagementView } from '../components/TrainerManagementView';
 import { SystemSettingsView } from '../components/SystemSettingsView';
 import { AuthGuard } from '../components/AuthGuard';
+import { WebErrorBoundary } from '../components/WebErrorBoundary';
 import { IAuthUser } from '@alpha/types';
 
 // Initial seed programs
@@ -1183,9 +1184,11 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
 
 export const GuardedCoachPortalApp: React.FC = () => {
   return (
-    <AuthGuard>
-      {(authUser, onLogout) => <CoachPortalApp authenticatedUser={authUser} onLogout={onLogout} />}
-    </AuthGuard>
+    <WebErrorBoundary>
+      <AuthGuard>
+        {(authUser, onLogout) => <CoachPortalApp authenticatedUser={authUser} onLogout={onLogout} />}
+      </AuthGuard>
+    </WebErrorBoundary>
   );
 };
 

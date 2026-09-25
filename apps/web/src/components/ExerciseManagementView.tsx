@@ -43,8 +43,13 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
       });
 
       if (!res.ok) throw new Error('Failed to load exercises');
-      const data = await res.json();
-      setExercises(data);
+      const json = await res.json();
+      const list = Array.isArray(json) ? json : Array.isArray(json?.data) ? json.data : null;
+      if (list && list.length > 0) {
+        setExercises(list);
+      } else {
+        throw new Error('Empty list, fallback to seeds');
+      }
     } catch {
       // Fallback local exercises
       setExercises([
@@ -355,7 +360,7 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-          {exercises.map((ex) => (
+          {(Array.isArray(exercises) ? exercises : []).map((ex) => (
           <div
             key={ex.id}
             style={{

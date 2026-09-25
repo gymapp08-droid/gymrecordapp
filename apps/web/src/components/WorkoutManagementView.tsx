@@ -23,6 +23,37 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
   const [newRestSeconds, setNewRestSeconds] = useState(90);
 
   const fetchTemplates = async () => {
+    const fallbackTemplates: IStandaloneWorkoutTemplate[] = [
+      {
+        id: 'tpl_push_hypertrophy',
+        name: 'Push Power & Hypertrophy',
+        category: 'Push',
+        difficulty: 'INTERMEDIATE',
+        durationMinutes: 65,
+        estimatedMinutes: 65,
+        notes: 'Focused on chest, front/side delts, and triceps volume with progressive overload.',
+        exercises: [
+          { id: 'te_1', exerciseId: 'ex_bench_press', exerciseName: 'Barbell Bench Press', orderIndex: 0, targetSets: 4, targetReps: 8, targetRpe: 8.5, restSeconds: 120 },
+          { id: 'te_2', exerciseId: 'ex_incline_db_press', exerciseName: 'Incline Dumbbell Press', orderIndex: 1, targetSets: 3, targetReps: 10, targetRpe: 8, restSeconds: 90 },
+          { id: 'te_3', exerciseId: 'ex_cable_flyes', exerciseName: 'Cable Chest Flyes', orderIndex: 2, targetSets: 3, targetReps: 15, targetRpe: 7.5, restSeconds: 60 },
+        ],
+      },
+      {
+        id: 'tpl_pull_density',
+        name: 'Pull Heavy Density',
+        category: 'Pull',
+        difficulty: 'ADVANCED',
+        durationMinutes: 70,
+        estimatedMinutes: 70,
+        notes: 'Vertical and horizontal pulling to develop dense lats, traps, and peak biceps.',
+        exercises: [
+          { id: 'te_4', exerciseId: 'ex_pullups', exerciseName: 'Pull-up', orderIndex: 0, targetSets: 4, targetReps: 8, targetRpe: 8.5, restSeconds: 120 },
+          { id: 'te_5', exerciseId: 'ex_barbell_row', exerciseName: 'Barbell Bent-Over Row', orderIndex: 1, targetSets: 4, targetReps: 10, targetRpe: 8, restSeconds: 90 },
+          { id: 'te_6', exerciseId: 'ex_bicep_curl', exerciseName: 'Barbell Bicep Curl', orderIndex: 2, targetSets: 3, targetReps: 12, targetRpe: 8, restSeconds: 60 },
+        ],
+      },
+    ];
+
     try {
       setLoading(true);
       const token = localStorage.getItem('alpha_auth_token');
@@ -34,66 +65,47 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
       });
 
       if (!res.ok) throw new Error('Failed to load templates');
-      const data = await res.json();
-      setTemplates(data);
+      const json = await res.json();
+      const list = Array.isArray(json) ? json : Array.isArray(json?.data) ? json.data : null;
+      if (list && list.length > 0) {
+        setTemplates(list);
+      } else {
+        setTemplates(fallbackTemplates);
+      }
     } catch {
-      // Fallback templates
-      setTemplates([
-        {
-          id: 'tpl_push_hypertrophy',
-          name: 'Push Power & Hypertrophy',
-          category: 'Push',
-          difficulty: 'INTERMEDIATE',
-          durationMinutes: 65,
-          estimatedMinutes: 65,
-          notes: 'Focused on chest, front/side delts, and triceps volume with progressive overload.',
-          exercises: [
-            { id: 'te_1', exerciseId: 'ex_bench_press', exerciseName: 'Barbell Bench Press', orderIndex: 0, targetSets: 4, targetReps: 8, targetRpe: 8.5, restSeconds: 120 },
-            { id: 'te_2', exerciseId: 'ex_incline_db_press', exerciseName: 'Incline Dumbbell Press', orderIndex: 1, targetSets: 3, targetReps: 10, targetRpe: 8, restSeconds: 90 },
-            { id: 'te_3', exerciseId: 'ex_cable_flyes', exerciseName: 'Cable Chest Flyes', orderIndex: 2, targetSets: 3, targetReps: 15, targetRpe: 7.5, restSeconds: 60 },
-          ],
-        },
-        {
-          id: 'tpl_pull_density',
-          name: 'Pull Heavy Density',
-          category: 'Pull',
-          difficulty: 'ADVANCED',
-          durationMinutes: 70,
-          estimatedMinutes: 70,
-          notes: 'Vertical and horizontal pulling to develop dense lats, traps, and peak biceps.',
-          exercises: [
-            { id: 'te_4', exerciseId: 'ex_pullups', exerciseName: 'Pull-up', orderIndex: 0, targetSets: 4, targetReps: 8, targetRpe: 8.5, restSeconds: 120 },
-            { id: 'te_5', exerciseId: 'ex_barbell_row', exerciseName: 'Barbell Bent-Over Row', orderIndex: 1, targetSets: 4, targetReps: 10, targetRpe: 8, restSeconds: 90 },
-            { id: 'te_6', exerciseId: 'ex_bicep_curl', exerciseName: 'Barbell Bicep Curl', orderIndex: 2, targetSets: 3, targetReps: 12, targetRpe: 8, restSeconds: 60 },
-          ],
-        },
-      ]);
+      setTemplates(fallbackTemplates);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchExercises = async () => {
+    const fallbackExercises: IEnterpriseExercise[] = [
+      { id: 'ex_bench_press', name: 'Barbell Bench Press', primaryMuscle: 'Chest', equipment: 'Barbell' } as any,
+      { id: 'ex_incline_db_press', name: 'Incline Dumbbell Press', primaryMuscle: 'Chest', equipment: 'Dumbbell' } as any,
+      { id: 'ex_squats', name: 'Barbell Back Squat', primaryMuscle: 'Legs', equipment: 'Barbell' } as any,
+      { id: 'ex_rdl', name: 'Romanian Deadlift', primaryMuscle: 'Legs', equipment: 'Barbell' } as any,
+      { id: 'ex_pullups', name: 'Pull-up', primaryMuscle: 'Back', equipment: 'Bodyweight' } as any,
+      { id: 'ex_barbell_row', name: 'Barbell Bent-Over Row', primaryMuscle: 'Back', equipment: 'Barbell' } as any,
+      { id: 'ex_ohp', name: 'Standing Overhead Press', primaryMuscle: 'Shoulders', equipment: 'Barbell' } as any,
+    ];
+
     try {
       const token = localStorage.getItem('alpha_auth_token');
       const res = await fetch('/api/v1/workouts/exercises', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        const data = await res.json();
-        setAvailableExercises(data);
+        const json = await res.json();
+        const list = Array.isArray(json) ? json : Array.isArray(json?.data) ? json.data : null;
+        if (list && list.length > 0) {
+          setAvailableExercises(list);
+          return;
+        }
       }
+      setAvailableExercises(fallbackExercises);
     } catch {
-      // Fallback exercises
-      setAvailableExercises([
-        { id: 'ex_bench_press', name: 'Barbell Bench Press', primaryMuscle: 'Chest', equipment: 'Barbell' } as any,
-        { id: 'ex_incline_db_press', name: 'Incline Dumbbell Press', primaryMuscle: 'Chest', equipment: 'Dumbbell' } as any,
-        { id: 'ex_squats', name: 'Barbell Back Squat', primaryMuscle: 'Legs', equipment: 'Barbell' } as any,
-        { id: 'ex_rdl', name: 'Romanian Deadlift', primaryMuscle: 'Legs', equipment: 'Barbell' } as any,
-        { id: 'ex_pullups', name: 'Pull-up', primaryMuscle: 'Back', equipment: 'Bodyweight' } as any,
-        { id: 'ex_barbell_row', name: 'Barbell Bent-Over Row', primaryMuscle: 'Back', equipment: 'Barbell' } as any,
-        { id: 'ex_ohp', name: 'Standing Overhead Press', primaryMuscle: 'Shoulders', equipment: 'Barbell' } as any,
-      ]);
+      setAvailableExercises(fallbackExercises);
     }
   };
 
@@ -236,7 +248,7 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '20px' }}>
-          {templates.map((tpl) => (
+          {(Array.isArray(templates) ? templates : []).map((tpl) => (
           <div
             key={tpl.id}
             style={{
@@ -281,9 +293,9 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
               {/* Exercises List inside template */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
                 <div style={{ fontSize: '11px', fontWeight: 700, color: STITCH_THEME.colors.textMuted, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Target Prescriptions ({tpl.exercises.length} Exercises)
+                  Target Prescriptions ({(tpl.exercises || []).length} Exercises)
                 </div>
-                {tpl.exercises.map((ex, idx) => (
+                {(tpl.exercises || []).map((ex, idx) => (
                   <div
                     key={ex.id || idx}
                     style={{

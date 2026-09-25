@@ -13,15 +13,17 @@ interface AnalyticsDashboardProps {
 
 type ViewMode = 'COACH_PORTFOLIO' | 'ORGANIZATION_EXECUTIVE';
 
-export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ clients, onSelectClient }) => {
+export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ clients = [], onSelectClient }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('COACH_PORTFOLIO');
   const [period, setPeriod] = useState<AnalyticsTimePeriod>('30_DAYS');
   const [selectedClientId, setSelectedClientId] = useState<string>('ALL');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [lastCalculated] = useState<string>(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
+  const safeClients = Array.isArray(clients) ? clients : [];
+
   // Filter clients based on selection
-  const activeClients = useMemo(() => clients.filter((c) => c.status === 'ACTIVE'), [clients]);
+  const activeClients = useMemo(() => safeClients.filter((c) => c.status === 'ACTIVE'), [safeClients]);
 
   // Deterministic calculation of coach KPIs from active clients
   const coachKpis = useMemo(() => {

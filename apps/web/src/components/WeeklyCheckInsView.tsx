@@ -72,12 +72,13 @@ const DEMO_CHECKINS: IWeeklyCheckIn[] = [
 ];
 
 export const WeeklyCheckInsView: React.FC<WeeklyCheckInsViewProps> = ({
-  checkIns = DEMO_CHECKINS,
+  checkIns,
   onReviewCheckIn,
 }) => {
-  const [items, setItems] = useState<IWeeklyCheckIn[]>(checkIns);
+  const safeCheckIns = Array.isArray(checkIns) && checkIns.length > 0 ? checkIns : DEMO_CHECKINS;
+  const [items, setItems] = useState<IWeeklyCheckIn[]>(safeCheckIns);
   const [selectedCheckIn, setSelectedCheckIn] = useState<IWeeklyCheckIn | null>(
-    checkIns.length > 0 ? checkIns[0] ?? null : null,
+    safeCheckIns.length > 0 ? safeCheckIns[0] ?? null : null,
   );
   const [reviewNote, setReviewNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

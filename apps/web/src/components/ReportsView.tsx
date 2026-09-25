@@ -122,7 +122,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ clients, onGenerateRep
               }}
             >
               <option value="ALL" style={{ background: '#0C1018' }}>Entire Active Roster (Cohort)</option>
-              {clients.map((c) => (
+              {(clients || []).map((c) => (
                 <option key={c.clientId} value={c.clientId} style={{ background: '#0C1018' }}>
                   {c.fullName}
                 </option>

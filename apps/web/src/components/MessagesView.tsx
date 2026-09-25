@@ -12,21 +12,22 @@ interface MessagesViewProps {
 }
 
 export const MessagesView: React.FC<MessagesViewProps> = ({
-  conversations,
+  conversations = [],
   activeClientId,
   onSelectConversation,
-  messages,
+  messages = [],
   onSendMessage,
   onOpenAiAssistant,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [inputText, setInputText] = useState('');
 
-  const filteredConversations = conversations.filter((c) =>
-    c.clientName.toLowerCase().includes(searchTerm.toLowerCase()),
+  const safeConversations = Array.isArray(conversations) ? conversations : [];
+  const filteredConversations = safeConversations.filter((c) =>
+    (c.clientName || '').toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const activeConv = conversations.find((c) => c.clientId === activeClientId) || conversations[0];
+  const activeConv = safeConversations.find((c) => c.clientId === activeClientId) || safeConversations[0] || null;
 
   const handleSend = () => {
     if (!inputText.trim() || !activeConv) return;

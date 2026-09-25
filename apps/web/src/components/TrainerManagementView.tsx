@@ -37,8 +37,13 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
       });
 
       if (!res.ok) throw new Error('Failed to load trainers');
-      const data = await res.json();
-      setTrainers(data);
+      const json = await res.json();
+      const list = Array.isArray(json) ? json : Array.isArray(json?.data) ? json.data : null;
+      if (list && list.length > 0) {
+        setTrainers(list);
+      } else {
+        throw new Error('Empty roster');
+      }
     } catch {
       // Fallback roster
       setTrainers([
@@ -81,9 +86,14 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        const data = await res.json();
-        setAvailableClients(data.filter((u: any) => u.role === UserRole.ATHLETE || u.role === 'USER'));
+        const json = await res.json();
+        const list = Array.isArray(json) ? json : Array.isArray(json?.data) ? json.data : null;
+        if (list && list.length > 0) {
+          setAvailableClients(list.filter((u: any) => u.role === UserRole.ATHLETE || u.role === 'USER'));
+          return;
+        }
       }
+      throw new Error('Fallback clients');
     } catch {
       setAvailableClients([
         { id: 'c_1', fullName: 'Alex Morgan', email: 'alex@alpha.os' },
@@ -242,7 +252,7 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '20px' }}>
-          {trainers.map((tr) => (
+          {(Array.isArray(trainers) ? trainers : []).map((tr) => (
           <div
             key={tr.id}
             style={{
@@ -292,9 +302,9 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
                   Assigned Athletes
                 </div>
 
-                {tr.clients.length > 0 ? (
+                {(tr.clients || []).length > 0 ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {tr.clients.map((c) => (
+                    {(tr.clients || []).map((c) => (
                       <div
                         key={c.relationshipId}
                         style={{

@@ -32,7 +32,8 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({ currentR
 
       if (!res.ok) throw new Error('Failed to load system config');
       const data = await res.json();
-      setConfig(data);
+      const payload = (data && data.data) ? data.data : data;
+      setConfig(payload);
     } catch {
       // Fallback defaults
       setConfig({
