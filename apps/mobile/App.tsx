@@ -12,6 +12,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { PerformanceProvider, usePerformance } from './src/context/PerformanceContext';
 import { UpdateProvider } from './src/context/UpdateContext';
 import { AlphaUpdateModal } from './src/components/AlphaUpdateModal';
+import { AlphaErrorBoundary } from './src/components/AlphaErrorBoundary';
 import {
   HomeIcon,
   WorkoutIcon,
@@ -604,14 +605,16 @@ function MainNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <PerformanceProvider>
-        <UpdateProvider>
-          <MainNavigator />
-          <AlphaUpdateModal />
-        </UpdateProvider>
-      </PerformanceProvider>
-    </AuthProvider>
+    <AlphaErrorBoundary>
+      <AuthProvider>
+        <PerformanceProvider>
+          <UpdateProvider>
+            <MainNavigator />
+            <AlphaUpdateModal />
+          </UpdateProvider>
+        </PerformanceProvider>
+      </AuthProvider>
+    </AlphaErrorBoundary>
   );
 }
 

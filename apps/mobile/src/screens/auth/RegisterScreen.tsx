@@ -7,12 +7,14 @@ import { useAuth } from '../../context/AuthContext';
 
 interface RegisterScreenProps {
   onNavigateToLogin: () => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
+  onRegistrationSuccess?: () => void;
 }
 
 export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   onNavigateToLogin,
   onSuccess,
+  onRegistrationSuccess,
 }) => {
   const { register, error } = useAuth();
   const [fullName, setFullName] = useState('');
@@ -22,20 +24,21 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   const [localError, setLocalError] = useState<string | null>(null);
 
   const handleRegister = async () => {
-    if (!fullName || !email || !password) {
-      setLocalError('All fields are required');
+    if (!fullName.trim() || !email.trim() || !password) {
+      setLocalError('Please fill in your name, email, and password.');
       return;
     }
     if (password.length < 8) {
-      setLocalError('Password must be at least 8 characters long');
+      setLocalError('Password must be at least 8 characters long.');
       return;
     }
     setLocalError(null);
     setLoading(true);
     try {
-      const ok = await register(email, password, fullName);
+      const ok = await register(email.trim(), password, fullName.trim());
       if (ok) {
-        onSuccess();
+        if (onRegistrationSuccess) onRegistrationSuccess();
+        if (onSuccess) onSuccess();
       }
     } finally {
       setLoading(false);

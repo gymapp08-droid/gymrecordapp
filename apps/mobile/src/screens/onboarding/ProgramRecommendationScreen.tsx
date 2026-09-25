@@ -17,31 +17,41 @@ export interface RecommendedProgram {
 
 interface ProgramRecommendationScreenProps {
   goalId?: string;
-  profileData?: UserProfileData;
-  preferencesData?: TrainingPreferencesData;
+  goal?: string;
+  profileData?: UserProfileData | null;
+  profile?: UserProfileData | null;
+  preferencesData?: TrainingPreferencesData | null;
+  preferences?: TrainingPreferencesData | null;
   onBack: () => void;
-  onSelectProgram: (program: RecommendedProgram) => void;
+  onSelectProgram: (program: RecommendedProgram | any) => void;
 }
 
 export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenProps> = ({
-  goalId = 'HYPERTROPHY',
+  goalId,
+  goal,
   profileData,
+  profile,
   preferencesData,
+  preferences,
   onBack,
   onSelectProgram,
 }) => {
+  const effectiveGoal = goalId || goal || 'HYPERTROPHY';
+  const effectiveProfile = profileData || profile || null;
+  const effectivePreferences = preferencesData || preferences || null;
+
   // Deterministic transparent recommendation engine (Section 14)
   const candidatePrograms: RecommendedProgram[] = useMemo(() => {
-    const days = preferencesData?.daysPerWeek || 4;
-    const exp = profileData?.experienceLevel || 'INTERMEDIATE';
-    const goal = goalId.toUpperCase();
-    const env = preferencesData?.environment || 'COMMERCIAL_GYM';
+    const days = effectivePreferences?.daysPerWeek || 4;
+    const exp = effectiveProfile?.experienceLevel || 'INTERMEDIATE';
+    const parsedGoal = effectiveGoal.toUpperCase();
+    const env = effectivePreferences?.environment || 'COMMERCIAL_GYM';
 
     const programs: RecommendedProgram[] = [];
 
     // Option A: Push / Pull / Legs
     const pplScore =
-      (goal.includes('HYPERTROPHY') || goal.includes('MUSCLE') ? 40 : 25) +
+      (parsedGoal.includes('HYPERTROPHY') || parsedGoal.includes('MUSCLE') ? 40 : 25) +
       (days >= 5 ? 35 : days === 4 ? 25 : 10) +
       (env === 'COMMERCIAL_GYM' ? 20 : 10) +
       (exp === 'INTERMEDIATE' || exp === 'ADVANCED' ? 5 : 0);
@@ -67,7 +77,7 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
     // Option B: Upper / Lower
     const ulScore =
       (days === 4 ? 45 : days === 3 ? 30 : 20) +
-      (goal.includes('STRENGTH') ? 35 : 25) +
+      (parsedGoal.includes('STRENGTH') ? 35 : 25) +
       (exp === 'INTERMEDIATE' || exp === 'BEGINNER' ? 18 : 10);
 
     programs.push({
@@ -91,7 +101,7 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
     // Option C: Full Body Density
     const fbScore =
       (days === 3 ? 50 : days <= 3 ? 35 : 15) +
-      (goal.includes('FAT_LOSS') || goal.includes('FITNESS') ? 35 : 20) +
+      (parsedGoal.includes('FAT_LOSS') || parsedGoal.includes('FITNESS') ? 35 : 20) +
       (exp === 'BEGINNER' ? 15 : 5);
 
     programs.push({
@@ -114,10 +124,20 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
 
     // Sort by match score descending
     return programs.sort((a, b) => b.matchScore - a.matchScore);
-  }, [goalId, profileData, preferencesData]);
+  }, [effectiveGoal, effectiveProfile, effectivePreferences]);
 
   const [selectedId, setSelectedId] = useState<string>(candidatePrograms[0]?.id || 'prog_ppl');
-  const activeProgram = candidatePrograms.find((p) => p.id === selectedId) || candidatePrograms[0]!;
+  const activeProgram =
+    candidatePrograms.find((p) => p.id === selectedId) ||
+    candidatePrograms[0] || {
+      id: 'prog_default',
+      name: 'Alpha Performance Split',
+      tagline: 'Standard Periodization Protocol',
+      matchScore: 90,
+      matchReason: 'Standard foundational training split.',
+      recommendedWeeks: 8,
+      weeklySchedule: [],
+    };
 
   return (
     <AlphaScreen>
@@ -176,8 +196,8 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
           </View>
 
           <View style={styles.daysList}>
-            {activeProgram.weeklySchedule.map((d) => {
-              const isRest = d.workoutTitle.toLowerCase().includes('rest');
+            {(activeProgram?.weeklySchedule || []).map((d) => {
+              const isRest = (d?.workoutTitle || '').toLowerCase().includes('rest');
               return (
                 <View key={d.dayNumber} style={styles.dayRow}>
                   <View style={styles.dayNameCol}>
