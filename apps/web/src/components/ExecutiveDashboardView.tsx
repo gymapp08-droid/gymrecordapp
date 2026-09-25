@@ -21,7 +21,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('alpha_auth_token');
-      const res = await fetch('http://localhost:3001/admin/overview', {
+      const res = await fetch('/api/v1/admin/overview', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

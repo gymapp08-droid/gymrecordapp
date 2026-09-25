@@ -78,7 +78,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
     const fetch360 = async () => {
       try {
         const token = localStorage.getItem('alpha_auth_token');
-        const res = await fetch(`http://localhost:3001/admin/users/${dossier.overview.clientId}/360`, {
+        const res = await fetch(`/api/v1/admin/users/${dossier.overview.clientId}/360`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -100,7 +100,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
     try {
       setIsAddingNote(true);
       const token = localStorage.getItem('alpha_auth_token');
-      const res = await fetch(`http://localhost:3001/admin/users/${dossier.overview.clientId}/notes`, {
+      const res = await fetch(`/api/v1/admin/users/${dossier.overview.clientId}/notes`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -134,7 +134,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
   const handleDeleteNote = async (noteId: string) => {
     try {
       const token = localStorage.getItem('alpha_auth_token');
-      await fetch(`http://localhost:3001/admin/users/notes/${noteId}`, {
+      await fetch(`/api/v1/admin/users/notes/${noteId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

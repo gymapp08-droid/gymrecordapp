@@ -26,7 +26,7 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
     try {
       setLoading(true);
       const token = localStorage.getItem('alpha_auth_token');
-      const res = await fetch('http://localhost:3001/workouts/templates', {
+      const res = await fetch('/api/v1/workouts/templates', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
   const fetchExercises = async () => {
     try {
       const token = localStorage.getItem('alpha_auth_token');
-      const res = await fetch('http://localhost:3001/workouts/exercises', {
+      const res = await fetch('/api/v1/workouts/exercises', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -158,8 +158,8 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
       const token = localStorage.getItem('alpha_auth_token');
       const isEdit = !!editingTemplate.id;
       const url = isEdit
-        ? `http://localhost:3001/workouts/templates/${editingTemplate.id}`
-        : 'http://localhost:3001/workouts/templates';
+        ? `/api/v1/workouts/templates/${editingTemplate.id}`
+        : '/api/v1/workouts/templates';
       const method = isEdit ? 'PATCH' : 'POST';
 
       const res = await fetch(url, {
@@ -202,7 +202,7 @@ export const WorkoutManagementView: React.FC<WorkoutManagementViewProps> = ({ cu
     if (!confirm('Are you sure you want to delete this workout template?')) return;
     try {
       const token = localStorage.getItem('alpha_auth_token');
-      await fetch(`http://localhost:3001/workouts/templates/${id}`, {
+      await fetch(`/api/v1/workouts/templates/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

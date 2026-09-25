@@ -35,7 +35,7 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
       if (selectedMovementPattern) params.append('movementPattern', selectedMovementPattern);
       if (selectedExerciseType) params.append('exerciseType', selectedExerciseType);
 
-      const res = await fetch(`http://localhost:3001/workouts/exercises?${params.toString()}`, {
+      const res = await fetch(`/api/v1/workouts/exercises?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -142,8 +142,8 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
       const token = localStorage.getItem('alpha_auth_token');
       const isEdit = !!editingExercise.id;
       const url = isEdit
-        ? `http://localhost:3001/workouts/exercises/${editingExercise.id}`
-        : 'http://localhost:3001/workouts/exercises';
+        ? `/api/v1/workouts/exercises/${editingExercise.id}`
+        : '/api/v1/workouts/exercises';
       const method = isEdit ? 'PATCH' : 'POST';
 
       const res = await fetch(url, {
@@ -187,7 +187,7 @@ export const ExerciseManagementView: React.FC<ExerciseManagementViewProps> = ({ 
     if (!confirm('Are you sure you want to archive this exercise?')) return;
     try {
       const token = localStorage.getItem('alpha_auth_token');
-      await fetch(`http://localhost:3001/workouts/exercises/${id}`, {
+      await fetch(`/api/v1/workouts/exercises/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

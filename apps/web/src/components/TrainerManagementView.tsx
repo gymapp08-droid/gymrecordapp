@@ -29,7 +29,7 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
     try {
       setLoading(true);
       const token = localStorage.getItem('alpha_auth_token');
-      const res = await fetch('http://localhost:3001/admin/trainers', {
+      const res = await fetch('/api/v1/admin/trainers', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
   const fetchClients = async () => {
     try {
       const token = localStorage.getItem('alpha_auth_token');
-      const res = await fetch('http://localhost:3001/admin/users', {
+      const res = await fetch('/api/v1/admin/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -107,7 +107,7 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
 
     try {
       const token = localStorage.getItem('alpha_auth_token');
-      const res = await fetch('http://localhost:3001/admin/trainers', {
+      const res = await fetch('/api/v1/admin/trainers', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -144,7 +144,7 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
 
     try {
       const token = localStorage.getItem('alpha_auth_token');
-      await fetch('http://localhost:3001/admin/assignments', {
+      await fetch('/api/v1/admin/assignments', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -189,7 +189,7 @@ export const TrainerManagementView: React.FC<TrainerManagementViewProps> = ({
     if (!confirm('Are you sure you want to unassign this athlete from the trainer?')) return;
     try {
       const token = localStorage.getItem('alpha_auth_token');
-      await fetch(`http://localhost:3001/admin/trainers/${trainerId}/clients/${clientId}`, {
+      await fetch(`/api/v1/admin/trainers/${trainerId}/clients/${clientId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

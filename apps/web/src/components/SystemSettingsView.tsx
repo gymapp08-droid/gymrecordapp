@@ -23,7 +23,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({ currentR
     try {
       setLoading(true);
       const token = localStorage.getItem('alpha_auth_token');
-      const res = await fetch('http://localhost:3001/admin/config', {
+      const res = await fetch('/api/v1/admin/config', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export const SystemSettingsView: React.FC<SystemSettingsViewProps> = ({ currentR
     e.preventDefault();
     try {
       const token = localStorage.getItem('alpha_auth_token');
-      const res = await fetch('http://localhost:3001/admin/config', {
+      const res = await fetch('/api/v1/admin/config', {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
