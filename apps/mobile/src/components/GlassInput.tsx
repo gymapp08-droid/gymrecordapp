@@ -1,17 +1,24 @@
-import React from 'react';
-import { View, TextInput, Text, StyleSheet, TextInputProps } from 'react-native';
+import React, { useState } from 'react';
+import { View, TextInput, Text, StyleSheet, TextInputProps, TouchableOpacity } from 'react-native';
 import { Theme } from '../theme/tokens';
 
 interface GlassInputProps extends TextInputProps {
   label: string;
   error?: string | null;
+  isPassword?: boolean;
 }
 
 export const GlassInput: React.FC<GlassInputProps> = ({
   label,
   error,
+  isPassword,
+  secureTextEntry,
+  style,
   ...props
 }) => {
+  const isPasswordField = isPassword || secureTextEntry !== undefined;
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <View
       accessible={true}
@@ -30,12 +37,26 @@ export const GlassInput: React.FC<GlassInputProps> = ({
       <View style={[styles.inputWrapper, !!error && styles.errorBorder]}>
         <TextInput
           placeholderTextColor={Theme.colors.textMuted}
-          style={styles.input}
+          style={[styles.input, isPasswordField && { paddingRight: 40 }, style]}
           allowFontScaling={true}
           maxFontSizeMultiplier={Theme.a11y.maxFontSizeMultiplier}
           accessibilityLabel={label}
+          secureTextEntry={isPasswordField ? !showPassword : secureTextEntry}
           {...props}
         />
+        {isPasswordField && (
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            activeOpacity={0.7}
+            onPress={() => setShowPassword((prev) => !prev)}
+            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.eyeIcon, showPassword && styles.eyeIconActive]}>
+              {showPassword ? '👁' : '👁‍🗨'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
       {!!error && (
         <Text
@@ -86,5 +107,20 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginTop: 4,
     fontWeight: '500',
+  },
+  eyeBtn: {
+    position: 'absolute',
+    right: 14,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  eyeIcon: {
+    fontSize: 18,
+    opacity: 0.5,
+  },
+  eyeIconActive: {
+    opacity: 1,
   },
 });

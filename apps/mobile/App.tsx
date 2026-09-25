@@ -13,6 +13,7 @@ import { PerformanceProvider, usePerformance } from './src/context/PerformanceCo
 import { UpdateProvider } from './src/context/UpdateContext';
 import { AlphaUpdateModal } from './src/components/AlphaUpdateModal';
 import { AlphaErrorBoundary } from './src/components/AlphaErrorBoundary';
+import { AlphaAlarmModal, AlarmType } from './src/components/AlphaAlarmModal';
 import {
   HomeIcon,
   WorkoutIcon,
@@ -157,6 +158,8 @@ function MainNavigator() {
     avgHr: 148,
   });
   const [logMetricModalVisible, setLogMetricModalVisible] = useState(false);
+  const [alarmVisible, setAlarmVisible] = useState(false);
+  const [activeAlarmType, setActiveAlarmType] = useState<AlarmType>('WORKOUT');
 
   // Splash countdown
   // Splash & Initial Session Restoration
@@ -292,6 +295,10 @@ function MainNavigator() {
             onOpenCalendarHistory={() => setActiveSubView('CALENDAR')}
             onOpenWeeklyCheckIn={() => setActiveSubView('WEEKLY_CHECKIN')}
             onOpenReminderSettings={() => setActiveSubView('REMINDER_SETTINGS')}
+            onTriggerAlarmModal={(type) => {
+              setActiveAlarmType(type);
+              setAlarmVisible(true);
+            }}
           />
         )}
 
@@ -599,6 +606,25 @@ function MainNavigator() {
           />
         </SafeAreaView>
       </Modal>
+
+      {/* Full-Screen Priority Alarm & Meal Notification Modal */}
+      <AlphaAlarmModal
+        visible={alarmVisible}
+        alarmType={activeAlarmType}
+        onDismiss={() => setAlarmVisible(false)}
+        onStartWorkout={() => {
+          setAlarmVisible(false);
+          setActiveSubView('ACTIVE_WORKOUT');
+        }}
+        onLogMeal={(mealType) => {
+          setAlarmVisible(false);
+          setActiveMealType(mealType);
+          setActiveSubView('ADD_FOOD');
+        }}
+        onSnooze={(_mins) => {
+          setAlarmVisible(false);
+        }}
+      />
     </SafeAreaView>
   );
 }

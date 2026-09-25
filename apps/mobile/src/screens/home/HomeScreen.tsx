@@ -19,6 +19,8 @@ import { Theme } from '../../theme/tokens';
 import { useAuth } from '../../context/AuthContext';
 import { usePerformance } from '../../context/PerformanceContext';
 import { getGreeting } from '../../utils/timezone';
+import { DayByDayProgressionCard } from '../../components/DayByDayProgressionCard';
+import { AlarmType } from '../../components/AlphaAlarmModal';
 
 interface HomeScreenProps {
   onStartWorkout: () => void;
@@ -32,6 +34,7 @@ interface HomeScreenProps {
   onOpenCalendarHistory: () => void;
   onOpenWeeklyCheckIn?: () => void;
   onOpenReminderSettings?: () => void;
+  onTriggerAlarmModal?: (type: AlarmType) => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -46,6 +49,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenCalendarHistory,
   onOpenWeeklyCheckIn,
   onOpenReminderSettings,
+  onTriggerAlarmModal,
 }) => {
   const { user } = useAuth();
   const {
@@ -280,6 +284,63 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <Text style={styles.fullPlanText}>View Full Plan →</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        )}
+
+        {/* 2B. Day-By-Day Exercise History & Reps/Sets Progression Breakdown */}
+        <DayByDayProgressionCard onOpenCalendarHistory={onOpenCalendarHistory} />
+
+        {/* 2C. Smart Alarm & Priority Meal Alerts Interactive Engine */}
+        {onTriggerAlarmModal && (
+          <View style={styles.alarmTestBar}>
+            <View style={styles.alarmTestHeader}>
+              <View style={styles.alarmDot} />
+              <Text style={styles.alarmTestTitle}>SMART ALARM & NOTIFICATION ENGINE</Text>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.alarmTestScroll}>
+              <TouchableOpacity
+                style={styles.alarmTestBtn}
+                activeOpacity={0.7}
+                onPress={() => onTriggerAlarmModal('WORKOUT')}
+              >
+                <Text style={styles.alarmTestBtnText}>⚡ Test Gym Alarm (10s)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.alarmTestBtn, { borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}
+                activeOpacity={0.7}
+                onPress={() => onTriggerAlarmModal('MEAL_1')}
+              >
+                <Text style={[styles.alarmTestBtnText, { color: '#10B981' }]}>🍳 Meal 1 (08:00)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.alarmTestBtn, { borderColor: '#F59E0B', backgroundColor: 'rgba(245, 158, 11, 0.12)' }]}
+                activeOpacity={0.7}
+                onPress={() => onTriggerAlarmModal('MEAL_2')}
+              >
+                <Text style={[styles.alarmTestBtnText, { color: '#F59E0B' }]}>⚡ Meal 2 (11:00)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.alarmTestBtn, { borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}
+                activeOpacity={0.7}
+                onPress={() => onTriggerAlarmModal('MEAL_3')}
+              >
+                <Text style={[styles.alarmTestBtnText, { color: '#10B981' }]}>🥗 Meal 3 (14:00)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.alarmTestBtn, { borderColor: '#8B5CF6', backgroundColor: 'rgba(139, 92, 246, 0.12)' }]}
+                activeOpacity={0.7}
+                onPress={() => onTriggerAlarmModal('MEAL_4')}
+              >
+                <Text style={[styles.alarmTestBtnText, { color: '#8B5CF6' }]}>🥤 Meal 4 (17:00)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.alarmTestBtn, { borderColor: '#38BDF8', backgroundColor: 'rgba(56, 189, 248, 0.12)' }]}
+                activeOpacity={0.7}
+                onPress={() => onTriggerAlarmModal('MEAL_5')}
+              >
+                <Text style={[styles.alarmTestBtnText, { color: '#38BDF8' }]}>🥩 Meal 5 (20:00)</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         )}
 
@@ -1841,6 +1902,52 @@ const styles = StyleSheet.create({
     borderColor: Theme.colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  alarmTestBar: {
+    backgroundColor: '#0D1118',
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.25)',
+    padding: 14,
+    marginVertical: 10,
+    gap: 10,
+  },
+  alarmTestHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  alarmDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#00F0FF',
+  },
+  alarmTestTitle: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: '#00F0FF',
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  alarmTestScroll: {
+    gap: 8,
+  },
+  alarmTestBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 6,
+    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  alarmTestBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#00F0FF',
+    fontFamily: Theme.typography.telemetry.fontFamily,
   },
 });
 

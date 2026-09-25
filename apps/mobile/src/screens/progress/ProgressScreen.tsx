@@ -26,8 +26,9 @@ import { WeightTrajectoryChart } from './WeightTrajectoryChart';
 import { PhotoComparisonModal } from './PhotoComparisonModal';
 import { LogMetricModal } from './LogMetricModal';
 import { LogPhotoModal } from './LogPhotoModal';
+import { DayByDayProgressionCard } from '../../components/DayByDayProgressionCard';
 
-type ProgressTab = 'OVERVIEW' | 'BODY' | 'PERFORMANCE';
+type ProgressTab = 'OVERVIEW' | 'DAY_BY_DAY' | 'BODY' | 'PERFORMANCE';
 type TimeRange = 'WEEK' | 'MONTH' | '3M' | '1Y';
 
 export const ProgressScreen: React.FC = () => {
@@ -151,6 +152,15 @@ export const ProgressScreen: React.FC = () => {
         >
           <Text style={[styles.categoryTabText, activeTab === 'OVERVIEW' && styles.categoryTabTextActive]}>
             Overview
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveTab('DAY_BY_DAY')}
+          style={[styles.categoryTab, activeTab === 'DAY_BY_DAY' && styles.categoryTabActive]}
+        >
+          <Text style={[styles.categoryTabText, activeTab === 'DAY_BY_DAY' && styles.categoryTabTextActive]}>
+            Day-by-Day Reps
           </Text>
         </TouchableOpacity>
 
@@ -310,6 +320,15 @@ export const ProgressScreen: React.FC = () => {
                   </TouchableOpacity>
                 </View>
               </View>
+            </View>
+          )}
+
+          {/* ========================================================= */}
+          {/* 1B. DAY-BY-DAY EXECUTION & PROGRESSION AUDIT */}
+          {/* ========================================================= */}
+          {activeTab === 'DAY_BY_DAY' && (
+            <View style={styles.tabContentSection}>
+              <DayByDayProgressionCard />
             </View>
           )}
 
