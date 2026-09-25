@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Modal,
   Animated,
+  Alert,
 } from 'react-native';
 import { useUpdate } from '../context/UpdateContext';
 import { Theme } from '../theme/tokens';
@@ -14,11 +15,43 @@ import { Theme } from '../theme/tokens';
 export const AlphaUpdateModal: React.FC = () => {
   const { updateInfo, applyUpdate, dismissUpdateBanner, isWorkoutInProgress } = useUpdate();
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [isRestarting, setIsRestarting] = useState(false);
 
   // Determine visibility:
   // If status is READY_TO_RESTART and user has not dismissed it, show modal (UNLESS workout is in progress, then keep non-blocking)
   const isReady = updateInfo.status === 'READY_TO_RESTART' && updateInfo.isUpdatePending;
   const isDownloading = updateInfo.status === 'DOWNLOADING';
+
+  const handleApplyUpdate = async () => {
+    try {
+      setIsRestarting(true);
+      // Dismiss the modal first to release the Android native dialog window
+      dismissUpdateBanner();
+
+      setTimeout(async () => {
+        try {
+          const success = await applyUpdate();
+          if (!success) {
+            setIsRestarting(false);
+            Alert.alert(
+              'Update Ready',
+              'The update has been downloaded to your device. Please close the app from recent apps and reopen it to apply changes.',
+              [{ text: 'OK' }]
+            );
+          }
+        } catch (e: any) {
+          setIsRestarting(false);
+          Alert.alert(
+            'Update Ready',
+            'The update has been downloaded. Please restart the app from your home screen.',
+            [{ text: 'OK' }]
+          );
+        }
+      }, 300);
+    } catch (err: any) {
+      setIsRestarting(false);
+    }
+  };
 
   useEffect(() => {
     if (isReady || isDownloading) {
@@ -35,6 +68,17 @@ export const AlphaUpdateModal: React.FC = () => {
       }).start();
     }
   }, [isReady, isDownloading]);
+
+  // If currently applying/restarting, show full-screen high-priority loading HUD
+  if (isRestarting) {
+    return (
+      <View style={styles.restartingOverlay}>
+        <ActivityIndicator size="large" color={Theme.colors.cyanGlow} />
+        <Text style={styles.restartingTitle}>RESTARTING ALPHA OS</Text>
+        <Text style={styles.restartingSubtitle}>Applying verified update package...</Text>
+      </View>
+    );
+  }
 
   // If downloading, show a discrete top/bottom non-blocking badge
   if (isDownloading) {
@@ -113,9 +157,10 @@ export const AlphaUpdateModal: React.FC = () => {
             {/* Action Buttons */}
             <View style={styles.buttonGroup}>
               <TouchableOpacity
-                onPress={() => applyUpdate()}
+                onPress={handleApplyUpdate}
                 style={styles.applyButton}
                 activeOpacity={0.8}
+                disabled={isRestarting}
               >
                 <Text style={styles.applyButtonText}>Restart & Apply Update</Text>
               </TouchableOpacity>
@@ -334,5 +379,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: Theme.colors.textSecondary,
+  },
+  restartingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#05070B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999999,
+    elevation: 999,
+  },
+  restartingTitle: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 2,
+    marginTop: 18,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+  },
+  restartingSubtitle: {
+    color: Theme.colors.textSecondary,
+    fontSize: 12,
+    marginTop: 6,
+    fontFamily: Theme.typography.fontBody,
   },
 });

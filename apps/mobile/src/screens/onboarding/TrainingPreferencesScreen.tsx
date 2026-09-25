@@ -17,7 +17,8 @@ export interface TrainingPreferencesData {
 
 interface TrainingPreferencesScreenProps {
   onBack: () => void;
-  onNext: (preferences: TrainingPreferencesData) => void;
+  onNext?: (preferences: TrainingPreferencesData) => void;
+  onFinish?: (preferences: TrainingPreferencesData) => void;
 }
 
 const ENVIRONMENT_OPTIONS = [
@@ -68,6 +69,7 @@ const SPLIT_OPTIONS = [
 export const TrainingPreferencesScreen: React.FC<TrainingPreferencesScreenProps> = ({
   onBack,
   onNext,
+  onFinish,
 }) => {
   const [daysPerWeek, setDaysPerWeek] = useState<number>(4);
   const [sessionDurationMin, setSessionDurationMin] = useState<number>(60);
@@ -75,12 +77,20 @@ export const TrainingPreferencesScreen: React.FC<TrainingPreferencesScreenProps>
   const [splitPreference, setSplitPreference] = useState<ProgramSplit>('PPL');
 
   const handleNext = () => {
-    onNext({
-      daysPerWeek,
-      sessionDurationMin,
-      environment,
-      splitPreference,
-    });
+    try {
+      const data: TrainingPreferencesData = {
+        daysPerWeek,
+        sessionDurationMin,
+        environment,
+        splitPreference,
+      };
+      const callback = onNext || onFinish;
+      if (typeof callback === 'function') {
+        callback(data);
+      }
+    } catch (err) {
+      console.warn('[TrainingPreferences] Navigation error:', err);
+    }
   };
 
   return (

@@ -294,6 +294,10 @@ function MainNavigator() {
         return (
           <TrainingPreferencesScreen
             onBack={() => setAuthRoute('PROFILE')}
+            onNext={(prefs: TrainingPreferencesData) => {
+              setOnboardingPreferences(prefs);
+              setAuthRoute('RECOMMENDATION');
+            }}
             onFinish={(prefs: TrainingPreferencesData) => {
               setOnboardingPreferences(prefs);
               setAuthRoute('RECOMMENDATION');

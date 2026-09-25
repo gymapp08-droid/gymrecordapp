@@ -197,10 +197,28 @@ class AlphaUpdateManager {
     }
 
     try {
+      // 1. If update is not yet marked downloaded, fetch it now
+      if (!this.state.isDownloaded) {
+        console.log('[AlphaUpdateManager] Fetching latest update bundle before reload...');
+        const fetchResult = await Updates.fetchUpdateAsync();
+        if (fetchResult.isNew) {
+          this.updateState({
+            isDownloaded: true,
+            status: 'READY_TO_RESTART',
+            downloadedUpdateId: (fetchResult.manifest as any)?.id || null,
+          });
+        }
+      }
+
+      // 2. Allow any active modal or animation to unmount cleanly on Android
+      await new Promise((res) => setTimeout(res, 350));
+
+      // 3. Trigger native context reload
+      console.log('[AlphaUpdateManager] Triggering Updates.reloadAsync()...');
       await Updates.reloadAsync();
       return true;
-    } catch (err) {
-      console.error('[AlphaUpdateManager] Failed to reload app:', err);
+    } catch (err: any) {
+      console.error('[AlphaUpdateManager] Failed to reload app:', err?.message || err);
       return false;
     }
   }
