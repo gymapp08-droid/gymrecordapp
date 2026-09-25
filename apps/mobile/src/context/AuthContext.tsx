@@ -33,42 +33,118 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const refreshToken = await SecureStorage.getItem('alpha_refresh_token');
       const accessToken = await SecureStorage.getItem('alpha_access_token');
+      const cachedUserProfile = await SecureStorage.getItem('alpha_user_profile');
 
-      if (!refreshToken) {
-        setStatus('unauthenticated');
-        return;
+      let localUser: IAuthUser | null = null;
+      if (cachedUserProfile) {
+        try {
+          const parsed = JSON.parse(cachedUserProfile);
+          if (parsed && (parsed.id || parsed.email)) {
+            localUser = parsed;
+            setUser(localUser);
+          }
+        } catch {
+          // ignore parsing error
+        }
       }
 
-      // First attempt to get the current profile using the cached access token
-      if (accessToken) {
-        const userRes = await ApiClient.get<IAuthUser>('/users/me');
-        if (userRes.success && userRes.data) {
-          setUser(userRes.data);
+      // If we have both cached user and valid tokens, keep authenticated immediately
+      if (refreshToken || accessToken) {
+        if (localUser) {
+          setStatus('authenticated');
+        }
+
+        // Background profile verification / refresh without blocking or kicking the user out on network failure
+        if (accessToken) {
+          try {
+            const userRes = await ApiClient.get<any>('/users/me');
+            if (userRes.success && userRes.data) {
+              const updatedUser: IAuthUser = {
+                id: userRes.data.id || localUser?.id || '',
+                email: userRes.data.email || localUser?.email || '',
+                fullName: userRes.data.fullName || localUser?.fullName || 'Athlete',
+                role: userRes.data.role || localUser?.role || ('ATHLETE' as any),
+                status: userRes.data.status || localUser?.status || ('ACTIVE' as any),
+                isEmailVerified: userRes.data.isEmailVerified ?? localUser?.isEmailVerified ?? true,
+              };
+              setUser(updatedUser);
+              await SecureStorage.setItem('alpha_user_profile', JSON.stringify(updatedUser));
+              setStatus('authenticated');
+              return;
+            }
+          } catch {
+            // Server might be sleeping or network offline; keep existing cached session!
+            if (localUser) {
+              setStatus('authenticated');
+              return;
+            }
+          }
+        }
+
+        // Attempt refresh token exchange if access token is missing or failed
+        if (refreshToken) {
+          try {
+            const res = await ApiClient.post<IAuthTokens>('/auth/refresh', { refreshToken });
+            if (res.success && res.data) {
+              await SecureStorage.setItem('alpha_access_token', res.data.accessToken);
+              await SecureStorage.setItem('alpha_refresh_token', res.data.refreshToken);
+
+              const userRes = await ApiClient.get<any>('/users/me');
+              if (userRes.success && userRes.data) {
+                const refreshedUser: IAuthUser = {
+                  id: userRes.data.id || localUser?.id || '',
+                  email: userRes.data.email || localUser?.email || '',
+                  fullName: userRes.data.fullName || localUser?.fullName || 'Athlete',
+                  role: userRes.data.role || localUser?.role || ('ATHLETE' as any),
+                  status: userRes.data.status || localUser?.status || ('ACTIVE' as any),
+                  isEmailVerified: userRes.data.isEmailVerified ?? localUser?.isEmailVerified ?? true,
+                };
+                setUser(refreshedUser);
+                await SecureStorage.setItem('alpha_user_profile', JSON.stringify(refreshedUser));
+                setStatus('authenticated');
+                return;
+              }
+            } else if (res.error?.code === 'SESSION_REVOKED' || res.error?.code === 'INVALID_REFRESH_TOKEN') {
+              // Explicit rejection by authentication server
+              await SecureStorage.removeItem('alpha_access_token');
+              await SecureStorage.removeItem('alpha_refresh_token');
+              await SecureStorage.removeItem('alpha_user_profile');
+              setUser(null);
+              setStatus('unauthenticated');
+              return;
+            }
+          } catch {
+            // Keep existing cached session on network errors
+            if (localUser) {
+              setStatus('authenticated');
+              return;
+            }
+          }
+        }
+
+        if (localUser) {
           setStatus('authenticated');
           return;
         }
       }
 
-      // If access token expired or failed, use refresh token to acquire new token pair
-      const res = await ApiClient.post<IAuthTokens>('/auth/refresh', { refreshToken });
-      if (res.success && res.data) {
-        await SecureStorage.setItem('alpha_access_token', res.data.accessToken);
-        await SecureStorage.setItem('alpha_refresh_token', res.data.refreshToken);
-
-        const userRes = await ApiClient.get<IAuthUser>('/users/me');
-        if (userRes.success && userRes.data) {
-          setUser(userRes.data);
-          setStatus('authenticated');
-          return;
-        }
-      }
-
-      // Refresh invalid or session revoked: clear storage cleanly
-      await SecureStorage.clear();
+      // No tokens and no valid cached session
       setUser(null);
       setStatus('unauthenticated');
     } catch {
-      await SecureStorage.clear();
+      // Defensive fallback: if cached user exists, do not unauthenticate
+      try {
+        const cached = await SecureStorage.getItem('alpha_user_profile');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && (parsed.id || parsed.email)) {
+            setUser(parsed);
+            setStatus('authenticated');
+            return;
+          }
+        }
+      } catch {}
+
       setUser(null);
       setStatus('unauthenticated');
     }
@@ -85,9 +161,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (res.success && res.data) {
-        setUser(res.data.user);
+        const derivedName =
+          res.data.user.fullName ||
+          email.split('@')[0]?.replace(/^\w/, (c) => c.toUpperCase()) ||
+          'Athlete';
+
+        const finalUser: IAuthUser = {
+          ...res.data.user,
+          fullName: derivedName,
+        };
+
+        setUser(finalUser);
         await SecureStorage.setItem('alpha_access_token', res.data.tokens.accessToken);
         await SecureStorage.setItem('alpha_refresh_token', res.data.tokens.refreshToken);
+        await SecureStorage.setItem('alpha_user_profile', JSON.stringify(finalUser));
         setStatus('authenticated');
         return true;
       }
@@ -108,16 +195,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
 
     try {
+      const trimmedName = fullName.trim();
       const res = await ApiClient.post<{ user: IAuthUser; tokens: IAuthTokens }>('/auth/register', {
         email: email.trim(),
         password,
-        fullName: fullName.trim(),
+        fullName: trimmedName,
       });
 
       if (res.success && res.data) {
-        setUser(res.data.user);
+        const finalUser: IAuthUser = {
+          ...res.data.user,
+          fullName: trimmedName || res.data.user.fullName || 'Athlete',
+        };
+
+        setUser(finalUser);
         await SecureStorage.setItem('alpha_access_token', res.data.tokens.accessToken);
         await SecureStorage.setItem('alpha_refresh_token', res.data.tokens.refreshToken);
+        await SecureStorage.setItem('alpha_user_profile', JSON.stringify(finalUser));
         setStatus('authenticated');
         return true;
       }
@@ -144,9 +238,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (res.success && res.data) {
-        setUser(res.data.user);
+        const finalUser: IAuthUser = {
+          ...res.data.user,
+          fullName: res.data.user.fullName || 'Athlete',
+        };
+        setUser(finalUser);
         await SecureStorage.setItem('alpha_access_token', res.data.tokens.accessToken);
         await SecureStorage.setItem('alpha_refresh_token', res.data.tokens.refreshToken);
+        await SecureStorage.setItem('alpha_user_profile', JSON.stringify(finalUser));
         setStatus('authenticated');
         return true;
       }
@@ -171,7 +270,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // Ignore network errors on logout
     } finally {
-      await SecureStorage.clear();
+      await SecureStorage.removeItem('alpha_access_token');
+      await SecureStorage.removeItem('alpha_refresh_token');
+      await SecureStorage.removeItem('alpha_user_profile');
       setUser(null);
       setStatus('unauthenticated');
     }

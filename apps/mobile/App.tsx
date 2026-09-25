@@ -75,6 +75,7 @@ import {
   FoodLibraryScreen,
   CalendarHistoryScreen,
   SettingsScreen,
+  LIBRARY_EXERCISES,
 } from './src/screens/profile';
 import {
   NotificationCenterScreen,
@@ -157,23 +158,27 @@ function MainNavigator() {
   const [logMetricModalVisible, setLogMetricModalVisible] = useState(false);
 
   // Splash countdown
+  // Splash & Initial Session Restoration
   useEffect(() => {
-    const splashTimer = setTimeout(() => {
-      if (status === 'authenticated') {
-        setAuthRoute('SUCCESS');
-      } else {
-        setAuthRoute('WELCOME');
-      }
-    }, 1800);
-    return () => clearTimeout(splashTimer);
-  }, []);
-
-  // Update route on auth change
-  useEffect(() => {
-    if (status === 'authenticated' && authRoute !== 'SPLASH') {
-      // User is authenticated
+    if (status === 'authenticated') {
+      // Authenticated session restored: do nothing, main dashboard renders
+    } else if (status === 'unauthenticated' && authRoute === 'SPLASH') {
+      setAuthRoute('WELCOME');
     }
-  }, [status]);
+  }, [status, authRoute]);
+
+  // While checking/restoring persistent session from local storage, keep splash screen visible
+  if (status === 'loading' || (status === 'idle' && authRoute === 'SPLASH')) {
+    return (
+      <SplashScreen
+        onComplete={() => {
+          if (status === 'unauthenticated') {
+            setAuthRoute('WELCOME');
+          }
+        }}
+      />
+    );
+  }
 
   // Unauthenticated / Onboarding Flow
   if (status !== 'authenticated' && authRoute !== 'SUCCESS') {
@@ -441,7 +446,13 @@ function MainNavigator() {
                 setLastWorkoutSummary(summary);
                 setActiveSubView('WORKOUT_COMPLETION');
               }}
-              onOpenExerciseDetail={(_exerciseId) => {
+              onOpenExerciseDetail={(exerciseId) => {
+                const found = LIBRARY_EXERCISES.find(
+                  (e) => e.id === exerciseId || e.name.toLowerCase() === exerciseId.toLowerCase()
+                );
+                if (found) {
+                  setSelectedExercise(found);
+                }
                 setActiveSubView('EXERCISE_DETAIL');
               }}
             />

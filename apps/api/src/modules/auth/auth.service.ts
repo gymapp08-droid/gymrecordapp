@@ -201,6 +201,7 @@ export class AuthService implements OnModuleInit {
     const authUser: IAuthUser = {
       id: newUser.id,
       email: newUser.email,
+      fullName: newUser.fullName,
       role: newUser.role,
       status: newUser.status,
       isEmailVerified: newUser.isEmailVerified,
@@ -298,6 +299,7 @@ export class AuthService implements OnModuleInit {
     const authUser: IAuthUser = {
       id: user.id,
       email: user.email,
+      fullName: user.fullName,
       role: user.role,
       status: user.status,
       isEmailVerified: user.isEmailVerified,
@@ -365,6 +367,7 @@ export class AuthService implements OnModuleInit {
       const authUser: IAuthUser = {
         id: user.id,
         email: user.email,
+        fullName: user.fullName,
         role: user.role,
         status: user.status,
         isEmailVerified: user.isEmailVerified,

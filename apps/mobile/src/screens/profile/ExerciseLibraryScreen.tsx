@@ -9,7 +9,7 @@ interface ExerciseLibraryScreenProps {
   onSelectExercise: (exercise: ExerciseDetailData) => void;
 }
 
-const LIBRARY_EXERCISES: ExerciseDetailData[] = [
+export const LIBRARY_EXERCISES: ExerciseDetailData[] = [
   {
     id: 'ex-incline-db',
     name: 'Incline Dumbbell Press',

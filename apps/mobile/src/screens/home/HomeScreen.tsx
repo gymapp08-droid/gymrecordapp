@@ -72,7 +72,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const timeGreeting = getGreeting();
 
   const athleteName =
-    (user as any)?.fullName ||
+    user?.fullName ||
+    (user as any)?.name ||
     user?.email?.split('@')[0]?.replace(/^\w/, (c: string) => c.toUpperCase()) ||
     'Athlete';
 
@@ -245,14 +246,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
             {/* Structured Exercise Lineup (Compact 01 - 06) */}
             <View style={styles.exercisesList}>
-              {workout.exercises.map((ex) => (
-                <View key={ex.number} style={styles.exerciseRowItem}>
-                  <Text style={styles.exerciseNum}>{ex.number}</Text>
+              {(workout?.exercises || []).map((ex, idx) => (
+                <View key={ex?.number || String(idx)} style={styles.exerciseRowItem}>
+                  <Text style={styles.exerciseNum}>{ex?.number || String(idx + 1).padStart(2, '0')}</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.exerciseItemName}>{ex.name}</Text>
-                    <Text style={styles.exerciseItemPresc}>{ex.prescription}</Text>
+                    <Text style={styles.exerciseItemName}>{ex?.name || 'Exercise'}</Text>
+                    <Text style={styles.exerciseItemPresc}>{ex?.prescription || 'Target prescription'}</Text>
                   </View>
-                  {ex.isCompleted ? (
+                  {ex?.isCompleted ? (
                     <View style={styles.completedTag}>
                       <CheckIcon size={12} color="#10B981" />
                       <Text style={styles.completedTagText}>Done</Text>

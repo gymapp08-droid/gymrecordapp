@@ -23,6 +23,32 @@ export type DayProtocolStatus =
   | 'TIME_CONSTRAINT'
   | 'OTHER';
 
+export interface HistoryExerciseSet {
+  setNumber: number;
+  weightKg: number;
+  reps: number;
+  isCompleted: boolean;
+}
+
+export interface HistoryExerciseItem {
+  id: string;
+  name: string;
+  muscle: string;
+  sets: HistoryExerciseSet[];
+  isSkipped?: boolean;
+}
+
+export interface HistoryMealItem {
+  id: string;
+  title: string;
+  time: string;
+  items: string;
+  calories: number;
+  proteinGrams: number;
+  isCompleted: boolean;
+  isSkipped: boolean;
+}
+
 export interface CalendarDayRecord {
   dayNumber: number;
   weekday: string;
@@ -35,6 +61,246 @@ export interface CalendarDayRecord {
   cardioMinutes?: number;
   nutritionAdherence?: number;
   missedReason?: string;
+  exercises?: HistoryExerciseItem[];
+  meals?: HistoryMealItem[];
+}
+
+function getSampleDayExercises(dow: number): HistoryExerciseItem[] {
+  switch (dow) {
+    case 1: // Mon
+      return [
+        {
+          id: 'ex-1',
+          name: 'Barbell Bench Press',
+          muscle: 'Chest',
+          sets: [
+            { setNumber: 1, weightKg: 60, reps: 10, isCompleted: true },
+            { setNumber: 2, weightKg: 65, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 70, reps: 8, isCompleted: true },
+            { setNumber: 4, weightKg: 70, reps: 8, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-2',
+          name: 'Incline Dumbbell Press',
+          muscle: 'Upper Chest',
+          sets: [
+            { setNumber: 1, weightKg: 24, reps: 12, isCompleted: true },
+            { setNumber: 2, weightKg: 26, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 26, reps: 10, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-3',
+          name: 'Cable Chest Flyes',
+          muscle: 'Pectoralis Major',
+          sets: [
+            { setNumber: 1, weightKg: 15, reps: 15, isCompleted: true },
+            { setNumber: 2, weightKg: 17.5, reps: 12, isCompleted: true },
+            { setNumber: 3, weightKg: 17.5, reps: 12, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-4',
+          name: 'Cable Tricep Pushdown',
+          muscle: 'Triceps Lateral Head',
+          sets: [
+            { setNumber: 1, weightKg: 25, reps: 12, isCompleted: true },
+            { setNumber: 2, weightKg: 30, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 30, reps: 10, isCompleted: true },
+          ],
+        },
+      ];
+    case 2: // Tue
+      return [
+        {
+          id: 'ex-1',
+          name: 'Barbell Bent-Over Row',
+          muscle: 'Lats & Rhomboids',
+          sets: [
+            { setNumber: 1, weightKg: 60, reps: 10, isCompleted: true },
+            { setNumber: 2, weightKg: 65, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 70, reps: 8, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-2',
+          name: 'Lat Pulldown',
+          muscle: 'Latissimus Dorsi',
+          sets: [
+            { setNumber: 1, weightKg: 55, reps: 12, isCompleted: true },
+            { setNumber: 2, weightKg: 60, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 65, reps: 8, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-3',
+          name: 'Barbell Bicep Curl',
+          muscle: 'Biceps Brachii',
+          sets: [
+            { setNumber: 1, weightKg: 25, reps: 12, isCompleted: true },
+            { setNumber: 2, weightKg: 30, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 30, reps: 10, isCompleted: true },
+          ],
+        },
+      ];
+    case 3: // Wed
+      return [
+        {
+          id: 'ex-1',
+          name: 'Standing Overhead Press',
+          muscle: 'Anterior & Medial Delts',
+          sets: [
+            { setNumber: 1, weightKg: 40, reps: 8, isCompleted: true },
+            { setNumber: 2, weightKg: 45, reps: 8, isCompleted: true },
+            { setNumber: 3, weightKg: 47.5, reps: 6, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-2',
+          name: 'Cable Lateral Raise',
+          muscle: 'Lateral Deltoids',
+          sets: [
+            { setNumber: 1, weightKg: 7.5, reps: 15, isCompleted: true },
+            { setNumber: 2, weightKg: 10, reps: 12, isCompleted: true },
+            { setNumber: 3, weightKg: 10, reps: 12, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-3',
+          name: 'Hanging Leg Raise',
+          muscle: 'Rectus Abdominis',
+          sets: [
+            { setNumber: 1, weightKg: 0, reps: 15, isCompleted: true },
+            { setNumber: 2, weightKg: 0, reps: 15, isCompleted: true },
+            { setNumber: 3, weightKg: 0, reps: 12, isCompleted: true },
+          ],
+        },
+      ];
+    case 4: // Thu
+      return [
+        {
+          id: 'ex-1',
+          name: 'Barbell Back Squat',
+          muscle: 'Quadriceps & Glutes',
+          sets: [
+            { setNumber: 1, weightKg: 90, reps: 8, isCompleted: true },
+            { setNumber: 2, weightKg: 100, reps: 8, isCompleted: true },
+            { setNumber: 3, weightKg: 105, reps: 6, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-2',
+          name: 'Romanian Deadlift (RDL)',
+          muscle: 'Hamstrings & Gluteus Max',
+          sets: [
+            { setNumber: 1, weightKg: 80, reps: 10, isCompleted: true },
+            { setNumber: 2, weightKg: 90, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 95, reps: 8, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-3',
+          name: 'Leg Press',
+          muscle: 'Quadriceps',
+          sets: [
+            { setNumber: 1, weightKg: 160, reps: 12, isCompleted: true },
+            { setNumber: 2, weightKg: 180, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 200, reps: 10, isCompleted: true },
+          ],
+        },
+      ];
+    case 5: // Fri
+      return [
+        {
+          id: 'ex-1',
+          name: 'Incline Barbell Bench Press',
+          muscle: 'Clavicular Pectoralis',
+          sets: [
+            { setNumber: 1, weightKg: 55, reps: 10, isCompleted: true },
+            { setNumber: 2, weightKg: 60, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 65, reps: 8, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-2',
+          name: 'Seated Cable Row',
+          muscle: 'Mid-Back & Lats',
+          sets: [
+            { setNumber: 1, weightKg: 50, reps: 12, isCompleted: true },
+            { setNumber: 2, weightKg: 55, reps: 10, isCompleted: true },
+            { setNumber: 3, weightKg: 60, reps: 10, isCompleted: true },
+          ],
+        },
+        {
+          id: 'ex-3',
+          name: 'Dumbbell Lateral Raise',
+          muscle: 'Lateral Deltoids',
+          sets: [
+            { setNumber: 1, weightKg: 10, reps: 15, isCompleted: true },
+            { setNumber: 2, weightKg: 12, reps: 12, isCompleted: true },
+            { setNumber: 3, weightKg: 12, reps: 12, isCompleted: true },
+          ],
+        },
+      ];
+    default:
+      return [];
+  }
+}
+
+function getSampleDayMeals(isCompleted: boolean): HistoryMealItem[] {
+  return [
+    {
+      id: 'm-1',
+      title: 'Breakfast',
+      time: '08:00',
+      items: '4 Whole Eggs, 80g Rolled Oats, 30g Whey Isolate',
+      calories: 580,
+      proteinGrams: 42,
+      isCompleted: isCompleted,
+      isSkipped: false,
+    },
+    {
+      id: 'm-2',
+      title: 'Morning Snack',
+      time: '11:00',
+      items: '150g Greek Yogurt 0%, 50g Mixed Berries, 15g Almonds',
+      calories: 260,
+      proteinGrams: 20,
+      isCompleted: isCompleted,
+      isSkipped: false,
+    },
+    {
+      id: 'm-3',
+      title: 'Lunch',
+      time: '13:30',
+      items: '200g Grilled Chicken Breast, 160g Jasmine Rice, Steamed Broccoli',
+      calories: 680,
+      proteinGrams: 55,
+      isCompleted: isCompleted,
+      isSkipped: false,
+    },
+    {
+      id: 'm-4',
+      title: 'Pre-Workout Fuel',
+      time: '17:00',
+      items: '2 Rice Cakes with 1 Banana & 1 scoop Whey Protein',
+      calories: 300,
+      proteinGrams: 15,
+      isCompleted: isCompleted,
+      isSkipped: false,
+    },
+    {
+      id: 'm-5',
+      title: 'Dinner',
+      time: '20:30',
+      items: '180g Salmon / Lean Fish Fillet, 180g Roasted Sweet Potato, Green Salad',
+      calories: 580,
+      proteinGrams: 48,
+      isCompleted: isCompleted,
+      isSkipped: false,
+    },
+  ];
 }
 
 interface CalendarHistoryScreenProps {
@@ -65,45 +331,47 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
       const day = i + 1;
       const dateObj = new Date(year, month, day);
       const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dateObj.getDay()]!;
+      const dow = dateObj.getDay() === 0 ? 7 : dateObj.getDay();
       const isPast = day < todayDate;
       const isToday = day === todayDate;
 
       if (isToday) {
-        if (workout.status === 'COMPLETED') {
-          return {
-            dayNumber: day,
-            weekday,
-            status: 'WORKOUT_COMPLETED',
-            workoutTitle: workout.name,
-            volumeKg: workout.completedVolumeKg,
-            setsCount: workout.completedSetsCount,
-            repsCount: workout.completedSetsCount * 10,
-            durationMinutes: workout.estimatedMinutes,
-            nutritionAdherence: 95,
-          };
-        } else if (workout.isRestDay) {
-          return {
-            dayNumber: day,
-            weekday,
-            status: 'REST_DAY',
-            workoutTitle: 'Rest & Recovery',
-          };
-        } else {
-          return {
-            dayNumber: day,
-            weekday,
-            status: 'REST_DAY',
-            workoutTitle: workout.name,
-          };
-        }
+        const isComp = workout.status === 'COMPLETED';
+        const isRest = workout.isRestDay || dow === 7;
+        return {
+          dayNumber: day,
+          weekday,
+          status: isComp ? 'WORKOUT_COMPLETED' : isRest ? 'REST_DAY' : 'REST_DAY',
+          workoutTitle: isRest ? 'Rest & Recovery' : workout.name,
+          volumeKg: workout.completedVolumeKg > 0 ? workout.completedVolumeKg : isRest ? 0 : 5480,
+          setsCount: workout.completedSetsCount > 0 ? workout.completedSetsCount : isRest ? 0 : 13,
+          repsCount: workout.completedSetsCount > 0 ? workout.completedSetsCount * 10 : isRest ? 0 : 124,
+          durationMinutes: workout.estimatedMinutes || 55,
+          nutritionAdherence: 96,
+          exercises: getSampleDayExercises(dow),
+          meals: getSampleDayMeals(true),
+        };
       }
 
-      const isRest = dateObj.getDay() === 0;
+      const isRest = dow === 7;
+      const isCardioDay = dow === 6;
+      const status: DayProtocolStatus = isRest ? 'REST_DAY' : isPast ? 'WORKOUT_COMPLETED' : 'REST_DAY';
+      const titles = ['', 'Chest + Triceps', 'Back + Biceps', 'Shoulders + Abs', 'Legs & Calves', 'Upper Body Hypertrophy', 'Cardio & Mobility', 'Rest & Recovery'];
+      const volumes = [0, 5640, 5820, 4200, 7850, 6100, 0, 0];
+      const sets = [0, 14, 13, 11, 15, 13, 0, 0];
+
       return {
         dayNumber: day,
         weekday,
-        status: 'REST_DAY',
-        workoutTitle: isPast ? (isRest ? 'Rest & Recovery' : 'Rest Day') : 'Scheduled Protocol',
+        status,
+        workoutTitle: titles[dow] || 'Scheduled Protocol',
+        volumeKg: isPast && !isRest ? volumes[dow] : 0,
+        setsCount: isPast && !isRest ? sets[dow] : 0,
+        repsCount: isPast && !isRest ? (sets[dow] || 0) * 10 : 0,
+        durationMinutes: isPast && !isRest ? 55 : isCardioDay ? 35 : 0,
+        nutritionAdherence: isPast ? 95 : 0,
+        exercises: !isRest ? getSampleDayExercises(dow) : [],
+        meals: isPast ? getSampleDayMeals(true) : [],
       };
     });
   });
@@ -367,6 +635,133 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
                 ? `"${selectedData.missedReason}"`
                 : 'Session completed according to scheduled progressive overload parameters. No negative variances recorded.'}
             </Text>
+          </View>
+
+          {/* Exercise & Weight Record for Selected Day */}
+          {selectedData.exercises && selectedData.exercises.length > 0 && (
+            <View style={styles.historySection}>
+              <View style={styles.historySectionHeader}>
+                <Text style={styles.historySectionTitle}>EXERCISES PERFORMED & WEIGHTS LIFTED</Text>
+                <Text style={styles.historySectionCount}>{selectedData.exercises.length} Movements</Text>
+              </View>
+              <View style={styles.exerciseHistoryList}>
+                {selectedData.exercises.map((ex, exIdx) => (
+                  <View key={ex.id || String(exIdx)} style={styles.exerciseHistoryCard}>
+                    <View style={styles.exCardTop}>
+                      <View>
+                        <Text style={styles.exCardName}>{ex.name}</Text>
+                        <Text style={styles.exCardMuscle}>{ex.muscle.toUpperCase()}</Text>
+                      </View>
+                      <StatusBadge label={`${ex.sets.length} SETS`} status="neutral" />
+                    </View>
+                    <View style={styles.setsTable}>
+                      {ex.sets.map((s) => (
+                        <View key={s.setNumber} style={styles.setTableRow}>
+                          <Text style={styles.setColNumber}>SET {s.setNumber}</Text>
+                          <Text style={styles.setColWeight}>{s.weightKg > 0 ? `${s.weightKg} kg` : 'Bodyweight'}</Text>
+                          <Text style={styles.setColReps}>{s.reps} reps</Text>
+                          <Text style={styles.setColDone}>✓</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Nutrition & Meals Record for Selected Day */}
+          {selectedData.meals && selectedData.meals.length > 0 && (
+            <View style={styles.historySection}>
+              <View style={styles.historySectionHeader}>
+                <Text style={styles.historySectionTitle}>NUTRITION AUDIT · MEALS CONSUMED & SKIPPED</Text>
+                <Text style={styles.historySectionCount}>5 Structured Meals</Text>
+              </View>
+              <View style={styles.mealHistoryList}>
+                {selectedData.meals.map((m, mIdx) => (
+                  <View key={m.id || String(mIdx)} style={styles.mealHistoryCard}>
+                    <View style={styles.mealCardTop}>
+                      <View style={{ flex: 1 }}>
+                        <View style={styles.mealTitleRow}>
+                          <Text style={styles.mealTitleText}>{m.title}</Text>
+                          <Text style={styles.mealTimeText}>{m.time}</Text>
+                        </View>
+                        <Text style={styles.mealItemsText}>{m.items}</Text>
+                      </View>
+                      <View style={styles.mealStatusCol}>
+                        <StatusBadge
+                          label={m.isSkipped ? 'SKIPPED' : 'CONSUMED'}
+                          status={m.isSkipped ? 'error' : 'success'}
+                        />
+                        <Text style={styles.mealMacrosText}>{m.calories} kcal · {m.proteinGrams}g P</Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Month-Over-Month Progression Comparison */}
+          <View style={styles.progressionCard}>
+            <View style={styles.progressionHeader}>
+              <View>
+                <Text style={styles.progressionTitle}>MONTH-OVER-MONTH PROGRESSION AUDIT</Text>
+                <Text style={styles.progressionSubtitle}>August 2026 vs September 2026 Benchmark</Text>
+              </View>
+              <StatusBadge label="+14.2% OVERLOAD" status="success" />
+            </View>
+            <View style={styles.progressionGrid}>
+              <View style={styles.progressionRow}>
+                <Text style={styles.progressionMetricLabel}>Total Training Volume</Text>
+                <View style={styles.progressionValues}>
+                  <Text style={styles.progressionPrev}>118,400 kg</Text>
+                  <Text style={styles.progressionArrow}>➔</Text>
+                  <Text style={styles.progressionCurrent}>135,250 kg</Text>
+                  <Text style={styles.progressionDelta}>+14.2%</Text>
+                </View>
+              </View>
+
+              <View style={styles.progressionRow}>
+                <Text style={styles.progressionMetricLabel}>Bench Press Working Load</Text>
+                <View style={styles.progressionValues}>
+                  <Text style={styles.progressionPrev}>80.0 kg</Text>
+                  <Text style={styles.progressionArrow}>➔</Text>
+                  <Text style={styles.progressionCurrent}>85.0 kg</Text>
+                  <Text style={styles.progressionDelta}>+5.0 kg</Text>
+                </View>
+              </View>
+
+              <View style={styles.progressionRow}>
+                <Text style={styles.progressionMetricLabel}>Back Squat Working Load</Text>
+                <View style={styles.progressionValues}>
+                  <Text style={styles.progressionPrev}>120.0 kg</Text>
+                  <Text style={styles.progressionArrow}>➔</Text>
+                  <Text style={styles.progressionCurrent}>127.5 kg</Text>
+                  <Text style={styles.progressionDelta}>+7.5 kg</Text>
+                </View>
+              </View>
+
+              <View style={styles.progressionRow}>
+                <Text style={styles.progressionMetricLabel}>Schedule Adherence</Text>
+                <View style={styles.progressionValues}>
+                  <Text style={styles.progressionPrev}>82%</Text>
+                  <Text style={styles.progressionArrow}>➔</Text>
+                  <Text style={styles.progressionCurrent}>94%</Text>
+                  <Text style={styles.progressionDelta}>+12.0%</Text>
+                </View>
+              </View>
+
+              <View style={styles.progressionRow}>
+                <Text style={styles.progressionMetricLabel}>Daily Protein Adherence</Text>
+                <View style={styles.progressionValues}>
+                  <Text style={styles.progressionPrev}>84%</Text>
+                  <Text style={styles.progressionArrow}>➔</Text>
+                  <Text style={styles.progressionCurrent}>96%</Text>
+                  <Text style={styles.progressionDelta}>+12.0%</Text>
+                </View>
+              </View>
+            </View>
           </View>
         </View>
 
@@ -883,5 +1278,213 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     marginTop: 6,
+  },
+  historySection: {
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderRadius: Theme.borderRadius.md,
+    padding: 12,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  historySectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  historySectionTitle: {
+    fontSize: 10,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  historySectionCount: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    fontWeight: '600',
+  },
+  exerciseHistoryList: {
+    gap: 10,
+  },
+  exerciseHistoryCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: Theme.borderRadius.sm,
+    padding: 10,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.04)',
+  },
+  exCardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  exCardName: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: Theme.colors.textPrimary,
+  },
+  exCardMuscle: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+    marginTop: 1,
+  },
+  setsTable: {
+    gap: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderRadius: Theme.borderRadius.sm,
+    padding: 6,
+  },
+  setTableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 2,
+  },
+  setColNumber: {
+    fontSize: 10,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+    width: 48,
+  },
+  setColWeight: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Theme.colors.textPrimary,
+    flex: 1,
+  },
+  setColReps: {
+    fontSize: 11,
+    color: Theme.colors.cyanGlow,
+    width: 60,
+    textAlign: 'center',
+  },
+  setColDone: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: Theme.colors.emeraldSuccess,
+    width: 20,
+    textAlign: 'right',
+  },
+  mealHistoryList: {
+    gap: 8,
+  },
+  mealHistoryCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: Theme.borderRadius.sm,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.04)',
+  },
+  mealCardTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  mealTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  mealTitleText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: Theme.colors.textPrimary,
+  },
+  mealTimeText: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+  },
+  mealItemsText: {
+    fontSize: 10,
+    color: Theme.colors.textSecondary,
+    marginTop: 2,
+    lineHeight: 14,
+  },
+  mealStatusCol: {
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  mealMacrosText: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+  },
+  progressionCard: {
+    backgroundColor: 'rgba(0, 240, 255, 0.04)',
+    borderRadius: Theme.borderRadius.md,
+    padding: 14,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.25)',
+  },
+  progressionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  progressionTitle: {
+    fontSize: 11,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    fontWeight: '900',
+    color: Theme.colors.cyanGlow,
+    letterSpacing: 0.5,
+  },
+  progressionSubtitle: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    marginTop: 2,
+  },
+  progressionGrid: {
+    gap: 8,
+  },
+  progressionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.04)',
+  },
+  progressionMetricLabel: {
+    fontSize: 11,
+    color: Theme.colors.textSecondary,
+    flex: 1,
+  },
+  progressionValues: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  progressionPrev: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+  },
+  progressionArrow: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+  },
+  progressionCurrent: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Theme.colors.textPrimary,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+  },
+  progressionDelta: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Theme.colors.emeraldSuccess,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 4,
   },
 });

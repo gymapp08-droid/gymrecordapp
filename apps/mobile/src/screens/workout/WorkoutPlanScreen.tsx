@@ -42,7 +42,7 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
   const todayDow = getTodayDayOfWeek();
   const [selectedDay, setSelectedDay] = useState<number>(todayDow);
 
-  const scheduleWithStatus = WEEK_SCHEDULE.map((day) => {
+  const scheduleWithStatus = (WEEK_SCHEDULE || []).map((day) => {
     const momentum = weeklyMomentum?.days?.find((d) => d.dayOfWeek === day.dayOfWeek);
     const isCompleted = momentum ? momentum.status === 'COMPLETED' : false;
     return {
@@ -52,7 +52,15 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
   });
 
   const activeDaySchedule: DaySchedule =
-    scheduleWithStatus.find((d) => d.dayOfWeek === selectedDay) || scheduleWithStatus[0]!;
+    scheduleWithStatus.find((d) => d.dayOfWeek === selectedDay) ||
+    scheduleWithStatus[0] || {
+      dayOfWeek: 1,
+      dayShort: 'Mon',
+      dayFull: 'Monday',
+      title: 'Chest + Triceps',
+      isCompleted: false,
+      colorAccent: '#3882F6',
+    };
 
   return (
     <SafeAreaView style={styles.container}>

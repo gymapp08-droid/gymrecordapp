@@ -144,7 +144,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
             <View style={styles.muscleBlock}>
               <Text style={styles.muscleRoleLabel}>SECONDARY & STABILIZERS</Text>
               <View style={styles.secondaryRow}>
-                {exercise.secondaryMuscles.map((sec, i) => (
+                {(exercise.secondaryMuscles || []).map((sec, i) => (
                   <View key={i} style={styles.secondaryMuscleChip}>
                     <Text style={styles.secondaryMuscleText}>{sec}</Text>
                   </View>
@@ -181,7 +181,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
         {/* Execution Protocol */}
         <Text style={styles.sectionHeader}>STEP-BY-STEP EXECUTION</Text>
         <View style={styles.instructionList}>
-          {exercise.instructions.map((step, idx) => (
+          {(exercise.instructions || []).map((step, idx) => (
             <View key={idx} style={styles.stepItem}>
               <View style={styles.stepNumberBadge}>
                 <Text style={styles.stepNumberText}>{idx + 1}</Text>
@@ -194,7 +194,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
         {/* Technique Cues */}
         <Text style={styles.sectionHeader}>COACHING CUES</Text>
         <View style={styles.cueBox}>
-          {exercise.cues.map((cue, idx) => (
+          {(exercise.cues || []).map((cue, idx) => (
             <View key={idx} style={styles.cueRow}>
               <Text style={styles.cueBullet}>⚡</Text>
               <Text style={styles.cueText}>{cue}</Text>
@@ -207,7 +207,7 @@ export const ExerciseDetailScreen: React.FC<ExerciseDetailScreenProps> = ({
           <>
             <Text style={styles.sectionHeader}>COMMON MISTAKES TO AVOID</Text>
             <View style={styles.mistakeBox}>
-              {exercise.commonMistakes.map((mistake, idx) => (
+              {(exercise.commonMistakes || []).map((mistake, idx) => (
                 <View key={idx} style={styles.mistakeRow}>
                   <Text style={styles.mistakeBullet}>⚠️</Text>
                   <Text style={styles.mistakeText}>{mistake}</Text>

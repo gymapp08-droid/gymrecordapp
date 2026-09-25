@@ -66,7 +66,7 @@ interface WorkoutSessionScreenProps {
 }
 
 function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): WorkoutExerciseState[] {
-  if (!workoutExercises || workoutExercises.length === 0) {
+  if (!workoutExercises || !Array.isArray(workoutExercises) || workoutExercises.length === 0) {
     return [
       {
         id: 'ex-1',
@@ -90,16 +90,17 @@ function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): Wor
     let repCount = 10;
     let weightKg = 40;
 
-    const setMatch = ex.prescription.match(/(\d+)\s*sets?/i);
+    const presc = ex?.prescription || '';
+    const setMatch = presc.match(/(\d+)\s*sets?/i);
     if (setMatch && setMatch[1]) setCount = parseInt(setMatch[1], 10);
 
-    const repMatch = ex.prescription.match(/(\d+)\s*reps?/i);
+    const repMatch = presc.match(/(\d+)\s*reps?/i);
     if (repMatch && repMatch[1]) repCount = parseInt(repMatch[1], 10);
 
-    const weightMatch = ex.prescription.match(/@\s*(\d+(\.\d+)?)\s*kg/i);
+    const weightMatch = presc.match(/@\s*(\d+(\.\d+)?)\s*kg/i);
     if (weightMatch && weightMatch[1]) weightKg = parseFloat(weightMatch[1]);
 
-    const sets: RecordedSet[] = Array.from({ length: setCount }, (_, sIdx) => ({
+    const sets: RecordedSet[] = Array.from({ length: Math.max(1, setCount) }, (_, sIdx) => ({
       id: `s-${idx + 1}-${sIdx + 1}`,
       setNumber: sIdx + 1,
       setType: 'WORKING',
@@ -110,11 +111,13 @@ function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): Wor
       isCompleted: false,
     }));
 
+    const exName = ex?.name || `Exercise ${idx + 1}`;
+
     return {
       id: `ex-${idx + 1}`,
-      name: ex.name,
+      name: exName,
       muscleGroup: 'Prescribed Movement',
-      targetArea: ex.name,
+      targetArea: exName,
       equipment: 'Standard Gym Equipment',
       isSkipped: false,
       previousPerformance: {
@@ -148,7 +151,25 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
           try {
             const parsed = JSON.parse(draft);
             if (Array.isArray(parsed.exercises) && parsed.exercises.length > 0) {
-              setExercises(parsed.exercises);
+              const sanitized: WorkoutExerciseState[] = parsed.exercises.map((ex: any, idx: number) => ({
+                id: ex?.id || `ex-${idx + 1}`,
+                name: ex?.name || `Exercise ${idx + 1}`,
+                muscleGroup: ex?.muscleGroup || 'Prescribed Movement',
+                targetArea: ex?.targetArea || ex?.name || 'General Target',
+                equipment: ex?.equipment || 'Standard Gym Equipment',
+                isSkipped: !!ex?.isSkipped,
+                skipReason: ex?.skipReason || '',
+                previousPerformance: {
+                  sets: Array.isArray(ex?.previousPerformance?.sets) ? ex.previousPerformance.sets : [{ weightKg: 40, reps: 10 }],
+                  totalVolumeKg: typeof ex?.previousPerformance?.totalVolumeKg === 'number' ? ex.previousPerformance.totalVolumeKg : 400,
+                },
+                sets: Array.isArray(ex?.sets) && ex.sets.length > 0 ? ex.sets : [
+                  { id: `s-${idx + 1}-1`, setNumber: 1, setType: 'WORKING', targetWeightKg: 40, targetReps: 10, actualWeightKg: 40, actualReps: 0, isCompleted: false },
+                  { id: `s-${idx + 1}-2`, setNumber: 2, setType: 'WORKING', targetWeightKg: 40, targetReps: 10, actualWeightKg: 40, actualReps: 0, isCompleted: false },
+                  { id: `s-${idx + 1}-3`, setNumber: 3, setType: 'WORKING', targetWeightKg: 40, targetReps: 10, actualWeightKg: 40, actualReps: 0, isCompleted: false },
+                ],
+              }));
+              setExercises(sanitized);
               if (typeof parsed.elapsedSeconds === 'number') {
                 setElapsedSeconds(parsed.elapsedSeconds);
               }
@@ -183,8 +204,9 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
   // Session reflection note
   const [sessionNotes] = useState<string>('Standard progressive overload session recorded.');
 
-  const currentExercise = exercises[currentIndex] || exercises[0]!;
-  const totalExercises = exercises.length;
+  const safeExercises = exercises && exercises.length > 0 ? exercises : buildSessionExercises();
+  const currentExercise = safeExercises[currentIndex] || safeExercises[0]!;
+  const totalExercises = safeExercises.length;
 
   // Session clock
   useEffect(() => {
@@ -220,10 +242,10 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
   // Deterministic Volume calculation: Σ (weight × reps) across all completed sets
   const calculateTotalVolume = () => {
     let vol = 0;
-    exercises.forEach((ex) => {
-      if (!ex.isSkipped) {
+    (exercises || []).forEach((ex) => {
+      if (!ex?.isSkipped && Array.isArray(ex?.sets)) {
         ex.sets.forEach((s) => {
-          if (s.isCompleted && s.actualReps > 0 && s.actualWeightKg > 0) {
+          if (s?.isCompleted && (s?.actualReps || 0) > 0 && (s?.actualWeightKg || 0) > 0) {
             vol += s.actualWeightKg * s.actualReps;
           }
         });
@@ -233,9 +255,9 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
   };
 
   // Completed sets count across all exercises
-  const totalSetsCount = exercises.reduce((acc, ex) => acc + (ex.isSkipped ? 0 : ex.sets.length), 0);
-  const completedSetsCount = exercises.reduce(
-    (acc, ex) => acc + (ex.isSkipped ? 0 : ex.sets.filter((s) => s.isCompleted).length),
+  const totalSetsCount = (exercises || []).reduce((acc, ex) => acc + (ex?.isSkipped || !Array.isArray(ex?.sets) ? 0 : ex.sets.length), 0);
+  const completedSetsCount = (exercises || []).reduce(
+    (acc, ex) => acc + (ex?.isSkipped || !Array.isArray(ex?.sets) ? 0 : ex.sets.filter((s) => s?.isCompleted).length),
     0
   );
 
@@ -358,24 +380,25 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
 
     const prs: string[] = [];
     // Check if any actual set broke previous record
-    exercises.forEach((ex) => {
-      const maxPrevWeight = Math.max(...ex.previousPerformance.sets.map((s) => s.weightKg), 0);
-      ex.sets.forEach((s) => {
-        if (s.isCompleted && s.actualWeightKg > maxPrevWeight) {
+    (exercises || []).forEach((ex) => {
+      const prevSets = Array.isArray(ex?.previousPerformance?.sets) ? ex.previousPerformance.sets : [];
+      const maxPrevWeight = prevSets.length > 0 ? Math.max(...prevSets.map((s) => s?.weightKg || 0), 0) : 0;
+      (ex?.sets || []).forEach((s) => {
+        if (s?.isCompleted && (s?.actualWeightKg || 0) > maxPrevWeight) {
           prs.push(`${ex.name}: ${s.actualWeightKg} kg × ${s.actualReps} (Overload PR)`);
         }
       });
     });
 
     let repsTotal = 0;
-    exercises.forEach((ex) => {
-      ex.sets.forEach((s) => {
-        if (s.isCompleted) repsTotal += s.actualReps;
+    (exercises || []).forEach((ex) => {
+      (ex?.sets || []).forEach((s) => {
+        if (s?.isCompleted) repsTotal += (s?.actualReps || 0);
       });
     });
 
-    const skipped = exercises
-      .filter((ex) => ex.isSkipped)
+    const skipped = (exercises || [])
+      .filter((ex) => ex?.isSkipped)
       .map((ex) => ({ name: ex.name, reason: ex.skipReason || 'Skipped' }));
 
     SecureStorage.removeItem('active_workout_draft').catch(() => {});
@@ -492,16 +515,16 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
           <View style={styles.exerciseHeroTop}>
             <View style={{ flex: 1 }}>
               <Text style={styles.targetMuscleLabel}>
-                {currentExercise.muscleGroup.toUpperCase()} · {currentExercise.targetArea.toUpperCase()}
+                {(currentExercise?.muscleGroup || 'TARGET').toUpperCase()} · {(currentExercise?.targetArea || 'GENERAL').toUpperCase()}
               </Text>
-              <Text style={styles.currentExerciseName}>{currentExercise.name}</Text>
-              <Text style={styles.equipmentText}>Equipment: {currentExercise.equipment}</Text>
+              <Text style={styles.currentExerciseName}>{currentExercise?.name || 'Exercise'}</Text>
+              <Text style={styles.equipmentText}>Equipment: {currentExercise?.equipment || 'Gym Equipment'}</Text>
             </View>
 
             {onOpenExerciseDetail && (
               <TouchableOpacity
                 style={styles.infoBtn}
-                onPress={() => onOpenExerciseDetail(currentExercise.id)}
+                onPress={() => onOpenExerciseDetail(currentExercise?.id || 'ex-1')}
               >
                 <Text style={styles.infoBtnText}>FORM & ANATOMY ›</Text>
               </TouchableOpacity>
@@ -512,10 +535,10 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
           <View style={styles.lastSessionBox}>
             <View style={styles.lastSessionHeader}>
               <Text style={styles.lastSessionTitle}>LAST SESSION PERFORMANCE</Text>
-              <Text style={styles.lastSessionVol}>Vol: {currentExercise.previousPerformance.totalVolumeKg} kg</Text>
+              <Text style={styles.lastSessionVol}>Vol: {currentExercise?.previousPerformance?.totalVolumeKg || 0} kg</Text>
             </View>
             <View style={styles.lastSessionSetsRow}>
-              {currentExercise.previousPerformance.sets.map((ps, pi) => (
+              {(currentExercise?.previousPerformance?.sets || []).map((ps, pi) => (
                 <View key={pi} style={styles.prevSetChip}>
                   <Text style={styles.prevSetText}>
                     Set {pi + 1}: <Text style={styles.prevSetBold}>{ps.weightKg}kg × {ps.reps}</Text>
@@ -536,7 +559,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
             <Text style={[styles.setTh, { width: 44, textAlign: 'center' }]}>DONE</Text>
           </View>
 
-          {currentExercise.sets.map((set) => {
+          {(currentExercise?.sets || []).map((set) => {
             const diff = set.actualReps - set.targetReps;
             return (
               <View
