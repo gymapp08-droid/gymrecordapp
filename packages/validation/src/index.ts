@@ -151,9 +151,13 @@ export class SocialAuthDto {
   @IsEnum(SocialProvider)
   provider!: SocialProvider;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'Identity token is required' })
-  idToken!: string;
+  idToken?: string;
+
+  @IsOptional()
+  @IsString()
+  token?: string;
 }
 
 export class LogoutDto {

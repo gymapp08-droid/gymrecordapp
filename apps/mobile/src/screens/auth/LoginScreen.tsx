@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Linking } from 'react-native';
 import { Theme } from '../../theme/tokens';
 import { GlassInput } from '../../components/GlassInput';
 import { NeonButton } from '../../components/NeonButton';
@@ -14,7 +14,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   onNavigateToRegister,
   onNavigateToForgotPassword,
 }) => {
-  const { login, googleLogin, error, clearError } = useAuth();
+  const { login, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,28 +41,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     clearError();
     setLocalError(null);
     try {
+      const googleOAuthUrl = 'https://gymrecordapp.onrender.com/api/v1/auth/google';
+      const supported = await Linking.canOpenURL(googleOAuthUrl);
+      if (supported) {
+        await Linking.openURL(googleOAuthUrl);
+      } else {
+        await Linking.openURL(googleOAuthUrl);
+      }
+    } catch (err: any) {
       Alert.alert(
-        'Google Authentication',
-        'Verify with your Google account to log into ALPHA.',
-        [
-          { text: 'Cancel', style: 'cancel', onPress: () => setGoogleLoading(false) },
-          {
-            text: 'Continue with Google',
-            onPress: async () => {
-              const success = await googleLogin('google_verified_auth_token');
-              if (!success) {
-                Alert.alert(
-                  'Google Sign-In',
-                  'Google Sign-In requires GOOGLE_CLIENT_ID configuration on your server. Please sign in with email/password.',
-                  [{ text: 'OK' }]
-                );
-              }
-              setGoogleLoading(false);
-            },
-          },
-        ]
+        'Google Sign-In Error',
+        err?.message || 'Unable to open Google Sign-In. Please check your internet connection or browser.',
+        [{ text: 'OK' }]
       );
-    } catch {
+    } finally {
       setGoogleLoading(false);
     }
   };

@@ -538,20 +538,107 @@ export class AuthService implements OnModuleInit {
    * Social Authentication Abstraction (Google / Apple)
    */
   async socialAuth(dto: SocialAuthDto): Promise<{ user: IAuthUser; tokens: IAuthTokens }> {
-    const isGoogleConfigured = !!this.configService.get('GOOGLE_CLIENT_ID');
     const isAppleConfigured = !!this.configService.get('APPLE_SERVICE_ID');
 
-    if (dto.provider === SocialProvider.GOOGLE && !isGoogleConfigured) {
+    const rawToken = dto.idToken || dto.token;
+    if (!rawToken) {
       throw new BadRequestException({
-        code: 'PROVIDER_NOT_CONFIGURED',
-        message: 'Google Sign-In is not configured in this environment. Please use email and password.',
+        code: 'VALIDATION_ERROR',
+        message: 'Identity token is required for social authentication.',
       });
+    }
+
+    if (dto.provider === SocialProvider.GOOGLE) {
+      try {
+        const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(rawToken)}`);
+        if (!verifyRes.ok) {
+          throw new UnauthorizedException({
+            code: 'INVALID_GOOGLE_TOKEN',
+            message: 'Failed to verify Google identity token with Google OAuth servers.',
+          });
+        }
+
+        const payload = (await verifyRes.json()) as {
+          email?: string;
+          name?: string;
+          given_name?: string;
+          email_verified?: string | boolean;
+        };
+
+        const email = (payload.email || '').toLowerCase().trim();
+        const fullName = payload.name || payload.given_name || 'Athlete';
+
+        if (!email) {
+          throw new BadRequestException({
+            code: 'NO_EMAIL',
+            message: 'Google identity token does not contain a verified email address.',
+          });
+        }
+
+        let user = this.inMemoryUsers.get(email);
+        if (!user) {
+          const userId = HashUtil.generateUuid();
+          user = {
+            id: userId,
+            email,
+            passwordHash: '',
+            fullName,
+            role: UserRole.ATHLETE,
+            status: AccountStatus.ACTIVE,
+            isActive: true,
+            isEmailVerified: true,
+            lastLoginAt: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          this.inMemoryUsers.set(email, user);
+          this.logger.log(`Created new Google athlete profile: [${userId}] ${email}`);
+        } else {
+          user.lastLoginAt = new Date();
+          if (!user.fullName || user.fullName === 'Athlete') {
+            user.fullName = fullName;
+          }
+        }
+
+        const authUser: IAuthUser = {
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
+          role: user.role,
+          status: user.status,
+          isEmailVerified: user.isEmailVerified,
+        };
+
+        const sessionId = HashUtil.generateUuid();
+        const tokens = await this.generateTokens(authUser, sessionId);
+        const refreshTokenHash = this.sha256(tokens.refreshToken);
+
+        this.activeSessions.set(sessionId, {
+          id: sessionId,
+          userId: user.id,
+          platform: 'google_token',
+          lastActiveAt: new Date(),
+          createdAt: new Date(),
+          refreshTokenHash,
+        });
+
+        return { user: authUser, tokens };
+      } catch (err: any) {
+        if (err instanceof BadRequestException || err instanceof UnauthorizedException) {
+          throw err;
+        }
+        this.logger.error(`Google token verification error: ${err?.message || err}`);
+        throw new BadRequestException({
+          code: 'GOOGLE_AUTH_FAILED',
+          message: err?.message || 'Google token validation failed',
+        });
+      }
     }
 
     if (dto.provider === SocialProvider.APPLE && !isAppleConfigured) {
       throw new BadRequestException({
         code: 'PROVIDER_NOT_CONFIGURED',
-        message: 'Apple Sign-In is not configured in this environment. Please use email and password.',
+        message: 'Apple Sign-In is not configured in this environment.',
       });
     }
 
@@ -559,6 +646,121 @@ export class AuthService implements OnModuleInit {
       code: 'PROVIDER_ERROR',
       message: `Failed to verify token with ${dto.provider}`,
     });
+  }
+
+  /**
+   * Handle Google OAuth Web / Mobile Authorization Code Exchange
+   */
+  async handleGoogleOAuthCallback(code: string): Promise<{ user: IAuthUser; tokens: IAuthTokens }> {
+    const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
+    const redirectUri =
+      this.configService.get<string>('GOOGLE_REDIRECT_URI') ||
+      'https://gymrecordapp.onrender.com/api/v1/auth/google/callback';
+
+    if (!clientId || !clientSecret) {
+      this.logger.error('Google OAuth credentials not configured on server (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET)');
+      throw new BadRequestException('Google Sign-In is not configured on the server');
+    }
+
+    // 1. Exchange authorization code with Google for tokens
+    const bodyParams = new URLSearchParams({
+      code,
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      grant_type: 'authorization_code',
+    });
+
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: bodyParams.toString(),
+    });
+
+    if (!tokenRes.ok) {
+      const errText = await tokenRes.text();
+      this.logger.error(`Google token exchange failed: ${errText}`);
+      throw new BadRequestException('Failed to exchange authorization code with Google');
+    }
+
+    const tokenData = (await tokenRes.json()) as { access_token?: string; id_token?: string };
+    const accessToken = tokenData.access_token;
+
+    if (!accessToken) {
+      throw new BadRequestException('Google did not return an access token');
+    }
+
+    // 2. Fetch user profile from Google UserInfo endpoint
+    const profileRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!profileRes.ok) {
+      throw new BadRequestException('Failed to retrieve user profile from Google');
+    }
+
+    const profile = (await profileRes.json()) as {
+      email?: string;
+      name?: string;
+      given_name?: string;
+    };
+    const email = (profile.email || '').toLowerCase().trim();
+    const fullName = profile.name || profile.given_name || 'Athlete';
+
+    if (!email) {
+      throw new BadRequestException('Google account has no associated email address');
+    }
+
+    // 3. Find or register user
+    let user = this.inMemoryUsers.get(email);
+    if (!user) {
+      const userId = HashUtil.generateUuid();
+      user = {
+        id: userId,
+        email,
+        passwordHash: '',
+        fullName,
+        role: UserRole.ATHLETE,
+        status: AccountStatus.ACTIVE,
+        isActive: true,
+        isEmailVerified: true,
+        lastLoginAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.inMemoryUsers.set(email, user);
+      this.logger.log(`Created new Google athlete profile: [${userId}] ${email}`);
+    } else {
+      user.lastLoginAt = new Date();
+      if (!user.fullName || user.fullName === 'Athlete') {
+        user.fullName = fullName;
+      }
+    }
+
+    const authUser: IAuthUser = {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role,
+      status: user.status,
+      isEmailVerified: user.isEmailVerified,
+    };
+
+    const sessionId = HashUtil.generateUuid();
+    const tokens = await this.generateTokens(authUser, sessionId);
+    const refreshTokenHash = this.sha256(tokens.refreshToken);
+
+    this.activeSessions.set(sessionId, {
+      id: sessionId,
+      userId: user.id,
+      platform: 'google_oauth_redirect',
+      lastActiveAt: new Date(),
+      createdAt: new Date(),
+      refreshTokenHash,
+    });
+
+    return { user: authUser, tokens };
   }
 
   async getActiveSessions(userId: string): Promise<SanitizedSession[]> {

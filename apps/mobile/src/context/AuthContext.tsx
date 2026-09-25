@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Linking } from 'react-native';
 import { IAuthUser, IAuthTokens } from '@alpha/types';
 import { SecureStorage } from '../services/secureStorage';
 import { ApiClient } from '../services/api';
@@ -26,6 +27,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     restoreSession();
+
+    // Deep link OAuth callback handler (both cold start & warm transitions)
+    const handleDeepLink = async ({ url }: { url: string }) => {
+      if (!url || !url.startsWith('alpha://auth/callback')) return;
+      try {
+        const queryPart = (url.includes('?') ? url.split('?')[1] : '') ?? '';
+        const params: Record<string, string> = {};
+        if (queryPart) {
+          queryPart.split('&').forEach((pair) => {
+            const [k, v] = pair.split('=');
+            if (k && v) params[decodeURIComponent(k)] = decodeURIComponent(v);
+          });
+        }
+
+        const token = params['token'];
+        const refreshToken = params['refreshToken'];
+        const userJson = params['user'];
+
+        if (token && refreshToken && userJson) {
+          const authUser: IAuthUser = JSON.parse(userJson);
+          setUser(authUser);
+          await SecureStorage.setItem('alpha_access_token', token);
+          await SecureStorage.setItem('alpha_refresh_token', refreshToken);
+          await SecureStorage.setItem('alpha_user_profile', JSON.stringify(authUser));
+          setStatus('authenticated');
+        }
+      } catch (e) {
+        console.error('Failed to parse Google OAuth callback URL:', e);
+      }
+    };
+
+    const sub = Linking.addEventListener('url', handleDeepLink);
+    Linking.getInitialURL().then((initialUrl) => {
+      if (initialUrl) handleDeepLink({ url: initialUrl });
+    });
+
+    return () => {
+      sub.remove();
+    };
   }, []);
 
   const restoreSession = async () => {
@@ -234,7 +274,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await ApiClient.post<{ user: IAuthUser; tokens: IAuthTokens }>('/auth/social', {
         provider: 'GOOGLE',
-        token: idToken,
+        idToken,
       });
 
       if (res.success && res.data) {
