@@ -34,24 +34,28 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      const data = await response.json();
+      const json = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Invalid email or password. Please verify credentials.');
+      if (!response.ok || json.success === false) {
+        throw new Error(json.error?.message || json.message || 'Invalid email or password. Please verify credentials.');
       }
 
+      const payload = json.data || json;
+      const accessToken = payload.tokens?.accessToken || payload.accessToken;
+      const user = payload.user;
+
       // Store token and user
-      if (data.tokens?.accessToken) {
+      if (accessToken && user) {
         if (rememberMe) {
-          localStorage.setItem('alpha_auth_token', data.tokens.accessToken);
-          localStorage.setItem('alpha_auth_user', JSON.stringify(data.user));
+          localStorage.setItem('alpha_auth_token', accessToken);
+          localStorage.setItem('alpha_auth_user', JSON.stringify(user));
         } else {
-          sessionStorage.setItem('alpha_auth_token', data.tokens.accessToken);
-          sessionStorage.setItem('alpha_auth_user', JSON.stringify(data.user));
+          sessionStorage.setItem('alpha_auth_token', accessToken);
+          sessionStorage.setItem('alpha_auth_user', JSON.stringify(user));
           localStorage.removeItem('alpha_auth_token');
           localStorage.removeItem('alpha_auth_user');
         }
-        onLoginSuccess(data.user, data.tokens.accessToken);
+        onLoginSuccess(user, accessToken);
       } else {
         throw new Error('Malformed authentication response from server.');
       }
