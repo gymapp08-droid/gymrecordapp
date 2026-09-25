@@ -91,26 +91,26 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
                 fontSize: '11px',
                 fontFamily: STITCH_THEME.typography.fontMono,
                 color: STITCH_THEME.colors.accentCyan,
-                fontWeight: 800,
-                letterSpacing: '0.12em',
+                fontWeight: 700,
+                letterSpacing: '0.08em',
                 textTransform: 'uppercase',
-                background: 'rgba(0, 240, 255, 0.12)',
+                background: STITCH_THEME.colors.accentCyanDim,
                 padding: '4px 8px',
                 borderRadius: '4px',
               }}
             >
-              Enterprise Management Command
+              ALPHA Operations
             </span>
             <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>•</span>
             <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, fontFamily: STITCH_THEME.typography.fontMono }}>
               IST {new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
-          <h1 style={{ fontSize: '28px', fontWeight: 900, margin: 0, letterSpacing: '-0.03em', color: STITCH_THEME.colors.textPrimary }}>
-            Operations Overview
+          <h1 style={{ fontSize: '26px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em', color: STITCH_THEME.colors.textPrimary }}>
+            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, {currentRole === UserRole.ADMIN ? 'Administrator' : 'Coach'}
           </h1>
-          <p style={{ fontSize: '14px', color: STITCH_THEME.colors.textSecondary, margin: '6px 0 0 0', maxWidth: '640px' }}>
-            Real-time platform status and management shortcuts.
+          <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: '6px 0 0 0', maxWidth: '640px' }}>
+            Authoritative platform status, athlete adherence, and live operations.
           </p>
         </div>
 
@@ -178,56 +178,133 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
         </div>
       )}
 
-      {/* Urgent Action Alert if Pending Check-Ins */}
-      {overview && overview.pendingCheckInsCount > 0 && (
-        <div
-          style={{
-            padding: '16px 20px',
-            borderRadius: '10px',
-            backgroundColor: 'rgba(255, 0, 85, 0.1)',
-            border: `1px solid rgba(255, 0, 85, 0.3)`,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Left indicator bar */}
+      {/* Attention System (Phase 15: INFO, ATTENTION, WARNING, CRITICAL) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {overview && overview.pendingCheckInsCount > 0 && (
           <div
             style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: '3px',
-              backgroundColor: STITCH_THEME.colors.accentRose,
-              borderRadius: '10px 0 0 10px',
-            }}
-          />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingLeft: '8px' }}>
-            <div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: STITCH_THEME.colors.accentRose }}>
-                {overview.pendingCheckInsCount} Weekly Progress Check-In{overview.pendingCheckInsCount > 1 ? 's' : ''} Awaiting Review
-              </div>
-              <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary }}>
-                Athletes have submitted progress measurements, photos, and compliance logs requiring coach feedback.
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={() => onNavigateTab('check-ins')}
-            style={{
-              ...STITCH_THEME.styles.primaryButton,
-              backgroundColor: STITCH_THEME.colors.accentRose,
-              fontSize: '12px',
-              padding: '6px 14px',
+              padding: '14px 18px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(255, 0, 85, 0.08)',
+              border: `1px solid rgba(255, 0, 85, 0.25)`,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              position: 'relative',
+              overflow: 'hidden',
             }}
           >
-            Review Now →
-          </button>
-        </div>
-      )}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: '3px',
+                backgroundColor: STITCH_THEME.colors.accentRose,
+              }}
+            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '6px' }}>
+              <span
+                style={{
+                  fontSize: '10px',
+                  fontFamily: STITCH_THEME.typography.fontMono,
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255, 0, 85, 0.2)',
+                  color: STITCH_THEME.colors.accentRose,
+                }}
+              >
+                WARNING
+              </span>
+              <div>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: STITCH_THEME.colors.textPrimary }}>
+                  {overview.pendingCheckInsCount} Weekly Progress Check-In{overview.pendingCheckInsCount > 1 ? 's' : ''} Awaiting Review
+                </span>
+                <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, marginLeft: '8px' }}>
+                  Athletes awaiting coach feedback and metric evaluation.
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => onNavigateTab('check-ins')}
+              style={{
+                ...STITCH_THEME.styles.primaryButton,
+                backgroundColor: STITCH_THEME.colors.accentRose,
+                fontSize: '11px',
+                padding: '5px 12px',
+              }}
+            >
+              Review Now →
+            </button>
+          </div>
+        )}
+
+        {overview && overview.totalAthletes === 0 && !loading && (
+          <div
+            style={{
+              padding: '14px 18px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(0, 229, 255, 0.06)',
+              border: `1px solid rgba(0, 229, 255, 0.2)`,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: '3px',
+                backgroundColor: STITCH_THEME.colors.accentCyan,
+              }}
+            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '6px' }}>
+              <span
+                style={{
+                  fontSize: '10px',
+                  fontFamily: STITCH_THEME.typography.fontMono,
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  backgroundColor: STITCH_THEME.colors.accentCyanDim,
+                  color: STITCH_THEME.colors.accentCyan,
+                }}
+              >
+                INFO
+              </span>
+              <div>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: STITCH_THEME.colors.textPrimary }}>
+                  Athlete Roster Empty
+                </span>
+                <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, marginLeft: '8px' }}>
+                  Invite athletes to begin tracking workouts, meals, and weekly check-ins.
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => onNavigateTab('clients')}
+              style={{
+                ...STITCH_THEME.styles.secondaryButton,
+                borderColor: STITCH_THEME.colors.accentCyan,
+                color: STITCH_THEME.colors.accentCyan,
+                fontSize: '11px',
+                padding: '5px 12px',
+              }}
+            >
+              Invite Athlete →
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* KPI Cards Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>

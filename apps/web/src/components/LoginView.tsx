@@ -12,6 +12,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [rememberMe, setRememberMe] = useState(true);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -35,13 +37,20 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Invalid email or password. Please try again.');
+        throw new Error(data.message || 'Invalid email or password. Please verify credentials.');
       }
 
       // Store token and user
       if (data.tokens?.accessToken) {
-        localStorage.setItem('alpha_auth_token', data.tokens.accessToken);
-        localStorage.setItem('alpha_auth_user', JSON.stringify(data.user));
+        if (rememberMe) {
+          localStorage.setItem('alpha_auth_token', data.tokens.accessToken);
+          localStorage.setItem('alpha_auth_user', JSON.stringify(data.user));
+        } else {
+          sessionStorage.setItem('alpha_auth_token', data.tokens.accessToken);
+          sessionStorage.setItem('alpha_auth_user', JSON.stringify(data.user));
+          localStorage.removeItem('alpha_auth_token');
+          localStorage.removeItem('alpha_auth_user');
+        }
         onLoginSuccess(data.user, data.tokens.accessToken);
       } else {
         throw new Error('Malformed authentication response from server.');
@@ -69,12 +78,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
       <div
         style={{
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: '400px',
           backgroundColor: STITCH_THEME.colors.bgSecondary,
           border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-          borderRadius: '16px',
+          borderRadius: '14px',
           padding: '36px 32px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+          boxShadow: '0 24px 48px rgba(0, 0, 0, 0.7)',
           display: 'flex',
           flexDirection: 'column',
           gap: '24px',
@@ -84,78 +93,80 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div
             style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #00F0FF 0%, #7928CA 100%)',
+              width: '44px',
+              height: '44px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #00E5FF 0%, #7928CA 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 900,
-              fontSize: '24px',
+              fontSize: '20px',
               color: '#000000',
               marginBottom: '16px',
-              boxShadow: '0 0 20px rgba(0, 240, 255, 0.4)',
             }}
           >
             α
           </div>
           <h1
             style={{
-              fontSize: '22px',
+              fontSize: '20px',
               fontWeight: 800,
-              letterSpacing: '0.05em',
+              letterSpacing: '0.04em',
               margin: '0 0 6px 0',
-              color: '#FFFFFF',
+              color: STITCH_THEME.colors.textPrimary,
             }}
           >
-            ALPHA PORTAL
+            ALPHA
           </h1>
           <p
             style={{
-              fontSize: '13px',
-              color: STITCH_THEME.colors.textMuted,
+              fontSize: '12px',
+              color: STITCH_THEME.colors.accentCyan,
               margin: 0,
+              fontFamily: STITCH_THEME.typography.fontMono,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
             }}
           >
-            Secure Trainer & Administrator Gateway
+            Enterprise Control Center
           </p>
         </div>
 
         {/* Security Notice */}
         <div
           style={{
-            backgroundColor: 'rgba(0, 240, 255, 0.05)',
-            border: '1px solid rgba(0, 240, 255, 0.15)',
+            backgroundColor: STITCH_THEME.colors.accentCyanDim,
+            border: `1px solid rgba(0, 229, 255, 0.2)`,
             borderRadius: '8px',
-            padding: '12px 14px',
+            padding: '10px 14px',
             fontSize: '12px',
             color: STITCH_THEME.colors.accentCyan,
             lineHeight: 1.5,
           }}
         >
-          🔒 Role-based access control active. Athletes must use the Alpha Mobile Application.
+          Role-based governance active. Athletes execute on Alpha Mobile OS.
         </div>
 
         {/* Error Alert */}
         {errorMessage && (
           <div
             style={{
-              backgroundColor: 'rgba(255, 59, 48, 0.1)',
-              border: '1px solid rgba(255, 59, 48, 0.3)',
+              backgroundColor: 'rgba(255, 0, 85, 0.1)',
+              border: `1px solid rgba(255, 0, 85, 0.25)`,
               borderRadius: '8px',
-              padding: '12px 14px',
+              padding: '10px 14px',
               fontSize: '12px',
-              color: STITCH_THEME.colors.accentCrimson,
+              color: STITCH_THEME.colors.accentRose,
               lineHeight: 1.4,
             }}
           >
-            ⚠️ {errorMessage}
+            {errorMessage}
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <label
               style={{
@@ -163,8 +174,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 fontSize: '12px',
                 fontWeight: 600,
                 color: STITCH_THEME.colors.textSecondary,
-                marginBottom: '8px',
-                letterSpacing: '0.02em',
+                marginBottom: '6px',
               }}
             >
               Email Address
@@ -173,20 +183,23 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="coach@alpha.io or admin@alpha.io"
+              placeholder="admin@alpha.io or coach@alpha.io"
               required
               autoComplete="email"
               style={{
                 width: '100%',
-                padding: '12px 14px',
+                padding: '10px 12px',
                 borderRadius: '8px',
                 backgroundColor: 'rgba(255, 255, 255, 0.04)',
                 border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-                color: '#FFFFFF',
-                fontSize: '14px',
+                color: STITCH_THEME.colors.textPrimary,
+                fontSize: '13px',
                 outline: 'none',
                 boxSizing: 'border-box',
+                transition: 'border-color 0.15s ease',
               }}
+              onFocus={(e) => (e.target.style.borderColor = STITCH_THEME.colors.accentCyan)}
+              onBlur={(e) => (e.target.style.borderColor = STITCH_THEME.colors.borderSubtle)}
             />
           </div>
 
@@ -197,8 +210,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 fontSize: '12px',
                 fontWeight: 600,
                 color: STITCH_THEME.colors.textSecondary,
-                marginBottom: '8px',
-                letterSpacing: '0.02em',
+                marginBottom: '6px',
               }}
             >
               Password
@@ -212,16 +224,42 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               autoComplete="current-password"
               style={{
                 width: '100%',
-                padding: '12px 14px',
+                padding: '10px 12px',
                 borderRadius: '8px',
                 backgroundColor: 'rgba(255, 255, 255, 0.04)',
                 border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-                color: '#FFFFFF',
-                fontSize: '14px',
+                color: STITCH_THEME.colors.textPrimary,
+                fontSize: '13px',
                 outline: 'none',
                 boxSizing: 'border-box',
+                transition: 'border-color 0.15s ease',
               }}
+              onFocus={(e) => (e.target.style.borderColor = STITCH_THEME.colors.accentCyan)}
+              onBlur={(e) => (e.target.style.borderColor = STITCH_THEME.colors.borderSubtle)}
             />
+          </div>
+
+          {/* Session & Forgot Password row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', marginTop: '2px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: STITCH_THEME.colors.textSecondary, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ accentColor: STITCH_THEME.colors.accentCyan }}
+              />
+              Remember session
+            </label>
+            <a
+              href="#forgot-password"
+              onClick={(e) => {
+                e.preventDefault();
+                alert('Please contact your platform superuser or system administrator for credential recovery.');
+              }}
+              style={{ color: STITCH_THEME.colors.accentCyan, textDecoration: 'none' }}
+            >
+              Forgot password?
+            </a>
           </div>
 
           <button
@@ -229,27 +267,24 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
             disabled={isLoading}
             style={{
               marginTop: '8px',
-              padding: '14px',
+              padding: '12px',
               borderRadius: '8px',
               border: 'none',
-              background: isLoading
-                ? 'rgba(0, 240, 255, 0.3)'
-                : 'linear-gradient(135deg, #00F0FF 0%, #0088FF 100%)',
+              backgroundColor: isLoading ? STITCH_THEME.colors.borderSubtle : STITCH_THEME.colors.accentCyan,
               color: '#000000',
               fontWeight: 700,
-              fontSize: '14px',
-              letterSpacing: '0.03em',
+              fontSize: '13px',
+              letterSpacing: '0.02em',
               cursor: isLoading ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 14px rgba(0, 240, 255, 0.3)',
-              transition: 'all 0.2s ease',
+              transition: 'opacity 0.15s ease',
             }}
           >
-            {isLoading ? 'Authenticating...' : 'Sign In to Portal'}
+            {isLoading ? 'Authenticating...' : 'Sign In'}
           </button>
         </form>
 
         <div style={{ textAlign: 'center', fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>
-          ALPHA Performance OS • Zero Hardcoded Credentials
+          ALPHA Performance OS • Production-grade server RBAC
         </div>
       </div>
     </div>

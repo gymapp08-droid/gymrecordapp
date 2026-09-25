@@ -57,34 +57,40 @@ export const Sidebar: React.FC<SidebarProps> = ({
       groupName: 'WORKSPACE',
       items: [
         { id: 'overview', label: 'Overview', icon: '◈' },
-        { id: 'dashboard', label: 'Analytics', icon: '▦' },
+        { id: 'clients', label: 'Athletes', icon: '⊕' },
+        { id: 'programs', label: 'Programs', icon: '⊟', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'workouts', label: 'Workouts', icon: '◫', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'nutrition', label: 'Nutrition', icon: '◉', disabled: isTrainer, hint: isTrainer ? 'Nutritionists only' : undefined },
       ],
     },
     {
       groupName: 'LIBRARY',
       items: [
-        { id: 'exercises', label: 'Exercise Library', icon: '⊞', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'exercises', label: 'Exercises', icon: '⊞', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
         { id: 'workouts', label: 'Workout Templates', icon: '◫', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
-        { id: 'programs', label: 'Training Programs', icon: '⊟', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
-        { id: 'nutrition', label: 'Nutrition Plans', icon: '◉', disabled: isTrainer, hint: isTrainer ? 'Nutritionists only' : undefined },
       ],
     },
     {
       groupName: 'OPERATIONS',
       items: [
-        { id: 'clients', label: 'Athlete Directory', icon: '⊕' },
-        { id: 'trainers', label: 'Trainers', icon: '◎' },
-        { id: 'check-ins', label: 'Weekly Check-Ins', icon: '◷' },
         { id: 'calendar', label: 'Schedule', icon: '▦' },
+        { id: 'check-ins', label: 'Check-Ins', icon: '◷' },
         { id: 'messages', label: 'Messages', icon: '◌' },
+      ],
+    },
+    {
+      groupName: 'INSIGHTS',
+      items: [
+        { id: 'dashboard', label: 'Analytics', icon: '▦' },
         { id: 'reports', label: 'Reports', icon: '▤' },
       ],
     },
     {
       groupName: 'SYSTEM',
       items: [
-        { id: 'admin', label: 'Admin Control', icon: '◉', adminOnly: true },
-        { id: 'settings', label: 'Settings', icon: '◈' },
+        { id: 'trainers', label: 'Team', icon: '◎' },
+        { id: 'admin', label: 'Roles & Permissions', icon: '◉', adminOnly: true },
+        { id: 'settings', label: 'Settings & Audit Log', icon: '◈' },
       ],
     },
   ];
