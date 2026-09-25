@@ -150,19 +150,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* 2. Today's Workout / Rest Day Hero Card (Sections 11, 12, 13) */}
         {workout.isRestDay ? (
           <View style={styles.workoutHeroCard}>
-            <View style={styles.cardHeaderRow}>
-              <View>
-                <Text style={styles.sectionLabel}>TODAY'S SCHEDULE: RECOVERY</Text>
-                <View style={styles.titleRow}>
-                  <Text style={styles.workoutTitle}>Active Rest & Regeneration</Text>
-                  <View style={[styles.categoryBadge, { borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
-                    <Text style={[styles.categoryBadgeText, { color: '#10B981' }]}>REST DAY</Text>
-                  </View>
-                </View>
-              </View>
-              <Text style={styles.metaTime}>
+            <View style={styles.cardTopMetaRow}>
+              <Text style={styles.sectionLabel}>TODAY'S SCHEDULE: RECOVERY</Text>
+              <Text style={styles.metaTime} numberOfLines={1}>
                 Tissue Repair · Neurological Reset
               </Text>
+            </View>
+
+            <View style={styles.titleRow}>
+              <Text style={styles.workoutTitle} numberOfLines={1}>Active Rest & Regeneration</Text>
+              <View style={[styles.categoryBadge, { borderColor: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
+                <Text style={[styles.categoryBadgeText, { color: '#10B981' }]} numberOfLines={1}>REST DAY</Text>
+              </View>
             </View>
 
             <View style={{ marginVertical: 14, padding: 14, backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)' }}>
@@ -391,17 +390,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* 3B. Weekly Progress & Check-In Card */}
         <View style={styles.weeklyProgressCard}>
-          <View style={styles.cardHeaderRow}>
-            <View>
-              <Text style={styles.sectionLabel}>WEEKLY PROGRESS</Text>
-              <Text style={styles.weeklyProgressTitle}>Week Performance Ledger</Text>
-            </View>
+          <View style={styles.cardTopMetaRow}>
+            <Text style={styles.sectionLabel}>WEEKLY PROGRESS</Text>
             <View style={styles.checkInStatusBadge}>
-              <Text style={styles.checkInStatusText}>
+              <Text style={styles.checkInStatusText} numberOfLines={1}>
                 {new Date().getDay() === 0 ? 'DUE TODAY' : 'ON TRACK'}
               </Text>
             </View>
           </View>
+          <Text style={styles.weeklyProgressTitle} numberOfLines={1}>Week Performance Ledger</Text>
 
           <View style={styles.weeklyMetricsRow}>
             <View style={styles.weeklyMetricCol}>
@@ -591,10 +588,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* 6. Weekly Momentum (Section 19) */}
         <View style={styles.momentumCard}>
-          <View style={styles.cardHeaderRow}>
+          <View style={styles.cardTopMetaRow}>
             <Text style={styles.sectionLabel}>WEEKLY MOMENTUM</Text>
-            <Text style={styles.momentumAdherence}>
-              {weeklyMomentum.completedCount} Completed · {weeklyMomentum.restCount} Rest · {weeklyMomentum.missedCount} Missed
+            <Text style={styles.momentumAdherence} numberOfLines={1}>
+              {weeklyMomentum.completedCount} Done · {weeklyMomentum.restCount} Rest · {weeklyMomentum.missedCount} Missed
             </Text>
           </View>
 
@@ -649,16 +646,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* 7. Recent Performance (Section 20) */}
         <View style={styles.performanceCard}>
-          <View style={styles.cardHeaderRow}>
-            <View>
-              <Text style={styles.sectionLabel}>RECENT PERFORMANCE</Text>
-              <Text style={styles.performanceExerciseTitle}>{recentPerformance.exercise}</Text>
-            </View>
+          <View style={styles.cardTopMetaRow}>
+            <Text style={styles.sectionLabel}>RECENT PERFORMANCE</Text>
             <StatusBadge
               label={recentPerformance.hasImproved ? 'Performance Improved' : 'Maintained'}
               status={recentPerformance.hasImproved ? 'success' : 'neutral'}
             />
           </View>
+          <Text style={styles.performanceExerciseTitle} numberOfLines={1}>
+            {recentPerformance.exercise}
+          </Text>
 
           <View style={styles.compareGrid}>
             <View style={styles.compareCol}>
@@ -695,10 +692,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* 9. Recovery / Health Data (Source-Aware, Developer UI Removed) (Sections 8, 9, 10) */}
         <View style={styles.recoveryCard}>
-          <View style={styles.cardHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View style={styles.cardTopMetaRow}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
               <HeartPulseIcon size={16} color={Theme.colors.cyanGlow} />
-              <Text style={styles.sectionLabel}>RECOVERY</Text>
+              <Text style={styles.sectionLabel} numberOfLines={1}>RECOVERY</Text>
             </View>
             {recovery.isAvailable && (
               <StatusBadge label={recovery.sourceName || 'SYNCED'} status="success" />
@@ -743,15 +740,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* 10. Up Next / Reminders (Sections 25, 26) */}
         <View style={styles.upNextCard}>
-          <View style={styles.cardHeaderRow}>
+          <View style={styles.cardTopMetaRow}>
             <Text style={styles.sectionLabel}>UP NEXT</Text>
-            <Text style={styles.upNextTime}>{upNext.time}</Text>
+            <Text style={styles.upNextTime} numberOfLines={1}>{upNext.time}</Text>
           </View>
 
           <View style={styles.upNextMainRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.upNextTitle}>{upNext.title}</Text>
-              <Text style={styles.upNextDetail}>{upNext.detail}</Text>
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <Text style={styles.upNextTitle} numberOfLines={1}>{upNext.title}</Text>
+              <Text style={styles.upNextDetail} numberOfLines={1}>{upNext.detail}</Text>
             </View>
 
             <TouchableOpacity
@@ -764,8 +761,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   styles.upNextToggleText,
                   upNext.isCompleted && styles.upNextToggleTextDone,
                 ]}
+                numberOfLines={1}
               >
-                {upNext.isCompleted ? '✓ Taken' : '○ Not Taken'}
+                {upNext.isCompleted ? '✓ Done' : '○ Pending'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -777,9 +775,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           onPress={onOpenCalendarHistory}
           activeOpacity={0.85}
         >
-          <View style={styles.cardHeaderRow}>
+          <View style={styles.cardTopMetaRow}>
             <Text style={styles.sectionLabel}>YOUR JOURNEY</Text>
-            <Text style={styles.journeyMonth}>This Month</Text>
+            <Text style={styles.journeyMonth} numberOfLines={1}>This Month</Text>
           </View>
 
           <View style={styles.journeyStatsRow}>
@@ -802,13 +800,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
 
           <View style={styles.journeyFooter}>
-            <Text style={styles.journeyLinkText}>VIEW FULL JOURNEY →</Text>
+            <Text style={styles.journeyLinkText} numberOfLines={1}>VIEW FULL JOURNEY →</Text>
           </View>
         </TouchableOpacity>
 
         {/* 12. Daily Note / Journal Access (Section 24) */}
         <View style={styles.noteCard}>
-          <View style={styles.cardHeaderRow}>
+          <View style={styles.cardTopMetaRow}>
             <Text style={styles.sectionLabel}>DAILY NOTE</Text>
             <TouchableOpacity
               onPress={() => {
@@ -817,7 +815,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               }}
               activeOpacity={0.7}
             >
-              <Text style={styles.cardActionLink}>Edit Note ✏️</Text>
+              <Text style={styles.cardActionLink} numberOfLines={1}>Edit Note ✏️</Text>
             </TouchableOpacity>
           </View>
 

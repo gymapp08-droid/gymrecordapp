@@ -58,7 +58,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ label, variant, status
   return (
     <View style={[styles.badge, { backgroundColor: colors.bg, borderColor: colors.border }]}>
       <View style={[styles.dot, { backgroundColor: colors.dot }]} />
-      <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+      <Text style={[styles.label, { color: colors.text }]} numberOfLines={1}>{label}</Text>
     </View>
   );
 };
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 6,
     alignSelf: 'flex-start',
+    flexShrink: 0,
   },
   dot: {
     width: 6,

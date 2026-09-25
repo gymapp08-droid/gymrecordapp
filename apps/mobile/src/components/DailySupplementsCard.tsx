@@ -36,9 +36,9 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
       <View style={styles.headerRow}>
         <View style={styles.titleWrap}>
           <Text style={styles.iconTag}>💊</Text>
-          <View>
-            <Text style={styles.cardTitle}>DAILY SUPPLEMENT PROTOCOL</Text>
-            <Text style={styles.cardSubtitle}>Micronutrient & Skeletal Health</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cardTitle} numberOfLines={1}>DAILY SUPPLEMENTS</Text>
+            <Text style={styles.cardSubtitle} numberOfLines={1}>Micronutrient & Skeletal Protocol</Text>
           </View>
         </View>
         <View
@@ -52,6 +52,7 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
               styles.badgeText,
               isAllCompleted ? styles.badgeTextComplete : styles.badgeTextPending,
             ]}
+            numberOfLines={1}
           >
             {completedCount}/2 TAKEN
           </Text>
@@ -69,9 +70,9 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
           <View style={styles.itemHeader}>
             <View style={styles.itemInfo}>
               <Text style={styles.itemEmoji}>💊</Text>
-              <View>
-                <Text style={styles.itemName}>Multivitamin</Text>
-                <Text style={styles.itemTiming}>1 Tab · Post Breakfast</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.itemName} numberOfLines={1}>Multivitamin</Text>
+                <Text style={styles.itemTiming} numberOfLines={1}>1 Tab · Morning</Text>
               </View>
             </View>
             <View style={[styles.checkCircle, state.multivitamin && styles.checkCircleActive]}>
@@ -80,8 +81,11 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
               </Text>
             </View>
           </View>
-          <Text style={[styles.statusText, state.multivitamin ? styles.statusTextActive : styles.statusTextPending]}>
-            {state.multivitamin ? `Taken ${state.multivitaminTime ? `at ${state.multivitaminTime}` : 'Today'}` : 'Tap to mark as taken'}
+          <Text
+            numberOfLines={1}
+            style={[styles.statusText, state.multivitamin ? styles.statusTextActive : styles.statusTextPending]}
+          >
+            {state.multivitamin ? `✓ Taken ${state.multivitaminTime || 'Today'}` : '○ Tap to log'}
           </Text>
         </TouchableOpacity>
 
@@ -94,9 +98,9 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
           <View style={styles.itemHeader}>
             <View style={styles.itemInfo}>
               <Text style={styles.itemEmoji}>🦴</Text>
-              <View>
-                <Text style={styles.itemName}>Calcium + D3</Text>
-                <Text style={styles.itemTiming}>500mg · Post Workout/Dinner</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.itemName} numberOfLines={1}>Calcium + D3</Text>
+                <Text style={styles.itemTiming} numberOfLines={1}>500mg · Evening</Text>
               </View>
             </View>
             <View style={[styles.checkCircle, state.calcium && styles.checkCircleActive]}>
@@ -105,8 +109,11 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
               </Text>
             </View>
           </View>
-          <Text style={[styles.statusText, state.calcium ? styles.statusTextActive : styles.statusTextPending]}>
-            {state.calcium ? `Taken ${state.calciumTime ? `at ${state.calciumTime}` : 'Today'}` : 'Tap to mark as taken'}
+          <Text
+            numberOfLines={1}
+            style={[styles.statusText, state.calcium ? styles.statusTextActive : styles.statusTextPending]}
+          >
+            {state.calcium ? `✓ Taken ${state.calciumTime || 'Today'}` : '○ Tap to log'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -132,11 +139,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   titleWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flex: 1,
   },
   iconTag: {
     fontSize: 20,
@@ -159,6 +168,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 4,
     borderWidth: 1,
+    flexShrink: 0,
   },
   badgeComplete: {
     backgroundColor: 'rgba(16, 185, 129, 0.15)',

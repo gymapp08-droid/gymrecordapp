@@ -648,9 +648,9 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
                 {selectedData.exercises.map((ex, exIdx) => (
                   <View key={ex.id || String(exIdx)} style={styles.exerciseHistoryCard}>
                     <View style={styles.exCardTop}>
-                      <View>
-                        <Text style={styles.exCardName}>{ex.name}</Text>
-                        <Text style={styles.exCardMuscle}>{ex.muscle.toUpperCase()}</Text>
+                      <View style={{ flex: 1, marginRight: 8 }}>
+                        <Text style={styles.exCardName} numberOfLines={1}>{ex.name}</Text>
+                        <Text style={styles.exCardMuscle} numberOfLines={1}>{ex.muscle.toUpperCase()}</Text>
                       </View>
                       <StatusBadge label={`${ex.sets.length} SETS`} status="neutral" />
                     </View>
@@ -674,26 +674,26 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
           {selectedData.meals && selectedData.meals.length > 0 && (
             <View style={styles.historySection}>
               <View style={styles.historySectionHeader}>
-                <Text style={styles.historySectionTitle}>NUTRITION AUDIT · MEALS CONSUMED & SKIPPED</Text>
-                <Text style={styles.historySectionCount}>5 Structured Meals</Text>
+                <Text style={styles.historySectionTitle} numberOfLines={1}>NUTRITION AUDIT · MEALS CONSUMED</Text>
+                <Text style={styles.historySectionCount} numberOfLines={1}>5 Structured Meals</Text>
               </View>
               <View style={styles.mealHistoryList}>
                 {selectedData.meals.map((m, mIdx) => (
                   <View key={m.id || String(mIdx)} style={styles.mealHistoryCard}>
                     <View style={styles.mealCardTop}>
-                      <View style={{ flex: 1 }}>
+                      <View style={{ flex: 1, marginRight: 8 }}>
                         <View style={styles.mealTitleRow}>
-                          <Text style={styles.mealTitleText}>{m.title}</Text>
+                          <Text style={styles.mealTitleText} numberOfLines={1}>{m.title}</Text>
                           <Text style={styles.mealTimeText}>{m.time}</Text>
                         </View>
-                        <Text style={styles.mealItemsText}>{m.items}</Text>
+                        <Text style={styles.mealItemsText} numberOfLines={1}>{m.items}</Text>
                       </View>
                       <View style={styles.mealStatusCol}>
                         <StatusBadge
                           label={m.isSkipped ? 'SKIPPED' : 'CONSUMED'}
                           status={m.isSkipped ? 'error' : 'success'}
                         />
-                        <Text style={styles.mealMacrosText}>{m.calories} kcal · {m.proteinGrams}g P</Text>
+                        <Text style={styles.mealMacrosText} numberOfLines={1}>{m.calories} kcal · {m.proteinGrams}g P</Text>
                       </View>
                     </View>
                   </View>
@@ -705,9 +705,9 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
           {/* Month-Over-Month Progression Comparison */}
           <View style={styles.progressionCard}>
             <View style={styles.progressionHeader}>
-              <View>
-                <Text style={styles.progressionTitle}>MONTH-OVER-MONTH PROGRESSION AUDIT</Text>
-                <Text style={styles.progressionSubtitle}>August 2026 vs September 2026 Benchmark</Text>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <Text style={styles.progressionTitle} numberOfLines={1}>MONTHLY OVERLOAD AUDIT</Text>
+                <Text style={styles.progressionSubtitle} numberOfLines={1}>August 2026 vs September 2026</Text>
               </View>
               <StatusBadge label="+14.2% OVERLOAD" status="success" />
             </View>
