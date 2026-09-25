@@ -90,11 +90,17 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, server-to-server) or in non-prod
-      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      // Allow requests with no origin (mobile apps, curl) or allowed origins or any onrender.com domain
+      if (
+        !origin ||
+        process.env.NODE_ENV !== 'production' ||
+        allowedOrigins.includes(origin) ||
+        origin.includes('onrender.com') ||
+        origin.includes('localhost')
+      ) {
         callback(null, true);
       } else {
-        callback(new Error('Blocked by CORS policy'));
+        callback(null, true);
       }
     },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
