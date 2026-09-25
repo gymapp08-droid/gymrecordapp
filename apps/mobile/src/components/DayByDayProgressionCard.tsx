@@ -179,12 +179,16 @@ export const DayByDayProgressionCard: React.FC<Props> = ({
       <View style={styles.topRow}>
         <View style={styles.badge}>
           <View style={styles.cyanDot} />
-          <Text style={styles.badgeText}>DAY-BY-DAY EXECUTION & PROGRESSION AUDIT</Text>
+          <Text style={styles.badgeText} numberOfLines={1}>DAY-BY-DAY AUDIT</Text>
         </View>
 
         {onOpenCalendarHistory && (
-          <TouchableOpacity onPress={onOpenCalendarHistory} activeOpacity={0.7}>
-            <Text style={styles.calendarLink}>View Full Calendar →</Text>
+          <TouchableOpacity
+            onPress={onOpenCalendarHistory}
+            activeOpacity={0.7}
+            style={styles.calendarLinkBtn}
+          >
+            <Text style={styles.calendarLink} numberOfLines={1}>Calendar History →</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -319,6 +323,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   badge: {
     flexDirection: 'row',
@@ -330,6 +335,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
+    flexShrink: 1,
   },
   cyanDot: {
     width: 6,
@@ -343,6 +349,11 @@ const styles = StyleSheet.create({
     color: '#00F0FF',
     fontWeight: '800',
     letterSpacing: 0.5,
+  },
+  calendarLinkBtn: {
+    flexShrink: 0,
+    paddingVertical: 2,
+    paddingLeft: 4,
   },
   calendarLink: {
     fontSize: 11,

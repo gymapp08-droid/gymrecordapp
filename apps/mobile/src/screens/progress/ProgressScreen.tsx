@@ -144,43 +144,65 @@ export const ProgressScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Category Segmented Control (Overview, Body, Performance) */}
-      <View style={styles.categoryTabs}>
-        <TouchableOpacity
-          onPress={() => setActiveTab('OVERVIEW')}
-          style={[styles.categoryTab, activeTab === 'OVERVIEW' && styles.categoryTabActive]}
+      {/* Category Segmented Scrollable Tabs (Overview, Day-by-Day, Body, Performance) */}
+      <View style={styles.categoryTabsWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryTabsScroll}
         >
-          <Text style={[styles.categoryTabText, activeTab === 'OVERVIEW' && styles.categoryTabTextActive]}>
-            Overview
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab('OVERVIEW')}
+            style={[styles.categoryTab, activeTab === 'OVERVIEW' && styles.categoryTabActive]}
+            activeOpacity={0.7}
+          >
+            <Text
+              numberOfLines={1}
+              style={[styles.categoryTabText, activeTab === 'OVERVIEW' && styles.categoryTabTextActive]}
+            >
+              Overview
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => setActiveTab('DAY_BY_DAY')}
-          style={[styles.categoryTab, activeTab === 'DAY_BY_DAY' && styles.categoryTabActive]}
-        >
-          <Text style={[styles.categoryTabText, activeTab === 'DAY_BY_DAY' && styles.categoryTabTextActive]}>
-            Day-by-Day Reps
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab('DAY_BY_DAY')}
+            style={[styles.categoryTab, activeTab === 'DAY_BY_DAY' && styles.categoryTabActive]}
+            activeOpacity={0.7}
+          >
+            <Text
+              numberOfLines={1}
+              style={[styles.categoryTabText, activeTab === 'DAY_BY_DAY' && styles.categoryTabTextActive]}
+            >
+              Day-by-Day Reps
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => setActiveTab('BODY')}
-          style={[styles.categoryTab, activeTab === 'BODY' && styles.categoryTabActive]}
-        >
-          <Text style={[styles.categoryTabText, activeTab === 'BODY' && styles.categoryTabTextActive]}>
-            Body
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab('BODY')}
+            style={[styles.categoryTab, activeTab === 'BODY' && styles.categoryTabActive]}
+            activeOpacity={0.7}
+          >
+            <Text
+              numberOfLines={1}
+              style={[styles.categoryTabText, activeTab === 'BODY' && styles.categoryTabTextActive]}
+            >
+              Body Metrics
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => setActiveTab('PERFORMANCE')}
-          style={[styles.categoryTab, activeTab === 'PERFORMANCE' && styles.categoryTabActive]}
-        >
-          <Text style={[styles.categoryTabText, activeTab === 'PERFORMANCE' && styles.categoryTabTextActive]}>
-            Performance
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab('PERFORMANCE')}
+            style={[styles.categoryTab, activeTab === 'PERFORMANCE' && styles.categoryTabActive]}
+            activeOpacity={0.7}
+          >
+            <Text
+              numberOfLines={1}
+              style={[styles.categoryTabText, activeTab === 'PERFORMANCE' && styles.categoryTabTextActive]}
+            >
+              Performance
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
 
       {/* Time Range Selector */}
@@ -501,27 +523,33 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
-  categoryTabs: {
+  categoryTabsWrapper: {
+    marginVertical: 6,
+  },
+  categoryTabsScroll: {
+    paddingHorizontal: 20,
+    gap: 8,
     flexDirection: 'row',
-    backgroundColor: 'rgba(15, 23, 42, 0.7)',
-    borderRadius: 14,
-    marginHorizontal: 20,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
+    alignItems: 'center',
   },
   categoryTab: {
-    flex: 1,
-    paddingVertical: 7,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     alignItems: 'center',
-    borderRadius: 10,
+    justifyContent: 'center',
   },
   categoryTabActive: {
     backgroundColor: '#3882F6',
+    borderColor: '#60A5FA',
     shadowColor: '#3882F6',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.35,
     shadowRadius: 6,
+    elevation: 3,
   },
   categoryTabText: {
     fontSize: 13,

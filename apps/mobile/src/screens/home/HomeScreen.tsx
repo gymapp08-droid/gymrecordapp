@@ -188,19 +188,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
         ) : (
           <View style={styles.workoutHeroCard}>
-            <View style={styles.cardHeaderRow}>
-              <View>
-                <Text style={styles.sectionLabel}>TODAY'S WORKOUT</Text>
-                <View style={styles.titleRow}>
-                  <Text style={styles.workoutTitle}>{workout.name}</Text>
-                  <View style={styles.categoryBadge}>
-                    <Text style={styles.categoryBadgeText}>{workout.category}</Text>
-                  </View>
-                </View>
-              </View>
-              <Text style={styles.metaTime}>
+            {/* Top Meta Header: Section Label & Exercise/Set/Time Metrics */}
+            <View style={styles.cardTopMetaRow}>
+              <Text style={styles.sectionLabel}>TODAY'S WORKOUT</Text>
+              <Text style={styles.metaTime} numberOfLines={1}>
                 {workout.totalExercises} Exercises · {workout.totalSets} Sets · ~{workout.estimatedMinutes} min
               </Text>
+            </View>
+
+            {/* Title & Category Badge Row */}
+            <View style={styles.titleRow}>
+              <Text style={styles.workoutTitle} numberOfLines={1}>{workout.name}</Text>
+              <View style={styles.categoryBadge}>
+                <Text style={styles.categoryBadgeText} numberOfLines={1}>{workout.category}</Text>
+              </View>
             </View>
 
             {/* Planned vs Actual Volume Callouts */}
@@ -282,7 +283,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 onPress={onNavigateToWorkout}
                 activeOpacity={0.7}
               >
-                <Text style={styles.fullPlanText}>View Full Plan →</Text>
+                <Text style={styles.fullPlanText} numberOfLines={1}>View Full Plan →</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1001,6 +1002,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
+  cardTopMetaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+  },
   workoutHeroCard: {
     backgroundColor: '#0A0E17',
     borderRadius: Theme.borderRadius.lg,
@@ -1012,6 +1019,7 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 8,
     marginTop: 2,
   },
@@ -1038,6 +1046,7 @@ const styles = StyleSheet.create({
     fontFamily: Theme.typography.telemetry.fontFamily,
     color: Theme.colors.textMuted,
     textAlign: 'right',
+    flexShrink: 0,
   },
   volumeCompareBlock: {
     flexDirection: 'row',
@@ -1156,6 +1165,9 @@ const styles = StyleSheet.create({
   fullPlanLink: {
     paddingHorizontal: 6,
     paddingVertical: 8,
+    flexShrink: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   fullPlanText: {
     fontSize: 11,
