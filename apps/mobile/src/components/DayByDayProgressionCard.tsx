@@ -28,122 +28,150 @@ export interface DayHistorySession {
   exercises: DayExerciseHistory[];
 }
 
-const HISTORICAL_SESSIONS: DayHistorySession[] = [
-  {
-    dayLabel: 'YESTERDAY',
-    dateStr: 'Thursday, Sept 24',
-    workoutTitle: 'Legs & Core Density (Day 4)',
-    totalVolumeKg: 18450,
-    totalSets: 14,
-    totalReps: 126,
-    overloadGainKg: 650,
-    exercises: [
-      {
-        id: 'ex-sq',
-        name: 'Barbell Back Squat',
-        targetArea: 'Quadriceps & Gluteal Max',
-        sets: [
-          { setNum: 1, weightKg: 100, reps: 10, prevWeightKg: 95, prevReps: 10 },
-          { setNum: 2, weightKg: 105, reps: 8, prevWeightKg: 100, prevReps: 8 },
-          { setNum: 3, weightKg: 110, reps: 8, prevWeightKg: 105, prevReps: 8 },
-          { setNum: 4, weightKg: 115, reps: 6, prevWeightKg: 110, prevReps: 6 },
-        ],
-      },
-      {
-        id: 'ex-rdl',
-        name: 'Romanian Deadlift (RDL)',
-        targetArea: 'Hamstrings & Posterior Chain',
-        sets: [
-          { setNum: 1, weightKg: 80, reps: 10, prevWeightKg: 75, prevReps: 10 },
-          { setNum: 2, weightKg: 85, reps: 10, prevWeightKg: 80, prevReps: 10 },
-          { setNum: 3, weightKg: 90, reps: 8, prevWeightKg: 85, prevReps: 8 },
-        ],
-      },
-      {
-        id: 'ex-lp',
-        name: '45° Leg Press',
-        targetArea: 'Quadriceps Mass',
-        sets: [
-          { setNum: 1, weightKg: 180, reps: 12, prevWeightKg: 170, prevReps: 12 },
-          { setNum: 2, weightKg: 200, reps: 10, prevWeightKg: 190, prevReps: 10 },
-          { setNum: 3, weightKg: 220, reps: 10, prevWeightKg: 200, prevReps: 10 },
-        ],
-      },
-    ],
-  },
-  {
-    dayLabel: '2 DAYS AGO',
-    dateStr: 'Wednesday, Sept 23',
-    workoutTitle: 'Upper Body Hypertrophy (Day 3)',
-    totalVolumeKg: 16200,
-    totalSets: 15,
-    totalReps: 142,
-    overloadGainKg: 520,
-    exercises: [
-      {
-        id: 'ex-bp',
-        name: 'Barbell Bench Press',
-        targetArea: 'Pectoralis Major',
-        sets: [
-          { setNum: 1, weightKg: 75, reps: 10, prevWeightKg: 70, prevReps: 10 },
-          { setNum: 2, weightKg: 80, reps: 8, prevWeightKg: 75, prevReps: 8 },
-          { setNum: 3, weightKg: 82.5, reps: 8, prevWeightKg: 80, prevReps: 7 },
-          { setNum: 4, weightKg: 85, reps: 6, prevWeightKg: 80, prevReps: 6 },
-        ],
-      },
-      {
-        id: 'ex-inc',
-        name: 'Incline Dumbbell Press',
-        targetArea: 'Clavicular Pec Fibers',
-        sets: [
-          { setNum: 1, weightKg: 26, reps: 10, prevWeightKg: 24, prevReps: 10 },
-          { setNum: 2, weightKg: 28, reps: 10, prevWeightKg: 26, prevReps: 10 },
-          { setNum: 3, weightKg: 30, reps: 8, prevWeightKg: 28, prevReps: 8 },
-        ],
-      },
-      {
-        id: 'ex-row',
-        name: 'Barbell Bent-Over Row',
-        targetArea: 'Latissimus Dorsi & Rhomboids',
-        sets: [
-          { setNum: 1, weightKg: 65, reps: 10, prevWeightKg: 60, prevReps: 10 },
-          { setNum: 2, weightKg: 70, reps: 8, prevWeightKg: 65, prevReps: 8 },
-          { setNum: 3, weightKg: 70, reps: 8, prevWeightKg: 65, prevReps: 8 },
-        ],
-      },
-    ],
-  },
-  {
-    dayLabel: 'LAST WEEK',
-    dateStr: 'Thursday, Sept 17',
-    workoutTitle: 'Legs & Core Baseline',
-    totalVolumeKg: 17800,
-    totalSets: 14,
-    totalReps: 124,
-    overloadGainKg: 380,
-    exercises: [
-      {
-        id: 'ex-sq-lw',
-        name: 'Barbell Back Squat',
-        targetArea: 'Quadriceps',
-        sets: [
-          { setNum: 1, weightKg: 95, reps: 10, prevWeightKg: 90, prevReps: 10 },
-          { setNum: 2, weightKg: 100, reps: 8, prevWeightKg: 95, prevReps: 8 },
-          { setNum: 3, weightKg: 105, reps: 8, prevWeightKg: 100, prevReps: 8 },
-          { setNum: 4, weightKg: 110, reps: 6, prevWeightKg: 105, prevReps: 6 },
-        ],
-      },
-    ],
-  },
-];
+const formatDatePill = (d: Date) => {
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = String(d.getFullYear()).slice(-2);
+  return `${day}.${month}.${year}`;
+};
+
+const buildHistoricalSessions = (): DayHistorySession[] => {
+  const now = new Date();
+
+  const dYesterday = new Date(now);
+  dYesterday.setDate(now.getDate() - 1);
+
+  const dTwoDaysAgo = new Date(now);
+  dTwoDaysAgo.setDate(now.getDate() - 2);
+
+  const dLastWeek = new Date(now);
+  dLastWeek.setDate(now.getDate() - 8);
+
+  return [
+    {
+      dayLabel: 'YESTERDAY',
+      dateStr: dYesterday.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
+      workoutTitle: 'Legs & Core Density (Day 4)',
+      totalVolumeKg: 18450,
+      totalSets: 14,
+      totalReps: 126,
+      overloadGainKg: 650,
+      exercises: [
+        {
+          id: 'ex-sq',
+          name: 'Barbell Back Squat',
+          targetArea: 'Quadriceps & Gluteal Max',
+          sets: [
+            { setNum: 1, weightKg: 100, reps: 10, prevWeightKg: 95, prevReps: 10 },
+            { setNum: 2, weightKg: 105, reps: 8, prevWeightKg: 100, prevReps: 8 },
+            { setNum: 3, weightKg: 110, reps: 8, prevWeightKg: 105, prevReps: 8 },
+            { setNum: 4, weightKg: 115, reps: 6, prevWeightKg: 110, prevReps: 6 },
+          ],
+        },
+        {
+          id: 'ex-rdl',
+          name: 'Romanian Deadlift (RDL)',
+          targetArea: 'Hamstrings & Posterior Chain',
+          sets: [
+            { setNum: 1, weightKg: 80, reps: 10, prevWeightKg: 75, prevReps: 10 },
+            { setNum: 2, weightKg: 85, reps: 10, prevWeightKg: 80, prevReps: 10 },
+            { setNum: 3, weightKg: 90, reps: 8, prevWeightKg: 85, prevReps: 8 },
+          ],
+        },
+        {
+          id: 'ex-lp',
+          name: '45° Leg Press',
+          targetArea: 'Quadriceps Mass',
+          sets: [
+            { setNum: 1, weightKg: 180, reps: 12, prevWeightKg: 170, prevReps: 12 },
+            { setNum: 2, weightKg: 200, reps: 10, prevWeightKg: 190, prevReps: 10 },
+            { setNum: 3, weightKg: 220, reps: 10, prevWeightKg: 200, prevReps: 10 },
+          ],
+        },
+      ],
+    },
+    {
+      dayLabel: formatDatePill(dTwoDaysAgo), // e.g. "23.09.26"
+      dateStr: dTwoDaysAgo.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
+      workoutTitle: 'Upper Body Hypertrophy (Day 3)',
+      totalVolumeKg: 16200,
+      totalSets: 15,
+      totalReps: 142,
+      overloadGainKg: 520,
+      exercises: [
+        {
+          id: 'ex-bp',
+          name: 'Barbell Bench Press',
+          targetArea: 'Pectoralis Major',
+          sets: [
+            { setNum: 1, weightKg: 75, reps: 10, prevWeightKg: 70, prevReps: 10 },
+            { setNum: 2, weightKg: 80, reps: 8, prevWeightKg: 75, prevReps: 8 },
+            { setNum: 3, weightKg: 82.5, reps: 8, prevWeightKg: 80, prevReps: 7 },
+            { setNum: 4, weightKg: 85, reps: 6, prevWeightKg: 80, prevReps: 6 },
+          ],
+        },
+        {
+          id: 'ex-inc',
+          name: 'Incline Dumbbell Press',
+          targetArea: 'Clavicular Pec Fibers',
+          sets: [
+            { setNum: 1, weightKg: 26, reps: 10, prevWeightKg: 24, prevReps: 10 },
+            { setNum: 2, weightKg: 28, reps: 10, prevWeightKg: 26, prevReps: 10 },
+            { setNum: 3, weightKg: 30, reps: 8, prevWeightKg: 28, prevReps: 8 },
+          ],
+        },
+        {
+          id: 'ex-row',
+          name: 'Barbell Bent-Over Row',
+          targetArea: 'Latissimus Dorsi & Rhomboids',
+          sets: [
+            { setNum: 1, weightKg: 65, reps: 10, prevWeightKg: 60, prevReps: 10 },
+            { setNum: 2, weightKg: 70, reps: 8, prevWeightKg: 65, prevReps: 8 },
+            { setNum: 3, weightKg: 70, reps: 8, prevWeightKg: 65, prevReps: 8 },
+          ],
+        },
+      ],
+    },
+    {
+      dayLabel: formatDatePill(dLastWeek), // e.g. "17.09.26"
+      dateStr: dLastWeek.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
+      workoutTitle: 'Legs & Core Baseline',
+      totalVolumeKg: 17800,
+      totalSets: 14,
+      totalReps: 124,
+      overloadGainKg: 380,
+      exercises: [
+        {
+          id: 'ex-sq-lw',
+          name: 'Barbell Back Squat',
+          targetArea: 'Quadriceps',
+          sets: [
+            { setNum: 1, weightKg: 95, reps: 10, prevWeightKg: 90, prevReps: 10 },
+            { setNum: 2, weightKg: 100, reps: 8, prevWeightKg: 95, prevReps: 8 },
+            { setNum: 3, weightKg: 105, reps: 8, prevWeightKg: 100, prevReps: 8 },
+            { setNum: 4, weightKg: 110, reps: 6, prevWeightKg: 105, prevReps: 6 },
+          ],
+        },
+      ],
+    },
+  ];
+};
 
 interface Props {
   onOpenCalendarHistory?: () => void;
+  isCollapsible?: boolean;
+  initialExpanded?: boolean;
 }
 
-export const DayByDayProgressionCard: React.FC<Props> = ({ onOpenCalendarHistory }) => {
+export const DayByDayProgressionCard: React.FC<Props> = ({
+  onOpenCalendarHistory,
+  isCollapsible = false,
+  initialExpanded = true,
+}) => {
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
-  const session = HISTORICAL_SESSIONS[selectedIdx] || HISTORICAL_SESSIONS[0]!;
+  const [isExpanded, setIsExpanded] = useState<boolean>(initialExpanded);
+  const sessions = React.useMemo(() => buildHistoricalSessions(), []);
+  const session = sessions[selectedIdx] || sessions[0]!;
 
   return (
     <View style={styles.card}>
@@ -163,7 +191,7 @@ export const DayByDayProgressionCard: React.FC<Props> = ({ onOpenCalendarHistory
 
       {/* Day Selector Buttons */}
       <View style={styles.daySelectorRow}>
-        {HISTORICAL_SESSIONS.map((s, idx) => {
+        {sessions.map((s, idx) => {
           const isSelected = idx === selectedIdx;
           return (
             <TouchableOpacity
@@ -210,54 +238,69 @@ export const DayByDayProgressionCard: React.FC<Props> = ({ onOpenCalendarHistory
         </View>
       </View>
 
+      {/* Expand/Collapse Toggle Button if isCollapsible */}
+      {isCollapsible && (
+        <TouchableOpacity
+          style={styles.collapseToggleBtn}
+          activeOpacity={0.7}
+          onPress={() => setIsExpanded((prev) => !prev)}
+        >
+          <Text style={styles.collapseToggleText}>
+            {isExpanded ? '▲ Hide Sets & Reps Breakdown' : `▼ View Sets & Reps Breakdown (${session.exercises.length} exercises)`}
+          </Text>
+        </TouchableOpacity>
+      )}
+
       {/* Detailed Exercise Breakdown with Sets & Reps */}
-      <View style={styles.exerciseList}>
-        {session.exercises.map((ex, eIdx) => (
-          <View key={ex.id} style={styles.exerciseCard}>
-            <View style={styles.exHeader}>
-              <View style={styles.exNumBadge}>
-                <Text style={styles.exNumText}>0{eIdx + 1}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.exName}>{ex.name}</Text>
-                <Text style={styles.exTarget}>{ex.targetArea}</Text>
-              </View>
-              <View style={styles.progressionBadge}>
-                <Text style={styles.progressionBadgeText}>PROGRESSED</Text>
-              </View>
-            </View>
-
-            {/* Set by Set breakdown with Last Week Comparison */}
-            <View style={styles.setTable}>
-              <View style={styles.setTableHeader}>
-                <Text style={[styles.thText, { width: 50 }]}>SET</Text>
-                <Text style={[styles.thText, { flex: 1 }]}>THIS SESSION (KG × REPS)</Text>
-                <Text style={[styles.thText, { width: 110, textAlign: 'right' }]}>PREV (LAST WEEK)</Text>
+      {isExpanded && (
+        <View style={styles.exerciseList}>
+          {session.exercises.map((ex, eIdx) => (
+            <View key={ex.id} style={styles.exerciseCard}>
+              <View style={styles.exHeader}>
+                <View style={styles.exNumBadge}>
+                  <Text style={styles.exNumText}>0{eIdx + 1}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.exName}>{ex.name}</Text>
+                  <Text style={styles.exTarget}>{ex.targetArea}</Text>
+                </View>
+                <View style={styles.progressionBadge}>
+                  <Text style={styles.progressionBadgeText}>PROGRESSED</Text>
+                </View>
               </View>
 
-              {ex.sets.map((s) => {
-                const diffKg = s.weightKg - s.prevWeightKg;
-                return (
-                  <View key={s.setNum} style={styles.setTableRow}>
-                    <Text style={styles.setNumCol}>Set {s.setNum}</Text>
-                    <View style={styles.setValCol}>
-                      <Text style={styles.weightVal}>
-                        {s.weightKg} kg <Text style={styles.repsVal}>× {s.reps} reps</Text>
+              {/* Set by Set breakdown with Last Week Comparison */}
+              <View style={styles.setTable}>
+                <View style={styles.setTableHeader}>
+                  <Text style={[styles.thText, { width: 50 }]}>SET</Text>
+                  <Text style={[styles.thText, { flex: 1 }]}>THIS SESSION (KG × REPS)</Text>
+                  <Text style={[styles.thText, { width: 110, textAlign: 'right' }]}>PREV (LAST WEEK)</Text>
+                </View>
+
+                {ex.sets.map((s) => {
+                  const diffKg = s.weightKg - s.prevWeightKg;
+                  return (
+                    <View key={s.setNum} style={styles.setTableRow}>
+                      <Text style={styles.setNumCol}>Set {s.setNum}</Text>
+                      <View style={styles.setValCol}>
+                        <Text style={styles.weightVal}>
+                          {s.weightKg} kg <Text style={styles.repsVal}>× {s.reps} reps</Text>
+                        </Text>
+                        {diffKg > 0 && (
+                          <Text style={styles.diffPill}>+{diffKg}kg</Text>
+                        )}
+                      </View>
+                      <Text style={styles.prevCol}>
+                        {s.prevWeightKg}kg × {s.prevReps}
                       </Text>
-                      {diffKg > 0 && (
-                        <Text style={styles.diffPill}>+{diffKg}kg</Text>
-                      )}
                     </View>
-                    <Text style={styles.prevCol}>
-                      {s.prevWeightKg}kg × {s.prevReps}
-                    </Text>
-                  </View>
-                );
-              })}
+                  );
+                })}
+              </View>
             </View>
-          </View>
-        ))}
-      </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 };
@@ -514,5 +557,22 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: Theme.typography.telemetry.fontFamily,
     color: Theme.colors.textMuted,
+  },
+  collapseToggleBtn: {
+    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.25)',
+    borderRadius: Theme.borderRadius.md,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  collapseToggleText: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    fontFamily: Theme.typography.fontMono,
   },
 });

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { AlphaScreen, AlphaHeader, PrimaryButton, StatusBadge } from '../../components';
 import { Theme } from '../../theme/tokens';
-import { calculateBmi, determineTrainingMaturity } from '../../utils/timezone';
+import { calculateBmi, determineTrainingMaturity, calculateMetabolicMacros } from '../../utils/timezone';
 
 export interface UserProfileData {
   gender: 'MALE' | 'FEMALE' | 'OTHER';
@@ -45,6 +45,14 @@ export const ProfileOnboardingScreen: React.FC<ProfileOnboardingScreenProps> = (
   const bmiResult = useMemo(() => {
     return calculateBmi(numWeight, numHeight, unitSystem);
   }, [numWeight, numHeight, unitSystem]);
+
+  // Dynamic Metabolic Macronutrient Demands (Protein, Fats, Carbs, Calories)
+  const weightKgStandard = unitSystem === 'IMPERIAL' ? (numWeight ? numWeight / 2.20462 : null) : numWeight;
+  const heightCmStandard = unitSystem === 'IMPERIAL' ? (numHeight ? numHeight * 2.54 : null) : numHeight;
+
+  const macroDemand = useMemo(() => {
+    return calculateMetabolicMacros(weightKgStandard, heightCmStandard, numAge, gender);
+  }, [weightKgStandard, heightCmStandard, numAge, gender]);
 
   // Section 10: Dynamic Training Maturity
   const selectedExp = EXPERIENCE_LEVELS.find((e) => e.id === experienceLevel);
@@ -237,6 +245,52 @@ export const ProfileOnboardingScreen: React.FC<ProfileOnboardingScreenProps> = (
           </View>
 
           <Text style={styles.bmiDisclaimer}>{bmiResult.disclaimer}</Text>
+
+          {/* Dynamic Macro Demand Section (Protein, Fats, Carbs, Calories) */}
+          {macroDemand ? (
+            <View style={styles.macroDemandBox}>
+              <View style={styles.macroDemandDivider} />
+              <View style={styles.macroDemandHeader}>
+                <View>
+                  <Text style={styles.macroDemandTitle}>DAILY MACRONUTRIENT DEMAND</Text>
+                  <Text style={styles.macroDemandSub}>Calibrated to your Biometrics & Activity</Text>
+                </View>
+                <View style={styles.calsTargetBadge}>
+                  <Text style={styles.calsTargetVal}>{macroDemand.recommendedDailyCals}</Text>
+                  <Text style={styles.calsTargetUnit}>kcal/day</Text>
+                </View>
+              </View>
+
+              <View style={styles.macroGrid}>
+                {/* Protein Demand */}
+                <View style={[styles.macroCard, { borderColor: '#00F0FF', backgroundColor: 'rgba(0, 240, 255, 0.08)' }]}>
+                  <Text style={[styles.macroCardTag, { color: '#00F0FF' }]}>PROTEIN</Text>
+                  <Text style={styles.macroCardGrams}>{macroDemand.proteinGrams}g</Text>
+                  <Text style={styles.macroCardSub}>2.0g/kg · {macroDemand.proteinCals} kcal</Text>
+                </View>
+
+                {/* Fats Demand */}
+                <View style={[styles.macroCard, { borderColor: '#F59E0B', backgroundColor: 'rgba(245, 158, 11, 0.08)' }]}>
+                  <Text style={[styles.macroCardTag, { color: '#F59E0B' }]}>FATS</Text>
+                  <Text style={styles.macroCardGrams}>{macroDemand.fatGrams}g</Text>
+                  <Text style={styles.macroCardSub}>0.9g/kg · {macroDemand.fatCals} kcal</Text>
+                </View>
+
+                {/* Carbs Demand */}
+                <View style={[styles.macroCard, { borderColor: '#38BDF8', backgroundColor: 'rgba(56, 189, 248, 0.08)' }]}>
+                  <Text style={[styles.macroCardTag, { color: '#38BDF8' }]}>CARBS</Text>
+                  <Text style={styles.macroCardGrams}>{macroDemand.carbsGrams}g</Text>
+                  <Text style={styles.macroCardSub}>Fuel · {macroDemand.carbsCals} kcal</Text>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.macroDemandPlaceholder}>
+              <Text style={styles.macroPlaceholderText}>
+                ⚡ Enter Height, Weight & Age to calculate your exact Protein, Fat & Carb demand.
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Dynamic Training Maturity (Section 10) */}
@@ -447,6 +501,99 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 16,
     fontFamily: Theme.typography.fontBody,
+  },
+  macroDemandBox: {
+    marginTop: 12,
+  },
+  macroDemandDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    marginBottom: 12,
+  },
+  macroDemandHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  macroDemandTitle: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1,
+    fontFamily: Theme.typography.fontMono,
+  },
+  macroDemandSub: {
+    color: Theme.colors.textMuted,
+    fontSize: 10,
+    fontFamily: Theme.typography.fontBody,
+    marginTop: 1,
+  },
+  calsTargetBadge: {
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.3)',
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 3,
+  },
+  calsTargetVal: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 13,
+    fontWeight: '900',
+    fontFamily: Theme.typography.fontDisplay,
+  },
+  calsTargetUnit: {
+    color: Theme.colors.textSecondary,
+    fontSize: 9,
+    fontFamily: Theme.typography.fontBody,
+  },
+  macroGrid: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  macroCard: {
+    flex: 1,
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    padding: 8,
+    alignItems: 'center',
+  },
+  macroCardTag: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    fontFamily: Theme.typography.fontMono,
+    marginBottom: 3,
+  },
+  macroCardGrams: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: Theme.colors.textPrimary,
+    fontFamily: Theme.typography.fontDisplay,
+  },
+  macroCardSub: {
+    fontSize: 9,
+    color: Theme.colors.textMuted,
+    fontFamily: Theme.typography.fontBody,
+    marginTop: 2,
+  },
+  macroDemandPlaceholder: {
+    marginTop: 10,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  macroPlaceholderText: {
+    color: Theme.colors.textMuted,
+    fontSize: 11,
+    fontFamily: Theme.typography.fontBody,
+    textAlign: 'center',
   },
   maturityCard: {
     backgroundColor: Theme.colors.surface,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { AlphaScreen, AlphaHeader, StatusBadge } from '../../components';
+import { DailySupplementsCard } from '../../components/DailySupplementsCard';
 import { Theme } from '../../theme/tokens';
 import { usePerformance } from '../../context/PerformanceContext';
 
@@ -174,6 +175,9 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
             />
           </View>
         </TouchableOpacity>
+
+        {/* Daily Micronutrient & Supplement Protocol */}
+        <DailySupplementsCard />
 
         {/* Meal Log Cards with Planned vs Actual Ingestion */}
         <Text style={styles.sectionHeader}>TODAY'S SCHEDULED MEALS</Text>

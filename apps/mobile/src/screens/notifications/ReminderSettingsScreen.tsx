@@ -103,16 +103,70 @@ export const ReminderSettingsScreen: React.FC<ReminderSettingsScreenProps> = ({ 
           </View>
 
           {config.workoutReminderEnabled && (
-            <View style={styles.timeSettingRow}>
-              <Text style={styles.timeLabel}>Alarm Time (IST):</Text>
-              <TextInput
-                style={styles.timeInput}
-                value={config.workoutReminderTime}
-                onChangeText={(val) => setConfig({ ...config, workoutReminderTime: val })}
-                placeholder="06:00"
-                placeholderTextColor={Theme.colors.textMuted}
-                maxLength={5}
-              />
+            <View style={{ gap: 8, marginTop: 10 }}>
+              <View style={styles.timeSettingRow}>
+                <Text style={styles.timeLabel}>Alarm Time (24h IST):</Text>
+                <TextInput
+                  style={styles.timeInput}
+                  value={config.workoutReminderTime}
+                  onChangeText={(val) => setConfig({ ...config, workoutReminderTime: val })}
+                  placeholder="18:00"
+                  placeholderTextColor={Theme.colors.textMuted}
+                  maxLength={5}
+                />
+              </View>
+
+              {/* Quick Time Preset Buttons */}
+              <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+                <TouchableOpacity
+                  style={[
+                    styles.timePresetChip,
+                    config.workoutReminderTime === '18:00' && styles.timePresetChipActive,
+                  ]}
+                  onPress={() => setConfig({ ...config, workoutReminderTime: '18:00' })}
+                >
+                  <Text style={[styles.timePresetText, config.workoutReminderTime === '18:00' && styles.timePresetTextActive]}>
+                    Evening 06:00 PM (18:00)
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.timePresetChip,
+                    config.workoutReminderTime === '06:00' && styles.timePresetChipActive,
+                  ]}
+                  onPress={() => setConfig({ ...config, workoutReminderTime: '06:00' })}
+                >
+                  <Text style={[styles.timePresetText, config.workoutReminderTime === '06:00' && styles.timePresetTextActive]}>
+                    Morning 06:00 AM (06:00)
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.timePresetChip,
+                    config.workoutReminderTime === '19:00' && styles.timePresetChipActive,
+                  ]}
+                  onPress={() => setConfig({ ...config, workoutReminderTime: '19:00' })}
+                >
+                  <Text style={[styles.timePresetText, config.workoutReminderTime === '19:00' && styles.timePresetTextActive]}>
+                    Evening 07:00 PM (19:00)
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Resolved IST Banner */}
+              <View style={styles.resolvedTimeBox}>
+                <Text style={styles.resolvedTimeText}>
+                  🔔 Scheduled for:{' '}
+                  <Text style={{ color: Theme.colors.cyanGlow, fontWeight: '800' }}>
+                    {config.workoutReminderTime}{' '}
+                    {parseInt(config.workoutReminderTime?.split(':')[0] || '0', 10) >= 12
+                      ? `(${parseInt(config.workoutReminderTime?.split(':')[0] || '0', 10) === 12 ? 12 : parseInt(config.workoutReminderTime?.split(':')[0] || '0', 10) - 12}:${config.workoutReminderTime?.split(':')[1] || '00'} PM IST)`
+                      : `(${config.workoutReminderTime} AM IST)`}
+                  </Text>
+                </Text>
+              </View>
             </View>
           )}
 
@@ -373,6 +427,41 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     width: 84,
     textAlign: 'center',
+  },
+  timePresetChip: {
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: Theme.borderRadius.xs,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  timePresetChipActive: {
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    borderColor: Theme.colors.cyanGlow,
+  },
+  timePresetText: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    fontFamily: Theme.typography.fontBody,
+  },
+  timePresetTextActive: {
+    color: Theme.colors.cyanGlow,
+    fontWeight: '700',
+  },
+  resolvedTimeBox: {
+    backgroundColor: 'rgba(0, 240, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.2)',
+    borderRadius: Theme.borderRadius.xs,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 2,
+  },
+  resolvedTimeText: {
+    fontSize: 11,
+    color: Theme.colors.textSecondary,
+    fontFamily: Theme.typography.fontMono,
   },
   smartNoticeBox: {
     backgroundColor: 'rgba(255, 255, 255, 0.02)',

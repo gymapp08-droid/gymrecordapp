@@ -20,6 +20,7 @@ import { useAuth } from '../../context/AuthContext';
 import { usePerformance } from '../../context/PerformanceContext';
 import { getGreeting } from '../../utils/timezone';
 import { DayByDayProgressionCard } from '../../components/DayByDayProgressionCard';
+import { DailySupplementsCard } from '../../components/DailySupplementsCard';
 import { AlarmType } from '../../components/AlphaAlarmModal';
 
 interface HomeScreenProps {
@@ -287,8 +288,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
         )}
 
-        {/* 2B. Day-By-Day Exercise History & Reps/Sets Progression Breakdown */}
-        <DayByDayProgressionCard onOpenCalendarHistory={onOpenCalendarHistory} />
+        {/* 2B. Day-By-Day Exercise History & Reps/Sets Progression Breakdown (Collapsible on Home) */}
+        <DayByDayProgressionCard
+          onOpenCalendarHistory={onOpenCalendarHistory}
+          isCollapsible={true}
+          initialExpanded={false}
+        />
+
+        {/* 2B-2. Daily Multivitamin & Calcium Micronutrient Protocol */}
+        <DailySupplementsCard compact={true} />
 
         {/* 2C. Smart Alarm & Priority Meal Alerts Interactive Engine */}
         {onTriggerAlarmModal && (

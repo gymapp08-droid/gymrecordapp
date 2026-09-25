@@ -302,7 +302,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
     );
   };
 
-  // Update actual weight for a set (User Controlled)
+  // Update actual weight for a set (User Controlled) — synchronizes with target weight
   const handleUpdateWeight = (setId: string, weightText: string) => {
     const num = parseFloat(weightText) || 0;
     setExercises((prev) =>
@@ -310,10 +310,39 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
         if (exIdx !== currentIndex) return ex;
         return {
           ...ex,
-          sets: ex.sets.map((s) => (s.id === setId ? { ...s, actualWeightKg: num } : s)),
+          sets: ex.sets.map((s) => (s.id === setId ? { ...s, actualWeightKg: num, targetWeightKg: num } : s)),
         };
       })
     );
+  };
+
+  // Custom Target Editor State
+  const [editingTargetSet, setEditingTargetSet] = useState<RecordedSet | null>(null);
+  const [targetWeightInput, setTargetWeightInput] = useState('');
+  const [targetRepsInput, setTargetRepsInput] = useState('');
+
+  const handleOpenEditTarget = (set: RecordedSet) => {
+    setEditingTargetSet(set);
+    setTargetWeightInput(set.targetWeightKg.toString());
+    setTargetRepsInput(set.targetReps.toString());
+  };
+
+  const handleSaveTarget = () => {
+    if (!editingTargetSet) return;
+    const newWeight = parseFloat(targetWeightInput) || 0;
+    const newReps = parseInt(targetRepsInput, 10) || 0;
+    setExercises((prev) =>
+      prev.map((ex, exIdx) => {
+        if (exIdx !== currentIndex) return ex;
+        return {
+          ...ex,
+          sets: ex.sets.map((s) =>
+            s.id === editingTargetSet.id ? { ...s, targetWeightKg: newWeight, targetReps: newReps } : s
+          ),
+        };
+      })
+    );
+    setEditingTargetSet(null);
   };
 
   // Add Set dynamically
@@ -572,10 +601,15 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                 </View>
 
                 {/* Plan Target */}
-                <View style={styles.targetCol}>
+                <TouchableOpacity
+                  style={styles.targetCol}
+                  onPress={() => handleOpenEditTarget(set)}
+                  activeOpacity={0.7}
+                >
                   <Text style={styles.targetPlanText}>
                     {set.targetWeightKg}kg × {set.targetReps}
                   </Text>
+                  <Text style={styles.targetSubLabel}>Tap to edit</Text>
                   {set.isCompleted && diff !== 0 && (
                     <Text
                       style={[
@@ -586,7 +620,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                       {diff > 0 ? `+${diff}` : `${diff}`} reps
                     </Text>
                   )}
-                </View>
+                </TouchableOpacity>
 
                 {/* Actual Weight (User Controlled) */}
                 <View style={styles.inputWrap}>
@@ -760,6 +794,62 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
               <PrimaryButton
                 title="Confirm Skip"
                 onPress={handleConfirmSkip}
+                style={{ flex: 1 }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Target Set Editor Modal */}
+      <Modal visible={editingTargetSet !== null} transparent animationType="fade">
+        <View style={styles.modalBackdrop}>
+          <View style={styles.skipModalBox}>
+            <Text style={styles.skipModalTitle}>CUSTOMIZE TARGET</Text>
+            <Text style={styles.skipModalSub}>
+              Set {editingTargetSet?.setNumber} target prescription parameters:
+            </Text>
+
+            <View style={{ gap: 12, marginVertical: 14 }}>
+              <View>
+                <Text style={{ color: Theme.colors.textMuted, fontSize: 11, marginBottom: 4, fontFamily: Theme.typography.fontMono, letterSpacing: 0.8 }}>
+                  TARGET WEIGHT (KG)
+                </Text>
+                <TextInput
+                  style={styles.numericInputLarge}
+                  keyboardType="decimal-pad"
+                  value={targetWeightInput}
+                  onChangeText={setTargetWeightInput}
+                  placeholder="e.g. 60"
+                  placeholderTextColor="#64748B"
+                  autoFocus
+                />
+              </View>
+
+              <View>
+                <Text style={{ color: Theme.colors.textMuted, fontSize: 11, marginBottom: 4, fontFamily: Theme.typography.fontMono, letterSpacing: 0.8 }}>
+                  TARGET REPS
+                </Text>
+                <TextInput
+                  style={styles.numericInputLarge}
+                  keyboardType="number-pad"
+                  value={targetRepsInput}
+                  onChangeText={setTargetRepsInput}
+                  placeholder="e.g. 10"
+                  placeholderTextColor="#64748B"
+                />
+              </View>
+            </View>
+
+            <View style={styles.skipModalActions}>
+              <SecondaryButton
+                title="Cancel"
+                onPress={() => setEditingTargetSet(null)}
+                style={{ flex: 1 }}
+              />
+              <PrimaryButton
+                title="Save Target"
+                onPress={handleSaveTarget}
                 style={{ flex: 1 }}
               />
             </View>
@@ -1058,6 +1148,13 @@ const styles = StyleSheet.create({
     color: Theme.colors.textSecondary,
     fontWeight: '600',
   },
+  targetSubLabel: {
+    fontSize: 8,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '700',
+    marginTop: 1,
+    letterSpacing: 0.5,
+  },
   diffBadge: {
     fontSize: 9,
     fontWeight: '700',
@@ -1087,6 +1184,18 @@ const styles = StyleSheet.create({
   },
   numericInputActive: {
     color: Theme.colors.cyanGlow,
+  },
+  numericInputLarge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    color: Theme.colors.textPrimary,
+    fontSize: 18,
+    fontFamily: Theme.typography.display.fontFamily,
+    fontWeight: '800',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   checkBtn: {
     width: 36,

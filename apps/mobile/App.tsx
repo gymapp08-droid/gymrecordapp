@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StatusBar,
   Modal,
+  Vibration,
 } from 'react-native';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { PerformanceProvider, usePerformance } from './src/context/PerformanceContext';
@@ -14,6 +15,7 @@ import { UpdateProvider } from './src/context/UpdateContext';
 import { AlphaUpdateModal } from './src/components/AlphaUpdateModal';
 import { AlphaErrorBoundary } from './src/components/AlphaErrorBoundary';
 import { AlphaAlarmModal, AlarmType } from './src/components/AlphaAlarmModal';
+import { NotificationService } from './src/services/notificationService';
 import {
   HomeIcon,
   WorkoutIcon,
@@ -170,6 +172,78 @@ function MainNavigator() {
       setAuthRoute('WELCOME');
     }
   }, [status, authRoute]);
+
+  // Active Real-Time Alarm & Notification Engine for Asia/Kolkata (IST)
+  useEffect(() => {
+    if (status !== 'authenticated') return;
+
+    const firedKeys = new Set<string>();
+
+    const checkAlarms = async () => {
+      try {
+        const config = await NotificationService.loadConfig();
+        if (!config) return;
+
+        // Current time in Asia/Kolkata (IST)
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Asia/Kolkata',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        });
+        const currentTime = formatter.format(new Date()); // e.g. "18:00"
+        const todayDateStr = new Date().toISOString().split('T')[0];
+
+        // 1. Check Workout Alarm
+        if (config.workoutReminderEnabled && config.workoutReminderTime) {
+          const workoutAlarmKey = `alarm_workout_${todayDateStr}_${config.workoutReminderTime}`;
+          if (currentTime === config.workoutReminderTime && !firedKeys.has(workoutAlarmKey)) {
+            firedKeys.add(workoutAlarmKey);
+            setActiveAlarmType('WORKOUT');
+            setAlarmVisible(true);
+            try {
+              Vibration.vibrate([0, 1000, 500, 1000, 500, 1000]);
+            } catch {}
+            return;
+          }
+        }
+
+        // 2. Check 5-Meal Alarms
+        if (config.mealRemindersEnabled && config.mealReminderTimes) {
+          const mealSlots: { key: keyof typeof config.mealReminderTimes; type: AlarmType }[] = [
+            { key: 'breakfast', type: 'MEAL_1' },
+            { key: 'midMorning', type: 'MEAL_2' },
+            { key: 'lunch', type: 'MEAL_3' },
+            { key: 'snack', type: 'MEAL_4' },
+            { key: 'dinner', type: 'MEAL_5' },
+          ];
+
+          for (const slot of mealSlots) {
+            const slotTime = config.mealReminderTimes[slot.key];
+            if (slotTime && currentTime === slotTime) {
+              const mealAlarmKey = `alarm_meal_${slot.key}_${todayDateStr}_${slotTime}`;
+              if (!firedKeys.has(mealAlarmKey)) {
+                firedKeys.add(mealAlarmKey);
+                setActiveAlarmType(slot.type);
+                setAlarmVisible(true);
+                try {
+                  Vibration.vibrate([0, 1000, 500, 1000, 500, 1000]);
+                } catch {}
+                return;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[AlphaAlarmEngine] Error checking alarm conditions:', err);
+      }
+    };
+
+    // Check immediately and poll every 10 seconds
+    checkAlarms();
+    const interval = setInterval(checkAlarms, 10000);
+    return () => clearInterval(interval);
+  }, [status]);
 
   // While checking/restoring persistent session from local storage, keep splash screen visible
   if (status === 'loading' || (status === 'idle' && authRoute === 'SPLASH')) {

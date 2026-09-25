@@ -210,3 +210,75 @@ export function determineTrainingMaturity(
     description: 'Systematic progressive overload, compound progression, and controlled volume accumulation.',
   };
 }
+
+export interface MacroDemandResult {
+  bmr: number;
+  tdee: number;
+  proteinGrams: number;
+  proteinCals: number;
+  fatGrams: number;
+  fatCals: number;
+  carbsGrams: number;
+  carbsCals: number;
+  recommendedDailyCals: number;
+}
+
+/**
+ * Calculate precise daily macronutrient demands (Protein, Fats, Carbs) and Caloric Target
+ * based on Weight, Height, Age, and Biological Sex.
+ */
+export function calculateMetabolicMacros(
+  weightKg: number | null | undefined,
+  heightCm: number | null | undefined,
+  age: number | null | undefined,
+  gender: 'MALE' | 'FEMALE' | 'OTHER' = 'MALE',
+  goal: string = 'MUSCLE_HYPERTROPHY'
+): MacroDemandResult | null {
+  if (!weightKg || !heightCm || !age || weightKg <= 0 || heightCm <= 0 || age <= 0) {
+    return null;
+  }
+
+  // Mifflin-St Jeor Equation for BMR:
+  let bmr: number;
+  if (gender === 'FEMALE') {
+    bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
+  } else {
+    bmr = 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
+  }
+
+  // Activity multiplier for progressive resistance training (1.45)
+  const tdee = Math.round(bmr * 1.45);
+
+  let targetCals = tdee;
+  if (goal === 'FAT_LOSS' || goal.includes('CUT')) {
+    targetCals = Math.round(tdee * 0.85); // 15% deficit for fat loss
+  } else if (goal === 'MUSCLE_HYPERTROPHY' || goal.includes('BULK') || goal.includes('STRENGTH')) {
+    targetCals = Math.round(tdee * 1.10); // 10% surplus for muscle growth
+  }
+
+  // Athletic protein demand: 2.0g per kg of bodyweight for muscle protein synthesis
+  const proteinGrams = Math.round(weightKg * 2.0);
+  const proteinCals = proteinGrams * 4;
+
+  // Essential fat demand: 0.9g per kg of bodyweight for hormonal regulation
+  const fatGrams = Math.round(weightKg * 0.9);
+  const fatCals = fatGrams * 9;
+
+  // Carbs demand: remainder of daily caloric intake to fuel muscular glycogen
+  const remainingCals = Math.max(targetCals - (proteinCals + fatCals), 0);
+  const carbsGrams = Math.round(remainingCals / 4);
+  const carbsCals = carbsGrams * 4;
+
+  return {
+    bmr: Math.round(bmr),
+    tdee,
+    recommendedDailyCals: targetCals,
+    proteinGrams,
+    proteinCals,
+    fatGrams,
+    fatCals,
+    carbsGrams,
+    carbsCals,
+  };
+}
+
