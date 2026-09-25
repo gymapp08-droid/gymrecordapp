@@ -11,6 +11,15 @@
       "backgroundColor": "#05070B",
       "resizeMode": "contain"
     },
+    "updates": {
+      "url": "https://u.expo.dev/8b8e3acd-ebda-4d78-b8fa-c84d8bb079af",
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.alpha.performance.os",

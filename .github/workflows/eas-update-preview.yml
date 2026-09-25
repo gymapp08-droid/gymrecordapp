@@ -1,0 +1,66 @@
+name: EAS Update (Preview)
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Changelog / update description for this preview update'
+        required: true
+        default: 'QA / Internal testing preview OTA update'
+
+concurrency:
+  group: eas-update-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-publish-preview:
+    name: Verify & Publish Preview Update
+    runs-on: ubuntu-latest
+    if: github.repository == 'gymapp08-droid/gymrecordapp'
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup EAS & Expo CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Verify EXPO_TOKEN Secret
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "::error::EXPO_TOKEN secret is missing or empty. Please add it in GitHub Settings -> Secrets -> Actions."
+            exit 1
+          fi
+
+      - name: Install Monorepo Dependencies
+        run: npm ci
+
+      - name: Build Monorepo Internal Packages
+        run: |
+          npm run build:packages
+
+      - name: Mobile TypeScript Strict Check
+        run: |
+          npx tsc --project apps/mobile/tsconfig.json --noEmit
+
+      - name: Run Available Monorepo Test Suites
+        run: |
+          npm run test --if-present
+
+      - name: Publish EAS OTA Update to Preview Channel
+        working-directory: apps/mobile
+        run: |
+          echo "Publishing to channel: preview"
+          echo "Update message: ${{ github.event.inputs.message }}"
+          eas update --channel preview --message "${{ github.event.inputs.message }}" --non-interactive

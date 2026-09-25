@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { PerformanceProvider, usePerformance } from './src/context/PerformanceContext';
+import { UpdateProvider } from './src/context/UpdateContext';
+import { AlphaUpdateModal } from './src/components/AlphaUpdateModal';
 import {
   HomeIcon,
   WorkoutIcon,
@@ -593,7 +595,10 @@ export default function App() {
   return (
     <AuthProvider>
       <PerformanceProvider>
-        <MainNavigator />
+        <UpdateProvider>
+          <MainNavigator />
+          <AlphaUpdateModal />
+        </UpdateProvider>
       </PerformanceProvider>
     </AuthProvider>
   );

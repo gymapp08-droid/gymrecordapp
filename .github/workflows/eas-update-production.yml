@@ -1,0 +1,78 @@
+name: EAS Update (Production)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/**'
+      - 'package-lock.json'
+      - '.github/workflows/eas-update-production.yml'
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Changelog / update description for this production release'
+        required: false
+        default: 'Manual production OTA release'
+
+# Concurrency: cancel in-flight update runs for the same branch to prevent race conditions
+concurrency:
+  group: eas-update-production-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-publish:
+    name: Verify & Publish Production Update
+    runs-on: ubuntu-latest
+    if: github.repository == 'gymapp08-droid/gymrecordapp' && github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup EAS & Expo CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Verify EXPO_TOKEN Secret
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "::error::EXPO_TOKEN secret is missing or empty. Please add it in GitHub Settings -> Secrets -> Actions."
+            exit 1
+          fi
+
+      - name: Install Monorepo Dependencies
+        run: npm ci
+
+      - name: Build Monorepo Internal Packages
+        run: |
+          npm run build:packages
+
+      - name: Mobile TypeScript Strict Check
+        run: |
+          npx tsc --project apps/mobile/tsconfig.json --noEmit
+
+      - name: Run Available Monorepo Test Suites
+        run: |
+          npm run test --if-present
+
+      - name: Publish EAS OTA Update to Production Channel
+        working-directory: apps/mobile
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message || github.event.inputs.message || 'Production OTA update' }}"
+          # Truncate message to first line for clean EAS display
+          CLEAN_MSG=$(echo "$COMMIT_MSG" | head -n 1)
+          echo "Publishing to channel: production"
+          echo "Update message: $CLEAN_MSG"
+          eas update --channel production --message "$CLEAN_MSG" --non-interactive

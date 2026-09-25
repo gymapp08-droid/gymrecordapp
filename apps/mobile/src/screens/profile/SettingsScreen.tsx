@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { AlphaScreen, AlphaHeader } from '../../components';
 import { Theme } from '../../theme/tokens';
+import { useUpdate } from '../../context/UpdateContext';
 
 interface SettingsScreenProps {
   onBack: () => void;
@@ -13,6 +14,15 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
   const [keepScreenAwake, setKeepScreenAwake] = useState(true);
   const [autoStartRestTimer, setAutoStartRestTimer] = useState(true);
+
+  const { updateInfo, checkForUpdate, applyUpdate } = useUpdate();
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+
+  const handleManualCheck = async () => {
+    setIsCheckingUpdates(true);
+    await checkForUpdate(true);
+    setIsCheckingUpdates(false);
+  };
 
   const handleClearCache = () => {
     Alert.alert('Cache Cleared', 'Local offline telemetry caches have been purged.');
@@ -108,6 +118,71 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
           </View>
         </View>
 
+        {/* System Updates */}
+        <Text style={styles.sectionHeader}>SYSTEM UPDATES (OTA)</Text>
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <View>
+              <Text style={styles.rowTitle}>Runtime Channel</Text>
+              <Text style={styles.rowSub}>Target: {(updateInfo.channel || 'production').toUpperCase()}</Text>
+            </View>
+            <View style={styles.runtimeBadge}>
+              <Text style={styles.runtimeBadgeText}>v{updateInfo.runtimeVersion || '1.0.0'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.separator} />
+
+          <View style={styles.row}>
+            <View style={{ flex: 1, paddingRight: 10 }}>
+              <Text style={styles.rowTitle}>Update Status</Text>
+              <Text
+                style={[
+                  styles.rowSub,
+                  updateInfo.status === 'READY_TO_RESTART'
+                    ? { color: Theme.colors.cyanGlow, fontWeight: '700' }
+                    : updateInfo.status === 'ERROR'
+                    ? { color: '#F87171' }
+                    : null,
+                ]}
+              >
+                {updateInfo.status === 'CHECKING'
+                  ? 'Checking for updates...'
+                  : updateInfo.status === 'DOWNLOADING'
+                  ? 'Downloading update package...'
+                  : updateInfo.status === 'READY_TO_RESTART'
+                  ? 'Update downloaded · Ready to apply'
+                  : updateInfo.status === 'ERROR'
+                  ? `Offline (${updateInfo.error || 'Check failed'})`
+                  : 'Up to date'}
+              </Text>
+            </View>
+
+            {updateInfo.status === 'READY_TO_RESTART' ? (
+              <TouchableOpacity
+                onPress={() => applyUpdate()}
+                style={styles.actionBtnSmall}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.actionBtnSmallText}>Restart</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                onPress={handleManualCheck}
+                disabled={isCheckingUpdates}
+                style={[styles.actionBtnSmall, isCheckingUpdates && { opacity: 0.6 }]}
+                activeOpacity={0.8}
+              >
+                {isCheckingUpdates ? (
+                  <ActivityIndicator size="small" color="#05070B" />
+                ) : (
+                  <Text style={styles.actionBtnSmallText}>Check Now</Text>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
         {/* Storage & Diagnostics */}
         <Text style={styles.sectionHeader}>STORAGE & DIAGNOSTICS</Text>
         <View style={styles.card}>
@@ -195,5 +270,34 @@ const styles = StyleSheet.create({
   versionSub: {
     fontSize: 10,
     color: Theme.colors.textSecondary,
+  },
+  runtimeBadge: {
+    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.3)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  runtimeBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: Theme.colors.cyanGlow,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+  },
+  actionBtnSmall: {
+    backgroundColor: Theme.colors.cyanGlow,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 72,
+  },
+  actionBtnSmallText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#05070B',
+    fontFamily: Theme.typography.telemetry.fontFamily,
   },
 });
