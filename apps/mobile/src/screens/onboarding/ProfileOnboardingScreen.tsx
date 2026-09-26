@@ -174,7 +174,7 @@ export const ProfileOnboardingScreen: React.FC<ProfileOnboardingScreenProps> = (
               }}
               keyboardType="number-pad"
               maxLength={3}
-              placeholder="e.g. 25"
+              placeholder="25"
               placeholderTextColor={Theme.colors.textMuted}
             />
             <Text style={styles.unitTag}>years</Text>
@@ -220,29 +220,37 @@ export const ProfileOnboardingScreen: React.FC<ProfileOnboardingScreenProps> = (
         {/* Dynamic BMI Calculation Card (Section 9) */}
         <View style={styles.bmiCard}>
           <View style={styles.bmiHeader}>
-            <Text style={styles.bmiTitle}>BODY MASS INDEX (BMI)</Text>
-            <StatusBadge
-              label={bmiResult.categoryLabel}
-              status={
-                bmiResult.category === 'HEALTHY_RANGE'
-                  ? 'success'
-                  : bmiResult.category === 'OVERWEIGHT'
-                  ? 'warning'
-                  : bmiResult.category === 'OBESITY_RANGE'
-                  ? 'neutral'
-                  : 'neutral'
-              }
-            />
+            <Text style={styles.bmiTitle} numberOfLines={1}>
+              BODY MASS INDEX (BMI)
+            </Text>
+            <View style={styles.badgeWrapper}>
+              <StatusBadge
+                label={bmiResult.categoryLabel}
+                status={
+                  bmiResult.category === 'HEALTHY_RANGE'
+                    ? 'success'
+                    : bmiResult.category === 'OVERWEIGHT'
+                    ? 'warning'
+                    : 'neutral'
+                }
+              />
+            </View>
           </View>
 
           <View style={styles.bmiDisplayRow}>
             <Text style={styles.bmiNumber}>
-              {bmiResult.value !== null ? bmiResult.value.toFixed(1) : 'Unavailable'}
+              {bmiResult.value !== null ? bmiResult.value.toFixed(1) : '--.-'}
             </Text>
             <Text style={styles.bmiScaleText}>
-              {bmiResult.value !== null ? 'kg/m²' : 'Enter height & weight above'}
+              {bmiResult.value !== null ? 'kg/m²' : 'BMI'}
             </Text>
           </View>
+
+          {bmiResult.value === null && (
+            <Text style={styles.bmiSubHelper}>
+              Enter height and weight above to compute BMI.
+            </Text>
+          )}
 
           <Text style={styles.bmiDisclaimer}>{bmiResult.disclaimer}</Text>
 
@@ -472,6 +480,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 4,
   },
   bmiTitle: {
     color: Theme.colors.textMuted,
@@ -479,6 +489,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1,
     fontFamily: Theme.typography.fontMono,
+    flexShrink: 1,
+  },
+  badgeWrapper: {
+    flexShrink: 0,
   },
   bmiDisplayRow: {
     flexDirection: 'row',
@@ -495,6 +509,14 @@ const styles = StyleSheet.create({
     color: Theme.colors.textSecondary,
     fontSize: 13,
     fontFamily: Theme.typography.fontBody,
+  },
+  bmiSubHelper: {
+    color: Theme.colors.textMuted,
+    fontSize: 12,
+    fontFamily: Theme.typography.fontBody,
+    marginTop: -2,
+    marginBottom: 4,
+    lineHeight: 16,
   },
   bmiDisclaimer: {
     color: Theme.colors.textMuted,

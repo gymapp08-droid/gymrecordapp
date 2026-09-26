@@ -315,6 +315,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   titleWithBadge: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
