@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { AlphaScreen, PrimaryButton, SecondaryButton } from '../../components';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { AlphaScreen, PrimaryButton, SecondaryButton, AlphaLogo } from '../../components';
 import { Theme } from '../../theme/tokens';
-import { useAuth } from '../../context/AuthContext';
 
 interface WelcomeScreenProps {
   onContinue: () => void;
@@ -15,51 +14,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onLogin,
   onRegister,
 }) => {
-  const { googleLogin } = useAuth();
-  const [googleLoading, setGoogleLoading] = useState(false);
-
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    try {
-      // Production Google OAuth Token exchange flow
-      // In mobile environment with Google Client ID configured, web browser/auth session extracts ID token
-      Alert.alert(
-        'Google Authentication',
-        'Redirecting to secure Google Sign-In service. Verify with your Google account to continue.',
-        [
-          { text: 'Cancel', style: 'cancel', onPress: () => setGoogleLoading(false) },
-          {
-            text: 'Continue with Google',
-            onPress: async () => {
-              // Real OAuth verification token simulation if credentials pending in local dev environment
-              // Otherwise seamlessly authenticates with backend /auth/social
-              const success = await googleLogin('google_verified_auth_token');
-              if (!success) {
-                // If cloud provider is not configured yet on backend, alert user gracefully
-                Alert.alert(
-                  'Google Sign-In',
-                  'To use Google Sign-In, configure GOOGLE_CLIENT_ID on your server or sign in with your email and password.',
-                  [{ text: 'Sign In with Email', onPress: onLogin }]
-                );
-              }
-              setGoogleLoading(false);
-            },
-          },
-        ]
-      );
-    } catch {
-      setGoogleLoading(false);
-    }
-  };
-
   return (
     <AlphaScreen noPadding>
       <View style={styles.container}>
         {/* Top Visual Brand */}
         <View style={styles.visualContainer}>
           <View style={styles.glowBackdrop} />
-          <View style={styles.logoBadge}>
-            <Text style={styles.logoText}>A</Text>
+          <View style={styles.logoWrapper}>
+            <AlphaLogo size={84} glow />
           </View>
           <Text style={styles.brandTitle}>ALPHA</Text>
           <Text style={styles.brandSubtitle}>PERSONAL PERFORMANCE OS</Text>
@@ -85,33 +47,16 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             <View style={styles.dot} />
           </View>
 
-          {/* Production Auth Action Buttons (Section 3) */}
+          {/* Only 2 Clear Options on Front Screen */}
           <View style={styles.actions}>
-            {/* 1. Continue with Google */}
-            <TouchableOpacity
-              style={styles.googleButton}
-              activeOpacity={0.8}
-              onPress={handleGoogleSignIn}
-              disabled={googleLoading}
-            >
-              {googleLoading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <>
-                  <Text style={styles.googleIconText}>G</Text>
-                  <Text style={styles.googleButtonText}>Continue with Google</Text>
-                </>
-              )}
-            </TouchableOpacity>
-
-            {/* 2. Create Account / Get Started Onboarding */}
+            {/* 1. Get Started / Create Account */}
             <PrimaryButton
-              title="Get Started (Create Account)"
+              title="Get Started"
               onPress={onRegister || onContinue}
               style={styles.ctaButton}
             />
 
-            {/* 3. Already have an account? Sign In */}
+            {/* 2. Already have an account? Sign In */}
             <SecondaryButton
               title="Already have an account? Sign In"
               onPress={onLogin}
@@ -146,22 +91,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 50,
   },
-  logoBadge: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: 'rgba(0, 240, 255, 0.15)',
-    borderWidth: 1.5,
-    borderColor: Theme.colors.cyanGlow,
+  logoWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-  },
-  logoText: {
-    color: '#FFFFFF',
-    fontSize: 28,
-    fontWeight: '900',
-    fontFamily: Theme.typography.fontDisplay,
   },
   brandTitle: {
     color: '#FFFFFF',
@@ -226,28 +159,6 @@ const styles = StyleSheet.create({
   actions: {
     gap: 10,
     marginTop: 6,
-  },
-  googleButton: {
-    height: 48,
-    borderRadius: Theme.borderRadius.pill,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  googleIconText: {
-    color: '#4285F4',
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  googleButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-    fontFamily: Theme.typography.fontBody,
   },
   ctaButton: {
     width: '100%',

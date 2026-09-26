@@ -8,6 +8,7 @@ import {
   StatusBar,
   Modal,
   Vibration,
+  BackHandler,
 } from 'react-native';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { PerformanceProvider, usePerformance } from './src/context/PerformanceContext';
@@ -245,6 +246,87 @@ function MainNavigator() {
     return () => clearInterval(interval);
   }, [status]);
 
+  // Android Hardware Back Button & Edge Swipe Gesture Handler
+  useEffect(() => {
+    const handleHardwareBack = () => {
+      // 1. If an active modal is open (e.g. alarm modal or metric log modal)
+      if (logMetricModalVisible) {
+        setLogMetricModalVisible(false);
+        return true;
+      }
+      if (alarmVisible) {
+        setAlarmVisible(false);
+        return true;
+      }
+
+      // 2. If authenticated:
+      if (status === 'authenticated') {
+        // If inside an active subview (e.g. AI Coach, Active Workout, Add Food, Meal Detail, etc.)
+        if (activeSubView !== null) {
+          setActiveSubView(null);
+          return true;
+        }
+        // If not on HOME tab, return to HOME tab
+        if (activeTab !== 'HOME') {
+          setActiveTab('HOME');
+          return true;
+        }
+        // On root HOME tab with no subview, allow default Android behavior (minimize app)
+        return false;
+      }
+
+      // 3. If unauthenticated / onboarding flow:
+      if (status !== 'authenticated') {
+        if (authRoute === 'FORGOT_PASSWORD') {
+          setAuthRoute('LOGIN');
+          return true;
+        }
+        if (authRoute === 'LOGIN') {
+          setAuthRoute('WELCOME');
+          return true;
+        }
+        if (authRoute === 'REGISTER') {
+          setAuthRoute('RECOMMENDATION');
+          return true;
+        }
+        if (authRoute === 'RECOMMENDATION') {
+          setAuthRoute('PREFERENCES');
+          return true;
+        }
+        if (authRoute === 'PREFERENCES') {
+          setAuthRoute('PROFILE');
+          return true;
+        }
+        if (authRoute === 'PROFILE') {
+          setAuthRoute('GOAL');
+          return true;
+        }
+        if (authRoute === 'GOAL') {
+          setAuthRoute('WELCOME');
+          return true;
+        }
+        if (authRoute === 'SUCCESS') {
+          setAuthRoute('WELCOME');
+          return true;
+        }
+        // If on WELCOME, allow default exit
+        return false;
+      }
+
+      return false;
+    };
+
+    const backSubscription = BackHandler.addEventListener('hardwareBackPress', handleHardwareBack);
+    return () => backSubscription.remove();
+  }, [
+    status,
+    authRoute,
+    activeTab,
+    activeSubView,
+    logMetricModalVisible,
+    alarmVisible,
+  ]);
+
   // While checking/restoring persistent session from local storage, keep splash screen visible
   if (status === 'loading' || (status === 'idle' && authRoute === 'SPLASH')) {
     return (
@@ -319,6 +401,7 @@ function MainNavigator() {
       case 'REGISTER':
         return (
           <RegisterScreen
+            onBack={() => setAuthRoute('RECOMMENDATION')}
             onNavigateToLogin={() => setAuthRoute('LOGIN')}
             onRegistrationSuccess={() => setAuthRoute('SUCCESS')}
           />
@@ -326,6 +409,7 @@ function MainNavigator() {
       case 'LOGIN':
         return (
           <LoginScreen
+            onBack={() => setAuthRoute('WELCOME')}
             onNavigateToRegister={() => setAuthRoute('REGISTER')}
             onNavigateToForgotPassword={() => setAuthRoute('FORGOT_PASSWORD')}
           />

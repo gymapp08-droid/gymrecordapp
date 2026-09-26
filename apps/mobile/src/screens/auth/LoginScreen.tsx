@@ -8,11 +8,13 @@ import { useAuth } from '../../context/AuthContext';
 interface LoginScreenProps {
   onNavigateToRegister: () => void;
   onNavigateToForgotPassword: () => void;
+  onBack?: () => void;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({
   onNavigateToRegister,
   onNavigateToForgotPassword,
+  onBack,
 }) => {
   const { login, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
@@ -61,6 +63,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   return (
     <View style={styles.container}>
+      {onBack && (
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={onBack}
+          activeOpacity={0.7}
+          accessibilityLabel="Go back"
+        >
+          <Text style={styles.backIcon}>←</Text>
+        </TouchableOpacity>
+      )}
+
       <View style={styles.header}>
         <Text style={styles.title}>WELCOME BACK</Text>
         <Text style={styles.subtitle}>Enter your account credentials to access ALPHA.</Text>
@@ -155,6 +168,22 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 28,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  backIcon: {
+    color: Theme.colors.textPrimary,
+    fontSize: 20,
+    fontWeight: '700',
   },
   title: {
     color: '#FFFFFF',

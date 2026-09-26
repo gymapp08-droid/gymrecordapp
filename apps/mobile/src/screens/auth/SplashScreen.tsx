@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { Theme } from '../../theme/tokens';
+import { AlphaLogo } from '../../components/AlphaLogo';
 
 export const SplashScreen: React.FC<{ onFinish?: () => void; onComplete?: () => void }> = ({
   onFinish,
   onComplete,
 }) => {
   const [telemetryStep, setTelemetryStep] = useState('INITIALIZING KERNEL...');
-  const [pulseAnim] = useState(new Animated.Value(0.8));
+  const [pulseAnim] = useState(new Animated.Value(0.92));
   const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
@@ -15,13 +16,13 @@ export const SplashScreen: React.FC<{ onFinish?: () => void; onComplete?: () => 
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.05,
+          toValue: 1.06,
           duration: 1200,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
-          toValue: 0.9,
+          toValue: 0.94,
           duration: 1200,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
@@ -50,10 +51,8 @@ export const SplashScreen: React.FC<{ onFinish?: () => void; onComplete?: () => 
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.glowRing, { transform: [{ scale: pulseAnim }], opacity: fadeAnim }]}>
-        <View style={styles.innerHex}>
-          <Text style={styles.brandTitle}>A</Text>
-        </View>
+      <Animated.View style={[styles.logoContainer, { transform: [{ scale: pulseAnim }], opacity: fadeAnim }]}>
+        <AlphaLogo size={110} glow />
       </Animated.View>
 
       <Animated.View style={[styles.textGroup, { opacity: fadeAnim }]}>
@@ -82,36 +81,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
-  glowRing: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(56, 130, 246, 0.1)',
-    borderWidth: 1.5,
-    borderColor: Theme.colors.cyanGlow,
+  logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Theme.colors.cyanGlow,
-    shadowOpacity: 0.6,
-    shadowRadius: 28,
-    elevation: 10,
     marginBottom: 28,
-  },
-  innerHex: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: 'rgba(0, 240, 255, 0.15)',
-    borderWidth: 1,
-    borderColor: Theme.colors.cyanGlow,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  brandTitle: {
-    color: '#FFFFFF',
-    fontSize: 34,
-    fontWeight: '900',
-    fontFamily: Theme.typography.fontDisplay,
   },
   textGroup: {
     alignItems: 'center',

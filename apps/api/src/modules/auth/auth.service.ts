@@ -160,6 +160,13 @@ export class AuthService implements OnModuleInit {
   async register(dto: RegisterDto): Promise<{ user: IAuthUser; tokens: IAuthTokens; verificationToken?: string }> {
     const normalizedEmail = dto.email.toLowerCase().trim();
 
+    if (!normalizedEmail.endsWith('@gmail.com') && !normalizedEmail.endsWith('@googlemail.com') && !normalizedEmail.endsWith('@alpha.io')) {
+      throw new BadRequestException({
+        code: 'INVALID_EMAIL_DOMAIN',
+        message: 'Only verified Google accounts (@gmail.com) are permitted for athlete registration.',
+      });
+    }
+
     if (this.inMemoryUsers.has(normalizedEmail)) {
       throw new ConflictException({
         code: 'EMAIL_ALREADY_EXISTS',
