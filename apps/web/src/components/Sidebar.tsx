@@ -8,6 +8,8 @@ export type PortalTab =
   | 'clients'
   | 'trainers'
   | 'programs'
+  | 'shredded-program'
+  | 'shredded-admin'
   | 'workouts'
   | 'exercises'
   | 'nutrition'
@@ -58,6 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'overview', label: 'Overview', icon: '◈' },
         { id: 'clients', label: 'Athletes', icon: '⊕' },
+        { id: 'shredded-program', label: '6 WEEK SHREDDED', icon: '⚡' },
         { id: 'programs', label: 'Programs', icon: '⊟', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
         { id: 'workouts', label: 'Workouts', icon: '◫', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
         { id: 'nutrition', label: 'Nutrition', icon: '◉', disabled: isTrainer, hint: isTrainer ? 'Nutritionists only' : undefined },
@@ -88,6 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       groupName: 'SYSTEM',
       items: [
+        { id: 'shredded-admin', label: 'Shredded Access', icon: '🔒', adminOnly: true },
         { id: 'trainers', label: 'Team', icon: '◎' },
         { id: 'admin', label: 'Roles & Permissions', icon: '◉', adminOnly: true },
         { id: 'settings', label: 'Settings & Audit Log', icon: '◈' },

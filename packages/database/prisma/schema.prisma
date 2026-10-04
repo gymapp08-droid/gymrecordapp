@@ -488,6 +488,10 @@ model WorkoutTemplateExercise {
   targetRpe         Float?   @map("target_rpe")
   restSeconds       Int      @default(90) @map("rest_seconds")
   notes             String?
+  setGroupType      String?  @map("set_group_type")
+  groupNumber       Int?     @map("group_number")
+  prescribedReps    String?  @map("prescribed_reps")
+  restInstructions  String?  @map("rest_instructions")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 
@@ -506,6 +510,17 @@ model ProgramAssignment {
   startDate DateTime @map("start_date")
   endDate   DateTime? @map("end_date")
   isActive  Boolean  @default(true) @map("is_active")
+
+  // 12-Week Program Engine & Progress Tracking
+  currentWeek          Int       @default(1) @map("current_week")
+  currentDay           Int       @default(1) @map("current_day")
+  completedDays        Int       @default(0) @map("completed_days")
+  completedWorkouts    Int       @default(0) @map("completed_workouts")
+  completedExercises   Int       @default(0) @map("completed_exercises")
+  completionPercentage Float     @default(0) @map("completion_percentage")
+  lastWorkoutDate      DateTime? @map("last_workout_date")
+  assignmentStatus     String    @default("NOT_STARTED") @map("assignment_status")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -565,6 +580,7 @@ model WorkoutSet {
   workoutSessionExerciseId String   @map("workout_session_exercise_id")
   setNumber                Int      @map("set_number")
   targetReps               Int?     @map("target_reps")
+  prescribedReps           String?  @map("prescribed_reps")
   actualReps               Int?     @map("actual_reps")
   weightKg                 Float?   @map("weight_kg")
   rpe                      Float?

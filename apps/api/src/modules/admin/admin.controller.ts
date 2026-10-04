@@ -165,5 +165,49 @@ export class AdminController {
   ) {
     return this.adminService.updateSystemConfig(adminUser.id, updates);
   }
+
+  // --- 12-Week Program Access & Assignment Management ---
+  @Get('programs/:programId/access')
+  async getProgramAccess(@Param('programId') programId: string) {
+    return this.adminService.getProgramAccessSummary(programId);
+  }
+
+  @Post('programs/:programId/assign')
+  @Roles(UserRole.ADMIN, UserRole.ORG_ADMIN, UserRole.COACH, UserRole.TRAINER)
+  async assignProgram(
+    @CurrentUser() adminUser: IAuthUser,
+    @Param('programId') programId: string,
+    @Body() body: { userId?: string; email?: string },
+  ) {
+    return this.adminService.assignUserToProgram(adminUser.id, programId, body);
+  }
+
+  @Delete('programs/:programId/access/:userId')
+  @Roles(UserRole.ADMIN, UserRole.ORG_ADMIN, UserRole.COACH, UserRole.TRAINER)
+  async removeProgramAccess(
+    @CurrentUser() adminUser: IAuthUser,
+    @Param('programId') programId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.adminService.removeUserFromProgram(adminUser.id, programId, userId);
+  }
+
+  @Patch('programs/:programId/status')
+  @Roles(UserRole.ADMIN, UserRole.ORG_ADMIN)
+  async toggleProgramStatus(
+    @CurrentUser() adminUser: IAuthUser,
+    @Param('programId') programId: string,
+    @Body() body: { isActive: boolean },
+  ) {
+    return this.adminService.toggleProgramStatus(adminUser.id, programId, body.isActive);
+  }
+
+  @Get('programs/:programId/progress/:userId')
+  async getAssignedUserProgress(
+    @Param('programId') programId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.adminService.getAssignedUserProgress(programId, userId);
+  }
 }
 

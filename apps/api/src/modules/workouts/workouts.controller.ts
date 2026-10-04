@@ -96,6 +96,72 @@ export class WorkoutsController {
   }
 
   // --- Program & Split ---
+  @Get('programs')
+  async getPrograms(@CurrentUser() user: IAuthUser) {
+    return this.workoutsService.getPrograms(user);
+  }
+
+  @Get('programs/:id')
+  async getProgramById(@Param('id') id: string, @CurrentUser() user: IAuthUser) {
+    return this.workoutsService.getProgramById(id, user);
+  }
+
+  @Get('programs/:id/schedule')
+  async getProgramSchedule(@Param('id') id: string, @CurrentUser() user: IAuthUser) {
+    return this.workoutsService.getProgramSchedule12Weeks(id, user);
+  }
+
+  @Get('programs/:id/progress')
+  async getProgramProgress(@Param('id') id: string, @CurrentUser() user: IAuthUser) {
+    return this.workoutsService.getUserProgramProgress(user.id, id, user);
+  }
+
+  @Post('programs/:id/start')
+  async startProgram(@Param('id') id: string, @CurrentUser() user: IAuthUser) {
+    return this.workoutsService.startUserProgram(user.id, id, user);
+  }
+
+  @Post('programs/:id/progress/complete-day')
+  async completeProgramDay(
+    @Param('id') id: string,
+    @CurrentUser() user: IAuthUser,
+    @Body() body: { weekNumber: number; dayOfWeek: number; notes?: string },
+  ) {
+    return this.workoutsService.completeProgramDay(
+      user.id,
+      id,
+      body.weekNumber,
+      body.dayOfWeek,
+      body.notes,
+      user,
+    );
+  }
+
+  @Post('programs/:id/progress/log-set')
+  async logProgramSet(
+    @Param('id') id: string,
+    @CurrentUser() user: IAuthUser,
+    @Body()
+    body: {
+      weekNumber: number;
+      dayOfWeek: number;
+      exerciseId: string;
+      setNumber: number;
+      weightKg: number;
+      actualReps: number;
+      notes?: string;
+    },
+  ) {
+    return this.workoutsService.logProgramSet(
+      user.id,
+      id,
+      body.weekNumber,
+      body.dayOfWeek,
+      body,
+      user,
+    );
+  }
+
   @Get('program/active')
   async getActiveProgram(@CurrentUser() user: IAuthUser) {
     return this.workoutsService.getActiveProgram(user.id);

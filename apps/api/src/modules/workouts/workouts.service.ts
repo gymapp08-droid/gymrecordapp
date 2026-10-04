@@ -4,9 +4,25 @@ import {
   ForbiddenException,
   BadRequestException,
   Logger,
+  Optional,
 } from '@nestjs/common';
 import { HashUtil } from '@alpha/utils';
-import { WorkoutStatus } from '@alpha/types';
+import {
+  WorkoutStatus,
+  UserRole,
+  ProgramUserStatus,
+  IAuthUser,
+  IProgramAccessManagementSummary,
+  IUserProgramProgress,
+  IProgramCycleWeek,
+} from '@alpha/types';
+import { PrismaService } from '../database/prisma.service';
+import {
+  SIX_WEEK_SHREDDED_EXERCISES,
+  SIX_WEEK_SHREDDED_PROGRAM_DETAIL,
+  SIX_WEEK_SHREDDED_ID,
+  build12WeekSchedule,
+} from './data/six-week-shredded.data';
 import {
   CreateExerciseDto,
   StartWorkoutSessionDto,
@@ -14,6 +30,7 @@ import {
   UpdateWorkoutSetDto,
   CompleteWorkoutSessionDto,
 } from '@alpha/validation';
+
 
 export interface StoredExercise {
   id: string;
@@ -119,6 +136,25 @@ export interface StoredWorkoutSet {
   isCompleted: boolean;
 }
 
+export interface StoredProgramAssignment {
+  id: string;
+  programId: string;
+  userId: string;
+  userEmail?: string;
+  userName?: string;
+  assignedAt: Date;
+  assignedBy?: string;
+  status: 'NOT_STARTED' | 'ACTIVE' | 'PAUSED' | 'COMPLETED';
+  currentWeek: number;
+  currentDay: number;
+  completedDays: number;
+  completedWorkouts: number;
+  completedExercises: number;
+  completionPercentage: number;
+  lastWorkoutDate?: string;
+  startDate?: string;
+}
+
 @Injectable()
 export class WorkoutsService {
   private readonly logger = new Logger(WorkoutsService.name);
@@ -129,11 +165,16 @@ export class WorkoutsService {
   private readonly standaloneTemplates = new Map<string, StoredWorkoutTemplate>();
   private readonly programAssignments = new Map<string, { programId: string; athleteId: string }>();
   private readonly workoutSessions = new Map<string, StoredWorkoutSession>();
+  private readonly assignedUsers = new Map<string, StoredProgramAssignment>();
+  private readonly programActiveState = new Map<string, boolean>();
+  private readonly userProgress = new Map<string, IUserProgramProgress>();
+  private readonly canonicalExerciseIds = new Set<string>();
 
-  constructor() {
+  constructor(@Optional() private readonly prisma?: PrismaService) {
     this.seedDefaultExercises();
     this.seedDefaultProgram();
     this.seedDefaultTemplates();
+    this.seedSixWeekShredded();
   }
 
   // -------------------------------------------------------------
@@ -241,6 +282,12 @@ export class WorkoutsService {
   }
 
   async updateExercise(id: string, updates: Partial<StoredExercise>): Promise<StoredExercise> {
+    if (this.canonicalExerciseIds.has(id)) {
+      throw new BadRequestException({
+        code: 'CANONICAL_EXERCISE_IMMUTABLE',
+        message: `Canonical exercise [${id}] from 6 WEEK SHREDDED cannot be modified.`,
+      });
+    }
     const existing = await this.getExerciseById(id);
     const updated: StoredExercise = {
       ...existing,
@@ -252,6 +299,12 @@ export class WorkoutsService {
   }
 
   async archiveExercise(id: string): Promise<StoredExercise> {
+    if (this.canonicalExerciseIds.has(id)) {
+      throw new BadRequestException({
+        code: 'CANONICAL_EXERCISE_IMMUTABLE',
+        message: `Canonical exercise [${id}] from 6 WEEK SHREDDED cannot be archived.`,
+      });
+    }
     const existing = await this.getExerciseById(id);
     existing.status = 'ARCHIVED';
     this.exercises.set(id, existing);
@@ -321,6 +374,12 @@ export class WorkoutsService {
     id: string,
     data: Partial<StoredWorkoutTemplate>,
   ): Promise<StoredWorkoutTemplate> {
+    if (id.includes('6w')) {
+      throw new BadRequestException({
+        code: 'CANONICAL_PROGRAM_IMMUTABLE',
+        message: 'Canonical 6 WEEK SHREDDED workout templates cannot be modified.',
+      });
+    }
     const existing = await this.getWorkoutTemplateById(id);
     const updated: StoredWorkoutTemplate = {
       ...existing,
@@ -333,17 +392,119 @@ export class WorkoutsService {
   }
 
   async deleteWorkoutTemplate(id: string): Promise<{ success: boolean }> {
+    if (id.includes('6w')) {
+      throw new BadRequestException({
+        code: 'CANONICAL_PROGRAM_IMMUTABLE',
+        message: 'Canonical 6 WEEK SHREDDED workout templates cannot be deleted.',
+      });
+    }
     await this.getWorkoutTemplateById(id);
     this.standaloneTemplates.delete(id);
     return { success: true };
   }
 
   // -------------------------------------------------------------
-  // 2. PROGRAMS & ASSIGNMENTS
+  // 2. PROGRAMS, 12-WEEK ACCESS & PROGRESS ENGINE
   // -------------------------------------------------------------
+
+  isUserAssignedToProgram(userId: string, programId: string): boolean {
+    const compositeKey = `${userId}:${programId}`;
+    if (this.assignedUsers.has(compositeKey)) {
+      return true;
+    }
+    const legacy = this.programAssignments.get(userId);
+    return legacy?.programId === programId;
+  }
+
+  assertUserProgramAccess(user: { id: string; role?: UserRole | string }, programId: string): void {
+    if (programId === SIX_WEEK_SHREDDED_ID) {
+      const isActive = this.programActiveState.get(programId) ?? true;
+      if (user.role === UserRole.ATHLETE) {
+        if (!isActive) {
+          throw new ForbiddenException({
+            code: 'PROGRAM_INACTIVE',
+            message: 'The 6 WEEK SHREDDED program is currently inactive. Please contact your coach.',
+          });
+        }
+        if (!this.isUserAssignedToProgram(user.id, programId)) {
+          throw new ForbiddenException({
+            code: 'PROGRAM_ACCESS_DENIED',
+            message: 'You are not assigned to the 6 WEEK SHREDDED program. Please contact an admin or coach for access.',
+          });
+        }
+      }
+    }
+  }
+
+  async getPrograms(user?: IAuthUser): Promise<any[]> {
+    const list: any[] = [];
+    const alphaSplit = this.programs.get('default_program_alpha_split');
+    if (alphaSplit) {
+      list.push(alphaSplit);
+    }
+
+    const shredded = this.programs.get(SIX_WEEK_SHREDDED_ID);
+    if (shredded) {
+      // If user is athlete, only include 6 WEEK SHREDDED if explicitly assigned
+      if (user && user.role === UserRole.ATHLETE) {
+        if (this.isUserAssignedToProgram(user.id, SIX_WEEK_SHREDDED_ID)) {
+          list.push({
+            ...SIX_WEEK_SHREDDED_PROGRAM_DETAIL,
+            isActive: this.programActiveState.get(SIX_WEEK_SHREDDED_ID) ?? true,
+          });
+        }
+      } else {
+        // Admin, coach, trainer or unauthenticated view
+        list.push({
+          ...SIX_WEEK_SHREDDED_PROGRAM_DETAIL,
+          isActive: this.programActiveState.get(SIX_WEEK_SHREDDED_ID) ?? true,
+        });
+      }
+    }
+
+    return list;
+  }
+
+  async getProgramById(programId: string, user?: IAuthUser): Promise<any> {
+    const program = this.programs.get(programId);
+    if (!program) {
+      throw new NotFoundException({ code: 'PROGRAM_NOT_FOUND', message: `Program [${programId}] not found` });
+    }
+
+    if (user) {
+      this.assertUserProgramAccess(user, programId);
+    }
+
+    if (programId === SIX_WEEK_SHREDDED_ID) {
+      return {
+        ...SIX_WEEK_SHREDDED_PROGRAM_DETAIL,
+        isActive: this.programActiveState.get(programId) ?? true,
+        schedule12Weeks: build12WeekSchedule(),
+      };
+    }
+
+    return program;
+  }
+
+  async getProgramSchedule12Weeks(programId: string, user?: IAuthUser): Promise<IProgramCycleWeek[]> {
+    if (user) {
+      this.assertUserProgramAccess(user, programId);
+    }
+
+    if (programId === SIX_WEEK_SHREDDED_ID) {
+      return build12WeekSchedule();
+    }
+
+    throw new NotFoundException({ code: 'PROGRAM_SCHEDULE_NOT_FOUND', message: `12-week schedule not available for program [${programId}]` });
+  }
 
   async getActiveProgram(userId: string): Promise<StoredProgram> {
     // Check if user has an assigned program, otherwise return the default ALPHA Hypertrophy protocol
+    const shreddedKey = `${userId}:${SIX_WEEK_SHREDDED_ID}`;
+    if (this.assignedUsers.has(shreddedKey)) {
+      return this.programs.get(SIX_WEEK_SHREDDED_ID)!;
+    }
+
     const assigned = this.programAssignments.get(userId);
     const programId = assigned ? assigned.programId : 'default_program_alpha_split';
     const program = this.programs.get(programId);
@@ -366,7 +527,408 @@ export class WorkoutsService {
       throw new NotFoundException({ code: 'PROGRAM_NOT_FOUND', message: 'Program not found' });
     }
     this.programAssignments.set(athleteId, { programId, athleteId });
+    if (programId === SIX_WEEK_SHREDDED_ID) {
+      this.assignedUsers.set(`${athleteId}:${programId}`, {
+        id: `assign_${Date.now()}_${athleteId}`,
+        programId,
+        userId: athleteId,
+        userEmail: athleteId,
+        userName: athleteId,
+        assignedAt: new Date(),
+        status: 'NOT_STARTED',
+        currentWeek: 1,
+        currentDay: 1,
+        completedDays: 0,
+        completedWorkouts: 0,
+        completedExercises: 0,
+        completionPercentage: 0,
+      });
+    }
     return { success: true, message: 'Program successfully assigned' };
+  }
+
+  // --- User Program Progress Engine ---
+  async getUserProgramProgress(
+    userId: string,
+    programId: string = SIX_WEEK_SHREDDED_ID,
+    requestingUser?: IAuthUser,
+  ): Promise<IUserProgramProgress> {
+    if (requestingUser) {
+      if (requestingUser.role === UserRole.ATHLETE && requestingUser.id !== userId) {
+        throw new ForbiddenException({
+          code: 'ACCESS_DENIED',
+          message: 'Cannot view progress of another athlete.',
+        });
+      }
+      this.assertUserProgramAccess(requestingUser, programId);
+    }
+
+    const key = `${userId}:${programId}`;
+    let progress = this.userProgress.get(key);
+    if (!progress) {
+      const schedule = build12WeekSchedule();
+      const assignment = this.assignedUsers.get(key);
+
+      progress = {
+        userId,
+        programId,
+        programName: '6 WEEK SHREDDED',
+        displayDuration: '12 Weeks',
+        sourceDuration: '6 Weeks',
+        programStatus: ((assignment?.status as unknown) as ProgramUserStatus) || ProgramUserStatus.NOT_STARTED,
+        programStartDate: assignment?.startDate || null,
+        currentWeek: assignment?.currentWeek || 1,
+        currentDay: assignment?.currentDay || 1,
+        completedDays: assignment?.completedDays || 0,
+        completedWorkouts: assignment?.completedWorkouts || 0,
+        completedExercises: assignment?.completedExercises || 0,
+        completionPercentage: assignment?.completionPercentage || 0,
+        lastWorkoutDate: assignment?.lastWorkoutDate || null,
+        totalWeeks: 12,
+        totalCycles: 2,
+        activeCycle: (assignment?.currentWeek || 1) <= 6 ? 1 : 2,
+        schedule,
+        completedDayKeys: [],
+        loggedSets: {},
+      };
+      this.userProgress.set(key, progress);
+    }
+    return progress;
+  }
+
+  async startUserProgram(
+    userId: string,
+    programId: string = SIX_WEEK_SHREDDED_ID,
+    requestingUser?: IAuthUser,
+  ): Promise<IUserProgramProgress> {
+    if (requestingUser) {
+      this.assertUserProgramAccess(requestingUser, programId);
+    } else if (programId === SIX_WEEK_SHREDDED_ID && !this.isUserAssignedToProgram(userId, programId)) {
+      throw new ForbiddenException({
+        code: 'PROGRAM_ACCESS_DENIED',
+        message: 'User is not assigned to this program.',
+      });
+    }
+
+    const progress = await this.getUserProgramProgress(userId, programId);
+    progress.programStatus = ProgramUserStatus.ACTIVE;
+    progress.programStartDate = new Date().toISOString();
+    progress.currentWeek = 1;
+    progress.currentDay = 1;
+
+    const assignKey = `${userId}:${programId}`;
+    const assignment = this.assignedUsers.get(assignKey);
+    if (assignment) {
+      assignment.status = 'ACTIVE';
+      assignment.startDate = progress.programStartDate;
+      assignment.currentWeek = 1;
+      assignment.currentDay = 1;
+    }
+
+    return progress;
+  }
+
+  async completeProgramDay(
+    userId: string,
+    programId: string = SIX_WEEK_SHREDDED_ID,
+    weekNumber: number,
+    dayOfWeek: number,
+    notes?: string,
+    requestingUser?: IAuthUser,
+  ): Promise<IUserProgramProgress> {
+    if (notes) {
+      this.logger.log(`User [${userId}] completed Day [${dayOfWeek}] of Week [${weekNumber}] with notes: ${notes}`);
+    }
+    if (requestingUser) {
+      this.assertUserProgramAccess(requestingUser, programId);
+    } else if (programId === SIX_WEEK_SHREDDED_ID && !this.isUserAssignedToProgram(userId, programId)) {
+      throw new ForbiddenException({
+        code: 'PROGRAM_ACCESS_DENIED',
+        message: 'User is not assigned to this program.',
+      });
+    }
+
+    const progress = await this.getUserProgramProgress(userId, programId);
+    const dayKey = `w${weekNumber}_d${dayOfWeek}`;
+
+    if (!progress.completedDayKeys) {
+      progress.completedDayKeys = [];
+    }
+
+    if (!progress.completedDayKeys.includes(dayKey)) {
+      progress.completedDayKeys.push(dayKey);
+      progress.completedDays += 1;
+      if (dayOfWeek !== 7) {
+        progress.completedWorkouts += 1;
+      }
+      // Total resistance/cardio workouts across 12 weeks = 12 * 6 = 72 workouts
+      progress.completionPercentage = Math.min(100, Math.round((progress.completedWorkouts / 72) * 100));
+      progress.lastWorkoutDate = new Date().toISOString();
+
+      if (dayOfWeek < 7) {
+        progress.currentDay = dayOfWeek + 1;
+        progress.currentWeek = weekNumber;
+      } else if (weekNumber < 12) {
+        progress.currentWeek = weekNumber + 1;
+        progress.currentDay = 1;
+      }
+
+      progress.activeCycle = progress.currentWeek <= 6 ? 1 : 2;
+
+      if (progress.completedWorkouts >= 72 || (weekNumber === 12 && dayOfWeek >= 6)) {
+        progress.programStatus = ProgramUserStatus.COMPLETED;
+      } else {
+        progress.programStatus = ProgramUserStatus.ACTIVE;
+      }
+
+      const assignKey = `${userId}:${programId}`;
+      const assignment = this.assignedUsers.get(assignKey);
+      if (assignment) {
+        assignment.status = progress.programStatus as any;
+        assignment.currentWeek = progress.currentWeek;
+        assignment.currentDay = progress.currentDay;
+        assignment.completedDays = progress.completedDays;
+        assignment.completedWorkouts = progress.completedWorkouts;
+        assignment.completionPercentage = progress.completionPercentage;
+        assignment.lastWorkoutDate = progress.lastWorkoutDate;
+      }
+    }
+
+    return progress;
+  }
+
+  async logProgramSet(
+    userId: string,
+    programId: string = SIX_WEEK_SHREDDED_ID,
+    weekNumber: number,
+    dayOfWeek: number,
+    data: {
+      exerciseId: string;
+      setNumber: number;
+      weightKg: number;
+      actualReps: number;
+      notes?: string;
+    },
+    requestingUser?: IAuthUser,
+  ): Promise<{ success: boolean; log: any }> {
+    if (requestingUser) {
+      this.assertUserProgramAccess(requestingUser, programId);
+    } else if (programId === SIX_WEEK_SHREDDED_ID && !this.isUserAssignedToProgram(userId, programId)) {
+      throw new ForbiddenException({
+        code: 'PROGRAM_ACCESS_DENIED',
+        message: 'User is not assigned to this program.',
+      });
+    }
+
+    const progress = await this.getUserProgramProgress(userId, programId);
+    const setKey = `w${weekNumber}_d${dayOfWeek}_${data.exerciseId}`;
+
+    if (!progress.loggedSets) {
+      progress.loggedSets = {};
+    }
+
+    if (!progress.loggedSets[setKey]) {
+      progress.loggedSets[setKey] = [];
+      progress.completedExercises += 1;
+    }
+
+    const logEntry = {
+      id: HashUtil.generateUuid(),
+      exerciseId: data.exerciseId,
+      setNumber: data.setNumber,
+      weightKg: data.weightKg,
+      actualReps: data.actualReps,
+      notes: data.notes || '',
+      loggedAt: new Date().toISOString(),
+      isCompleted: true,
+    };
+
+    const existingIndex = progress.loggedSets[setKey].findIndex((s: any) => s.setNumber === data.setNumber);
+    if (existingIndex >= 0) {
+      progress.loggedSets[setKey][existingIndex] = logEntry;
+    } else {
+      progress.loggedSets[setKey].push(logEntry);
+    }
+
+    return { success: true, log: logEntry };
+  }
+
+  // --- Admin Access Management ---
+  async getProgramAccessSummary(programId: string = SIX_WEEK_SHREDDED_ID): Promise<IProgramAccessManagementSummary> {
+    const assignedList = Array.from(this.assignedUsers.values()).filter((a) => a.programId === programId);
+    const isActive = this.programActiveState.get(programId) ?? true;
+
+    return {
+      programId,
+      programName: '6 WEEK SHREDDED',
+      programStatus: isActive ? 'ACTIVE' : 'INACTIVE',
+      displayDuration: '12 Weeks',
+      sourceDuration: '6 Weeks',
+      sourceAttribution: 'Designed & Created by Guru Mann, USA. Certified Advanced Fitness Trainer, Certified Nutrition Specialist, Sports Nutritionist & Strength Coach.',
+      assignedUsersCount: assignedList.length,
+      availableUsersCount: 0,
+      assignedUsers: assignedList.map((a) => ({
+        userId: a.userId,
+        name: a.userName || a.userEmail || 'Assigned Athlete',
+        email: a.userEmail || a.userId,
+        programStatus: ((a.status as unknown) as ProgramUserStatus) || ProgramUserStatus.NOT_STARTED,
+        assignedDate: a.assignedAt.toISOString(),
+        currentWeek: a.currentWeek,
+        currentDay: a.currentDay,
+        completedDays: a.completedDays,
+        completedWorkouts: a.completedWorkouts,
+        completedExercises: a.completedExercises,
+        completionPercentage: a.completionPercentage,
+        lastWorkoutDate: a.lastWorkoutDate || null,
+      })),
+      availableUsers: [],
+    };
+  }
+
+  async assignProgramToUser(
+    programId: string,
+    target: { userId?: string; email?: string },
+    adminId: string = 'system_admin',
+  ): Promise<{ success: boolean; message: string; assignment: any }> {
+    let userId = target.userId;
+    let userEmail = target.email;
+    let userName = userEmail ? userEmail.split('@')[0] : 'Athlete';
+
+    if (this.prisma && userEmail) {
+      try {
+        const found = await this.prisma.user.findFirst({
+          where: { email: { equals: userEmail, mode: 'insensitive' } },
+          include: { profile: true },
+        });
+        if (found) {
+          userId = found.id;
+          userName = found.profile?.fullName || userName;
+        }
+      } catch (err) {
+        this.logger.warn(`Could not lookup user by email in database: ${(err as Error).message}`);
+      }
+    }
+
+    if (!userId) {
+      if (userEmail) {
+        userId = `user_${Buffer.from(userEmail).toString('hex').slice(0, 16)}`;
+      } else {
+        throw new BadRequestException({
+          code: 'USER_IDENTIFIER_REQUIRED',
+          message: 'Either userId or email must be provided to assign a program.',
+        });
+      }
+    }
+
+    const compositeKey = `${userId}:${programId}`;
+    const existing = this.assignedUsers.get(compositeKey);
+
+    const assignment: StoredProgramAssignment = {
+      id: existing ? existing.id : `assign_${Date.now()}_${userId}`,
+      programId,
+      userId,
+      userEmail: userEmail || existing?.userEmail || userId,
+      userName: userName || existing?.userName || 'Assigned Athlete',
+      assignedAt: existing ? existing.assignedAt : new Date(),
+      assignedBy: adminId,
+      status: existing ? existing.status : 'NOT_STARTED',
+      currentWeek: existing ? existing.currentWeek : 1,
+      currentDay: existing ? existing.currentDay : 1,
+      completedDays: existing ? existing.completedDays : 0,
+      completedWorkouts: existing ? existing.completedWorkouts : 0,
+      completedExercises: existing ? existing.completedExercises : 0,
+      completionPercentage: existing ? existing.completionPercentage : 0,
+      lastWorkoutDate: existing?.lastWorkoutDate,
+      startDate: existing?.startDate,
+    };
+
+    this.assignedUsers.set(compositeKey, assignment);
+    this.programAssignments.set(userId, { programId, athleteId: userId });
+
+    this.logger.log(`Admin [${adminId}] assigned program [${programId}] to user [${userEmail || userId}]`);
+
+    if (this.prisma) {
+      try {
+        const existingRecord = await this.prisma.programAssignment.findFirst({
+          where: { programId, athleteId: userId },
+        });
+        if (existingRecord) {
+          await this.prisma.programAssignment.update({
+            where: { id: existingRecord.id },
+            data: {
+              isActive: true,
+              assignmentStatus: 'ACTIVE',
+            },
+          });
+        } else {
+          await this.prisma.programAssignment.create({
+            data: {
+              programId,
+              athleteId: userId,
+              startDate: new Date(),
+              isActive: true,
+              currentWeek: 1,
+              currentDay: 1,
+              completedDays: 0,
+              completedWorkouts: 0,
+              completedExercises: 0,
+              completionPercentage: 0,
+              assignmentStatus: 'ACTIVE',
+            },
+          });
+        }
+      } catch (err) {
+        this.logger.warn(`Could not sync program assignment to database: ${(err as Error).message}`);
+      }
+    }
+
+    return {
+      success: true,
+      message: `User [${userEmail || userId}] successfully assigned to ${programId === SIX_WEEK_SHREDDED_ID ? '6 WEEK SHREDDED' : programId}`,
+      assignment,
+    };
+  }
+
+  async removeProgramFromUser(
+    programId: string,
+    userId: string,
+    adminId: string = 'system_admin',
+  ): Promise<{ success: boolean; message: string }> {
+    this.logger.log(`Admin [${adminId}] removed user [${userId}] from program [${programId}]`);
+    const compositeKey = `${userId}:${programId}`;
+    this.assignedUsers.delete(compositeKey);
+    const currentLegacy = this.programAssignments.get(userId);
+    if (currentLegacy?.programId === programId) {
+      this.programAssignments.delete(userId);
+    }
+
+    if (this.prisma) {
+      try {
+        await this.prisma.programAssignment.deleteMany({
+          where: { programId, athleteId: userId },
+        });
+      } catch (err) {
+        this.logger.warn(`Could not delete assignment in database: ${(err as Error).message}`);
+      }
+    }
+
+    return {
+      success: true,
+      message: `User [${userId}] access removed from program [${programId}]`,
+    };
+  }
+
+  async setProgramActiveStatus(
+    programId: string,
+    isActive: boolean,
+    adminId: string = 'system_admin',
+  ): Promise<{ success: boolean; programId: string; isActive: boolean }> {
+    this.logger.log(`Admin [${adminId}] set program [${programId}] active status to ${isActive}`);
+    if (!this.programs.has(programId)) {
+      throw new NotFoundException({ code: 'PROGRAM_NOT_FOUND', message: `Program [${programId}] not found` });
+    }
+    this.programActiveState.set(programId, isActive);
+    return { success: true, programId, isActive };
   }
 
   // -------------------------------------------------------------
@@ -990,9 +1552,80 @@ export class WorkoutsService {
     });
   }
 
+  private seedSixWeekShredded() {
+    this.programActiveState.set(SIX_WEEK_SHREDDED_ID, true);
+
+    // 1. Seed 68 Canonical Exercises from source PDF
+    for (const ex of SIX_WEEK_SHREDDED_EXERCISES) {
+      this.canonicalExerciseIds.add(ex.id);
+      this.exercises.set(ex.id, {
+        id: ex.id,
+        name: ex.name,
+        category: ex.category,
+        primaryMuscle: ex.primaryMuscle,
+        secondaryMuscles: ex.secondaryMuscles,
+        equipment: ex.equipment,
+        difficulty: ex.difficulty,
+        targetArea: ex.targetArea,
+        movementPattern: ex.movementPattern || 'ISOLATION',
+        exerciseType: ex.exerciseType || 'HYPERTROPHY',
+        description: ex.description || `Canonical exercise from Guru Mann's 6 WEEK SHREDDED program.`,
+        technique: ex.technique || '',
+        commonMistakes: ex.commonMistakes || [],
+        safetyNotes: ex.safetyNotes || '',
+        tempo: ex.tempo || '1-0-2-0',
+        defaultRest: ex.defaultRest || 60,
+        tags: ex.tags || [ex.primaryMuscle, '6 WEEK SHREDDED'],
+        status: 'ACTIVE',
+        isCustom: false,
+        createdAt: new Date('2026-01-01T00:00:00Z'),
+      });
+    }
+
+    // 2. Seed 6 WEEK SHREDDED Program
+    const days: StoredProgramDay[] = SIX_WEEK_SHREDDED_PROGRAM_DETAIL.days.map((d) => ({
+      id: `day_${d.dayOfWeek}_6w`,
+      programId: SIX_WEEK_SHREDDED_ID,
+      dayOfWeek: d.dayOfWeek,
+      title: d.title,
+      templates: [
+        {
+          id: `tpl_day_${d.dayOfWeek}_6w`,
+          name: `${d.title} [${d.muscleGroup}]`,
+          notes: d.notes || undefined,
+          category: d.dayOfWeek === 3 || d.dayOfWeek === 6 ? 'Cardio & Abs' : 'Hypertrophy & Shred',
+          difficulty: 'ADVANCED',
+          estimatedMinutes: 60,
+          exercises: d.exercises.map((e) => ({
+            id: `te_${e.exerciseId}`,
+            exerciseId: e.exerciseId,
+            exerciseName: e.exerciseName || '',
+            orderIndex: e.orderIndex,
+            targetSets: e.targetSets,
+            targetReps: e.targetReps,
+            restSeconds: e.restSeconds,
+          })),
+        },
+      ],
+    }));
+
+    this.programs.set(SIX_WEEK_SHREDDED_ID, {
+      id: SIX_WEEK_SHREDDED_ID,
+      creatorId: 'author_guru_mann',
+      name: SIX_WEEK_SHREDDED_PROGRAM_DETAIL.name,
+      description: SIX_WEEK_SHREDDED_PROGRAM_DETAIL.description || undefined,
+      isTemplate: true,
+      weeksCount: 12,
+      days,
+    });
+  }
+
   // Testing helpers
   public clearAll() {
     this.workoutSessions.clear();
     this.programAssignments.clear();
+    this.assignedUsers.clear();
+    this.userProgress.clear();
   }
 }
+

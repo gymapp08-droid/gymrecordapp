@@ -2,8 +2,10 @@ import {
   Injectable,
   NotFoundException,
   Logger,
+  Optional,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { WorkoutsService } from '../workouts/workouts.service';
 import { UserRole, AccountStatus, IAdminUserSummary, IAdminSystemConfig } from '@alpha/types';
 
 @Injectable()
@@ -19,7 +21,10 @@ export class AdminService {
     primaryTimezone: 'Asia/Kolkata',
   };
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly workoutsService?: WorkoutsService,
+  ) {}
 
   /**
    * List all users with roles, statuses, and trainer assignments
@@ -835,6 +840,99 @@ export class AdminService {
     this.systemConfig = { ...this.systemConfig, ...updates };
     this.recordAuditLog(adminUserId, 'UPDATE_SYSTEM_CONFIG', 'system_config', 'global', updates);
     return this.systemConfig;
+  }
+
+  // -------------------------------------------------------------
+  // 12-WEEK PROGRAM ACCESS & ASSIGNMENT MANAGEMENT
+  // -------------------------------------------------------------
+
+  async getProgramAccessSummary(programId: string = 'prog_6_week_shredded_12w') {
+    if (!this.workoutsService) {
+      throw new NotFoundException({
+        code: 'WORKOUTS_SERVICE_UNAVAILABLE',
+        message: 'Workouts service is not available',
+      });
+    }
+    const summary = await this.workoutsService.getProgramAccessSummary(programId);
+    try {
+      const allUsers = await this.listUsers({ role: UserRole.ATHLETE });
+      const assignedIds = new Set(summary.assignedUsers.map((u) => u.userId));
+      summary.availableUsers = allUsers
+        .filter((u) => !assignedIds.has(u.id))
+        .map((u) => ({ id: u.id, name: u.fullName, email: u.email }));
+      summary.availableUsersCount = summary.availableUsers.length;
+    } catch {
+      // ignore
+    }
+    return summary;
+  }
+
+  async assignUserToProgram(
+    adminId: string,
+    programId: string = 'prog_6_week_shredded_12w',
+    body: { userId?: string; email?: string },
+  ) {
+    if (!this.workoutsService) {
+      throw new NotFoundException({
+        code: 'WORKOUTS_SERVICE_UNAVAILABLE',
+        message: 'Workouts service is not available',
+      });
+    }
+    const result = await this.workoutsService.assignProgramToUser(programId, body, adminId);
+    await this.recordAuditLog(
+      adminId,
+      'ASSIGN_PROGRAM',
+      'program_assignment',
+      body.userId || body.email || programId,
+      { programId, target: body },
+    );
+    return result;
+  }
+
+  async removeUserFromProgram(
+    adminId: string,
+    programId: string = 'prog_6_week_shredded_12w',
+    userId: string,
+  ) {
+    if (!this.workoutsService) {
+      throw new NotFoundException({
+        code: 'WORKOUTS_SERVICE_UNAVAILABLE',
+        message: 'Workouts service is not available',
+      });
+    }
+    const result = await this.workoutsService.removeProgramFromUser(programId, userId, adminId);
+    await this.recordAuditLog(adminId, 'REMOVE_PROGRAM_ASSIGNMENT', 'program_assignment', userId, {
+      programId,
+    });
+    return result;
+  }
+
+  async toggleProgramStatus(
+    adminId: string,
+    programId: string = 'prog_6_week_shredded_12w',
+    isActive: boolean,
+  ) {
+    if (!this.workoutsService) {
+      throw new NotFoundException({
+        code: 'WORKOUTS_SERVICE_UNAVAILABLE',
+        message: 'Workouts service is not available',
+      });
+    }
+    const result = await this.workoutsService.setProgramActiveStatus(programId, isActive, adminId);
+    await this.recordAuditLog(adminId, 'TOGGLE_PROGRAM_STATUS', 'program', programId, {
+      isActive,
+    });
+    return result;
+  }
+
+  async getAssignedUserProgress(programId: string = 'prog_6_week_shredded_12w', userId: string) {
+    if (!this.workoutsService) {
+      throw new NotFoundException({
+        code: 'WORKOUTS_SERVICE_UNAVAILABLE',
+        message: 'Workouts service is not available',
+      });
+    }
+    return this.workoutsService.getUserProgramProgress(userId, programId);
   }
 
   /**

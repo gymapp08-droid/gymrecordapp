@@ -38,6 +38,8 @@ import { ExerciseManagementView } from '../components/ExerciseManagementView';
 import { WorkoutManagementView } from '../components/WorkoutManagementView';
 import { TrainerManagementView } from '../components/TrainerManagementView';
 import { SystemSettingsView } from '../components/SystemSettingsView';
+import { ProgramAccessManagementView } from '../components/ProgramAccessManagementView';
+import { UserProgramDashboardView } from '../components/UserProgramDashboardView';
 import { AuthGuard } from '../components/AuthGuard';
 import { WebErrorBoundary } from '../components/WebErrorBoundary';
 import { IAuthUser } from '@alpha/types';
@@ -149,6 +151,29 @@ const INITIAL_PROGRAMS: IProgramDetail[] = [
           },
         ],
       },
+    ],
+  },
+  {
+    id: 'prog_6_week_shredded_12w',
+    creatorId: 'author_guru_mann',
+    name: '6 WEEK SHREDDED',
+    description: 'High-density superset, giant set, and drop set protocol designed for aggressive fat loss and lean muscle preservation. Extended to a 12-week implementation across two consecutive cycles.',
+    weeksCount: 12,
+    status: ProgramStatus.PUBLISHED,
+    version: 1,
+    displayDuration: '12 Weeks',
+    sourceDuration: '6 Weeks',
+    sourceAttribution: 'Designed & Created by Guru Mann, USA. Certified Advanced Fitness Trainer, Certified Nutrition Specialist, Sports Nutritionist & Strength Coach.',
+    createdAt: new Date('2026-01-01T00:00:00Z'),
+    updatedAt: new Date('2026-01-01T00:00:00Z'),
+    days: [
+      { id: 'day_sws_1', dayOfWeek: 1, title: 'Shoulders + Triceps & Upper Abs', exercises: [] },
+      { id: 'day_sws_2', dayOfWeek: 2, title: 'Chest + Upper Back & Lower Abs', exercises: [] },
+      { id: 'day_sws_3', dayOfWeek: 3, title: 'Cardio & Upper Abs', exercises: [] },
+      { id: 'day_sws_4', dayOfWeek: 4, title: 'Lat, Mid Back + Biceps & Lower Abs', exercises: [] },
+      { id: 'day_sws_5', dayOfWeek: 5, title: 'Quads, Ham & Calves & Upper Abs', exercises: [] },
+      { id: 'day_sws_6', dayOfWeek: 6, title: 'Cardio & Lower Abs', exercises: [] },
+      { id: 'day_sws_7', dayOfWeek: 7, title: 'Recovery', exercises: [] },
     ],
   },
 ];
@@ -936,13 +961,13 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                             fontFamily: STITCH_THEME.typography.fontMono,
                             padding: '2px 7px',
                             borderRadius: '4px',
-                            backgroundColor: STITCH_THEME.colors.accentCyanDim,
-                            color: STITCH_THEME.colors.accentCyan,
+                            backgroundColor: prog.id === 'prog_6_week_shredded_12w' ? STITCH_THEME.colors.accentAmberDim : STITCH_THEME.colors.accentCyanDim,
+                            color: prog.id === 'prog_6_week_shredded_12w' ? STITCH_THEME.colors.accentAmber : STITCH_THEME.colors.accentCyan,
                             fontWeight: 600,
                             letterSpacing: '0.03em',
                           }}
                         >
-                          v{prog.version} · {prog.status}
+                          {prog.id === 'prog_6_week_shredded_12w' ? 'RESTRICTED ACCESS · 12 WEEKS' : `v${prog.version} · ${prog.status}`}
                         </span>
                         <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
                           {prog.weeksCount} Weeks • {prog.days.length} Days/wk
@@ -951,6 +976,11 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                       <h3 style={{ fontSize: '17px', fontWeight: 700, margin: '8px 0', color: STITCH_THEME.colors.textPrimary }}>
                         {prog.name}
                       </h3>
+                      {prog.id === 'prog_6_week_shredded_12w' && (
+                        <div style={{ fontSize: '11px', color: STITCH_THEME.colors.accentCyan, fontWeight: 600, marginBottom: '6px' }}>
+                          Author: Guru Mann, USA
+                        </div>
+                      )}
                       <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, lineHeight: 1.5, margin: 0 }}>
                         {prog.description}
                       </p>
@@ -958,19 +988,44 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
 
                     <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: `1px solid ${STITCH_THEME.colors.borderSubtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
-                        {prog.days.reduce((acc, d) => acc + d.exercises.length, 0)} Total Exercises
+                        {prog.id === 'prog_6_week_shredded_12w' ? '68 Source Exercises · 2 Cycles' : `${prog.days.reduce((acc, d) => acc + d.exercises.length, 0)} Total Exercises`}
                       </span>
-                      <button
-                        onClick={() => alert(`Previewing split for ${prog.name}`)}
-                        style={{ ...STITCH_THEME.styles.secondaryButton, padding: '4px 12px', fontSize: '12px' }}
-                      >
-                        Inspect Split
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {prog.id === 'prog_6_week_shredded_12w' ? (
+                          <>
+                            <button
+                              onClick={() => setActiveTab('shredded-admin')}
+                              style={{ ...STITCH_THEME.styles.secondaryButton, padding: '4px 12px', fontSize: '12px' }}
+                            >
+                              Manage Access
+                            </button>
+                            <button
+                              onClick={() => setActiveTab('shredded-program')}
+                              style={{ ...STITCH_THEME.styles.primaryButton, padding: '4px 12px', fontSize: '12px' }}
+                            >
+                              Start Program
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => alert(`Previewing split for ${prog.name}`)}
+                            style={{ ...STITCH_THEME.styles.secondaryButton, padding: '4px 12px', fontSize: '12px' }}
+                          >
+                            Inspect Split
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+          ) : activeTab === 'shredded-program' ? (
+            /* User / Athlete 12-Week Progress Engine */
+            <UserProgramDashboardView onBack={() => setActiveTab('programs')} />
+          ) : activeTab === 'shredded-admin' ? (
+            /* Admin Access Management & Canonical Inspector */
+            <ProgramAccessManagementView currentRole={currentRole} onBack={() => setActiveTab('programs')} />
           ) : activeTab === 'exercises' ? (
             /* Exercise Library & Biomechanics Management */
             <ExerciseManagementView currentRole={currentRole} />
