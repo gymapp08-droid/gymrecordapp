@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TokenRefreshStatus = exports.IntegrationAuthType = exports.HealthPermissionState = exports.IntegrationConnectionState = exports.IntegrationCapability = exports.SecurityAuditEventType = exports.ConsentCategory = exports.EnterprisePermission = exports.AIInsightType = exports.AIActionType = exports.AIMessageRole = exports.AIProviderType = exports.BMICategory = exports.PersonalRecordType = exports.BodyMeasurementType = exports.HeartRateZone = exports.ActivitySource = exports.CardioType = exports.FoodCategory = exports.MealType = exports.MealStatus = exports.SocialProvider = exports.AccountStatus = exports.HealthConnectionStatus = exports.HealthPlatform = exports.WorkoutStatus = exports.PrimaryGoal = exports.ExperienceLevel = exports.UnitSystem = exports.Gender = exports.ProgramStatus = exports.ClientStatus = exports.InvitationStatus = exports.UserRole = void 0;
+exports.TokenRefreshStatus = exports.IntegrationAuthType = exports.HealthPermissionState = exports.IntegrationConnectionState = exports.IntegrationCapability = exports.SecurityAuditEventType = exports.ConsentCategory = exports.EnterprisePermission = exports.ProgramUserStatus = exports.AIInsightType = exports.AIActionType = exports.AIMessageRole = exports.AIProviderType = exports.BMICategory = exports.PersonalRecordType = exports.BodyMeasurementType = exports.HeartRateZone = exports.ActivitySource = exports.CardioType = exports.FoodCategory = exports.MealType = exports.MealStatus = exports.SocialProvider = exports.AccountStatus = exports.HealthConnectionStatus = exports.HealthPlatform = exports.WorkoutStatus = exports.PrimaryGoal = exports.ExperienceLevel = exports.UnitSystem = exports.Gender = exports.ProgramStatus = exports.ClientStatus = exports.InvitationStatus = exports.UserRole = void 0;
 // Core Enums
 var UserRole;
 (function (UserRole) {
@@ -228,6 +228,13 @@ var AIInsightType;
     AIInsightType["WEIGHT_TREND"] = "WEIGHT_TREND";
     AIInsightType["GOAL_PROGRESS"] = "GOAL_PROGRESS";
 })(AIInsightType || (exports.AIInsightType = AIInsightType = {}));
+var ProgramUserStatus;
+(function (ProgramUserStatus) {
+    ProgramUserStatus["NOT_STARTED"] = "NOT_STARTED";
+    ProgramUserStatus["ACTIVE"] = "ACTIVE";
+    ProgramUserStatus["PAUSED"] = "PAUSED";
+    ProgramUserStatus["COMPLETED"] = "COMPLETED";
+})(ProgramUserStatus || (exports.ProgramUserStatus = ProgramUserStatus = {}));
 var EnterprisePermission;
 (function (EnterprisePermission) {
     EnterprisePermission["VIEW_CLIENT_TELEMETRY"] = "VIEW_CLIENT_TELEMETRY";

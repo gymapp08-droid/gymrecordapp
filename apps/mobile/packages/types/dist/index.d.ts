@@ -711,12 +711,37 @@ export interface IProgramTemplateExercise {
     targetRpe?: number | null;
     restSeconds: number;
     notes?: string | null;
+    groupNumber?: number;
+    setGroupType?: string;
+    prescribedReps?: string;
+    restInstructions?: string;
+    workoutInstructions?: string;
+}
+export interface ICardioInterval {
+    timeRange: string;
+    speedMph: string;
+    duration: string;
+    activity: string;
+}
+export interface ICardioProtocol {
+    title: string;
+    totalDurationMinutes: number;
+    warmUpMinutes: number;
+    intervals: ICardioInterval[];
+    coolDownMinutes: number;
+    progressionNote: string;
 }
 export interface IProgramSplitDay {
     id?: string;
     dayOfWeek: number;
     title: string;
+    muscleGroup?: string;
     exercises: IProgramTemplateExercise[];
+    cardioProtocol?: ICardioProtocol | null;
+    notes?: string | null;
+    restInstructions?: string | null;
+    liftingSpeedInstructions?: string | null;
+    executionInstructions?: string | null;
 }
 export interface IProgramDetail {
     id: string;
@@ -728,8 +753,69 @@ export interface IProgramDetail {
     version: number;
     parentProgramId?: string | null;
     days: IProgramSplitDay[];
+    displayDuration?: string;
+    sourceDuration?: string;
+    sourceAttribution?: string;
     createdAt: Date;
     updatedAt: Date;
+}
+export declare enum ProgramUserStatus {
+    NOT_STARTED = "NOT_STARTED",
+    ACTIVE = "ACTIVE",
+    PAUSED = "PAUSED",
+    COMPLETED = "COMPLETED"
+}
+export interface IProgramAssignedUser {
+    userId: string;
+    name: string;
+    email: string;
+    programStatus: ProgramUserStatus;
+    assignedDate: string;
+    currentWeek: number;
+    currentDay: number;
+    completedDays: number;
+    completedWorkouts: number;
+    completedExercises: number;
+    completionPercentage: number;
+    lastWorkoutDate?: string | null;
+}
+export interface IProgramAccessManagementSummary {
+    programId: string;
+    programName: string;
+    programStatus: string;
+    displayDuration: string;
+    sourceDuration: string;
+    sourceAttribution: string;
+    assignedUsersCount: number;
+    availableUsersCount: number;
+    assignedUsers: IProgramAssignedUser[];
+    availableUsers: {
+        id: string;
+        name: string;
+        email: string;
+    }[];
+}
+export interface IUserProgramProgress {
+    userId?: string;
+    programId: string;
+    programName: string;
+    displayDuration: string;
+    sourceDuration: string;
+    programStartDate?: string | null;
+    currentWeek: number;
+    currentDay: number;
+    completedDays: number;
+    completedWorkouts: number;
+    completedExercises: number;
+    completionPercentage: number;
+    lastWorkoutDate?: string | null;
+    programStatus: ProgramUserStatus;
+    totalWeeks?: number;
+    totalCycles?: number;
+    activeCycle?: 1 | 2;
+    schedule?: any[];
+    completedDayKeys?: string[];
+    loggedSets?: Record<string, any[]>;
 }
 export interface IProgramAssignmentDetail {
     id: string;
@@ -740,6 +826,14 @@ export interface IProgramAssignmentDetail {
     endDate?: string | null;
     isActive: boolean;
     version: number;
+    currentWeek?: number;
+    currentDay?: number;
+    completedDays?: number;
+    completedWorkouts?: number;
+    completedExercises?: number;
+    completionPercentage?: number;
+    lastWorkoutDate?: string | null;
+    assignmentStatus?: ProgramUserStatus;
     createdAt: Date;
 }
 export interface IProgramReplacementResult {
@@ -1970,4 +2064,60 @@ export interface ITrainerClientNote {
     note: string;
     category: string;
     createdAt: string;
+}
+export interface ISixWeekShreddedExerciseDef {
+    id: string;
+    name: string;
+    category: string;
+    primaryMuscle: string;
+    secondaryMuscles: string[];
+    equipment: string;
+    difficulty: string;
+    targetArea?: string;
+    movementPattern?: string;
+    exerciseType?: string;
+    description?: string;
+    technique?: string;
+    commonMistakes?: string[];
+    safetyNotes?: string;
+    tempo?: string;
+    defaultRest?: number;
+    tags?: string[];
+    status?: string;
+    isCustom?: boolean;
+}
+export interface ISixWeekShreddedPrescription {
+    exerciseId: string;
+    exerciseName: string;
+    primaryMuscle: string;
+    orderIndex: number;
+    groupNumber: number;
+    setGroupType: 'Super Set' | 'Giant Set' | 'Drop Set' | 'Angle Drop Set' | 'Extended Set' | 'Regular Set';
+    targetSets: number;
+    targetReps: number;
+    prescribedReps: string;
+    setReps: string[];
+    restSeconds: number;
+    restInstructions?: string;
+    workoutInstructions?: string;
+    notes?: string;
+}
+export interface ISixWeekShreddedDayPlan {
+    dayOfWeek: number;
+    dayName: string;
+    title: string;
+    muscleGroups: string[];
+    workoutType: 'RESISTANCE' | 'CARDIO' | 'RECOVERY';
+    prescriptions: ISixWeekShreddedPrescription[];
+    cardioProtocol?: ICardioProtocol | null;
+    restInstructions: string;
+    executionInstructions: string;
+    liftingSpeedInstructions?: string;
+    notes?: string;
+}
+export interface IProgramCycleWeek {
+    weekNumber: number;
+    cycleNumber: 1 | 2;
+    cycleSourceWeek: number;
+    days: ISixWeekShreddedDayPlan[];
 }

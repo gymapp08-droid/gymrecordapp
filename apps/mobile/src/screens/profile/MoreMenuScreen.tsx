@@ -22,6 +22,7 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({ onNavigate, onBa
     {
       title: 'KNOWLEDGE & LIBRARIES',
       items: [
+        { id: 'SHREDDED_PROGRAM', label: '6 WEEK SHREDDED Protocol', icon: '⚡', badge: '12 WEEKS' },
         { id: 'EXERCISE_LIBRARY', label: 'Exercise Biomechanics & Cues', icon: '📖' },
         { id: 'FOOD_LIBRARY', label: 'Nutritional Food Database', icon: '🥗' },
         { id: 'CALENDAR', label: 'Training History & Consistency', icon: '📅' },

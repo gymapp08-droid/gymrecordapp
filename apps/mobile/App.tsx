@@ -601,6 +601,10 @@ function MainNavigator() {
                   case 'SETTINGS':
                     setActiveSubView('SETTINGS');
                     break;
+                  case 'SHREDDED_PROGRAM':
+                    setActiveSubView(null);
+                    setActiveTab('WORKOUT');
+                    break;
                   default:
                     break;
                 }

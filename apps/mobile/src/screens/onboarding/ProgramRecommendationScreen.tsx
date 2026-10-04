@@ -49,6 +49,25 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
 
     const programs: RecommendedProgram[] = [];
 
+    // Option S: 6 WEEK SHREDDED (12-Week Extended)
+    programs.push({
+      id: 'prog_6_week_shredded_12w',
+      name: '6 WEEK SHREDDED (12-Week Extended)',
+      tagline: 'High-Density Superset & Giant Set Fat Loss Protocol by Guru Mann, USA',
+      matchScore: 99,
+      matchReason: 'Master high-density superset, giant set, and drop set protocol for aggressive fat loss, conditioning, and lean muscle preservation.',
+      recommendedWeeks: 12,
+      weeklySchedule: [
+        { dayNumber: 1, dayName: 'Monday', workoutTitle: 'Shoulders + Triceps & Upper Abs', focus: 'Super Sets & Giant Sets' },
+        { dayNumber: 2, dayName: 'Tuesday', workoutTitle: 'Chest + Upper Back & Lower Abs', focus: 'Giant Sets & Drop Sets' },
+        { dayNumber: 3, dayName: 'Wednesday', workoutTitle: 'Cardio & Upper Abs', focus: 'HIIC 20-min Treadmill Protocol' },
+        { dayNumber: 4, dayName: 'Thursday', workoutTitle: 'Lat, Mid Back + Biceps & Lower Abs', focus: 'Super Sets & Giant Sets' },
+        { dayNumber: 5, dayName: 'Friday', workoutTitle: 'Quads, Ham & Calves & Upper Abs', focus: 'Super Sets & Giant Sets' },
+        { dayNumber: 6, dayName: 'Saturday', workoutTitle: 'Cardio & Lower Abs', focus: 'HIIC 20-min Treadmill Protocol' },
+        { dayNumber: 7, dayName: 'Sunday', workoutTitle: 'Rest & Recovery', focus: 'Complete Rest' },
+      ],
+    });
+
     // Option A: Push / Pull / Legs
     const pplScore =
       (parsedGoal.includes('HYPERTROPHY') || parsedGoal.includes('MUSCLE') ? 40 : 25) +

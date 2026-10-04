@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { getTodayDayOfWeek, DEFAULT_TIMEZONE } from '../utils/timezone';
 import { SecureStorage } from '../services/secureStorage';
 import { ApiClient } from '../services/api';
+import { CANONICAL_6_WEEK_SPLIT } from '../data/sixWeekShredded';
 
 export interface WorkoutExerciseSummary {
   number: string;
@@ -150,6 +151,12 @@ interface PerformanceContextType {
     statusLabel?: string
   ) => void;
   refreshDayState: () => void;
+  activeProgramId: string;
+  activeProgramTitle: string;
+  currentProgramWeek: number;
+  setActiveProgramId: (programId: string) => void;
+  setCurrentProgramWeek: (week: number) => void;
+  selectWorkoutDay: (dayOfWeek: number) => void;
 }
 
 // Section 17 & 21: Weekday Schedule Mapping (1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun)
@@ -241,6 +248,95 @@ const WEEK_WORKOUT_SCHEDULE: Record<
   7: {
     name: 'Rest & Recovery',
     category: 'Complete Rest',
+    estimatedMinutes: 0,
+    isRest: true,
+    exercises: [],
+  },
+};
+
+export function buildShreddedExercisesForDay(dayOfWeek: number): WorkoutExerciseSummary[] {
+  const plan = CANONICAL_6_WEEK_SPLIT[dayOfWeek];
+  if (!plan) return [];
+
+  const list: WorkoutExerciseSummary[] = [];
+  let idx = 1;
+
+  if (plan.workoutType === 'CARDIO') {
+    list.push({
+      number: String(idx++).padStart(2, '0'),
+      name: 'HIIC Treadmill Cardio (20 Min)',
+      prescription: '5m warm-up (3.0mph) + 10x (30s sprint @ 9-11mph / 30s jump-off) + 5m cool-down',
+      isCompleted: false,
+    });
+  }
+
+  for (const p of plan.prescriptions) {
+    list.push({
+      number: String(idx++).padStart(2, '0'),
+      name: p.exerciseName,
+      prescription: `${p.setGroupType} · ${p.prescribedReps}`,
+      isCompleted: false,
+    });
+  }
+
+  return list;
+}
+
+export const SHREDDED_WEEK_WORKOUT_SCHEDULE: Record<
+  number,
+  {
+    name: string;
+    category: string;
+    estimatedMinutes: number;
+    isRest: boolean;
+    exercises: WorkoutExerciseSummary[];
+  }
+> = {
+  1: {
+    name: 'Shoulders + Triceps & Upper Abs',
+    category: '6 WEEK SHREDDED',
+    estimatedMinutes: 65,
+    isRest: false,
+    exercises: buildShreddedExercisesForDay(1),
+  },
+  2: {
+    name: 'Chest + Upper Back & Lower Abs',
+    category: '6 WEEK SHREDDED',
+    estimatedMinutes: 60,
+    isRest: false,
+    exercises: buildShreddedExercisesForDay(2),
+  },
+  3: {
+    name: 'Cardio & Upper Abs',
+    category: '6 WEEK SHREDDED (HIIC 20 Min)',
+    estimatedMinutes: 50,
+    isRest: false,
+    exercises: buildShreddedExercisesForDay(3),
+  },
+  4: {
+    name: 'Lat, Mid Back + Biceps & Lower Abs',
+    category: '6 WEEK SHREDDED',
+    estimatedMinutes: 65,
+    isRest: false,
+    exercises: buildShreddedExercisesForDay(4),
+  },
+  5: {
+    name: 'Quads, Ham & Calves & Upper Abs',
+    category: '6 WEEK SHREDDED',
+    estimatedMinutes: 60,
+    isRest: false,
+    exercises: buildShreddedExercisesForDay(5),
+  },
+  6: {
+    name: 'Cardio & Lower Abs',
+    category: '6 WEEK SHREDDED (HIIC 20 Min)',
+    estimatedMinutes: 50,
+    isRest: false,
+    exercises: buildShreddedExercisesForDay(6),
+  },
+  7: {
+    name: 'Active Rest & Recovery',
+    category: '6 WEEK SHREDDED',
     estimatedMinutes: 0,
     isRest: true,
     exercises: [],
@@ -342,7 +438,23 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   // Section 17 & 21: Dynamic Day-of-Week evaluation
   const todayDayOfWeek = getTodayDayOfWeek(DEFAULT_TIMEZONE);
   const dayNames = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  const todaySchedule = WEEK_WORKOUT_SCHEDULE[todayDayOfWeek] || WEEK_WORKOUT_SCHEDULE[1]!;
+
+  const [activeProgramId, setActiveProgramIdState] = useState<string>('prog_6_week_shredded_12w');
+  const [activeProgramTitle, setActiveProgramTitle] = useState<string>('6 WEEK SHREDDED (12 WEEKS)');
+  const [currentProgramWeek, setCurrentProgramWeek] = useState<number>(1);
+
+  const getActiveSchedule = useCallback(
+    (dow: number, programIdToUse?: string) => {
+      const pid = programIdToUse || activeProgramId;
+      if (pid === 'prog_6_week_shredded_12w') {
+        return SHREDDED_WEEK_WORKOUT_SCHEDULE[dow] || SHREDDED_WEEK_WORKOUT_SCHEDULE[1]!;
+      }
+      return WEEK_WORKOUT_SCHEDULE[dow] || WEEK_WORKOUT_SCHEDULE[1]!;
+    },
+    [activeProgramId]
+  );
+
+  const todaySchedule = SHREDDED_WEEK_WORKOUT_SCHEDULE[todayDayOfWeek] || SHREDDED_WEEK_WORKOUT_SCHEDULE[1]!;
 
   const [workout, setWorkout] = useState<TodayWorkoutState>(() => ({
     id: `wo-day-${todayDayOfWeek}`,
@@ -502,6 +614,17 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const savedNote = await SecureStorage.getItem('alpha_daily_note');
       if (savedNote) setDailyNote(savedNote);
 
+      // 3b. Restore active program selection
+      const savedProgId = await SecureStorage.getItem('alpha_active_program_id');
+      if (savedProgId) {
+        setActiveProgramIdState(savedProgId);
+        setActiveProgramTitle(
+          savedProgId === 'prog_6_week_shredded_12w'
+            ? '6 WEEK SHREDDED (12 WEEKS)'
+            : 'ALPHA Hypertrophy Split'
+        );
+      }
+
       // 4. Fetch user's active program from backend if authenticated
       const res = await ApiClient.get<any>('/workouts/program/active');
       if (res.success && res.data && res.data.days) {
@@ -532,9 +655,52 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
+  const selectWorkoutDay = useCallback(
+    (dow: number) => {
+      const sched = getActiveSchedule(dow);
+      setWorkout((prev) => ({
+        ...prev,
+        id: `wo-day-${dow}`,
+        dayOfWeek: dow,
+        dayName: dayNames[dow] || 'Today',
+        name: sched.name,
+        category: sched.category,
+        isRestDay: sched.isRest,
+        estimatedMinutes: sched.estimatedMinutes,
+        totalExercises: sched.exercises.length,
+        totalSets: sched.exercises.length * 3,
+        status: sched.isRest ? 'REST_DAY' : 'NOT_STARTED',
+        exercises: sched.exercises,
+      }));
+    },
+    [getActiveSchedule, dayNames]
+  );
+
+  const setActiveProgramId = (programId: string) => {
+    setActiveProgramIdState(programId);
+    if (programId === 'prog_6_week_shredded_12w') {
+      setActiveProgramTitle('6 WEEK SHREDDED (12 WEEKS)');
+    } else {
+      setActiveProgramTitle('ALPHA Hypertrophy Split');
+    }
+    SecureStorage.setItem('alpha_active_program_id', programId);
+    const sched = getActiveSchedule(todayDayOfWeek, programId);
+    setWorkout((prev) => ({
+      ...prev,
+      name: sched.name,
+      category: sched.category,
+      isRestDay: sched.isRest,
+      estimatedMinutes: sched.estimatedMinutes,
+      totalExercises: sched.exercises.length,
+      totalSets: sched.exercises.length * 3,
+      status: sched.isRest ? 'REST_DAY' : 'NOT_STARTED',
+      exercises: sched.exercises,
+    }));
+  };
+
   const refreshDayState = useCallback(() => {
     const curDay = getTodayDayOfWeek(DEFAULT_TIMEZONE);
-    const sched = WEEK_WORKOUT_SCHEDULE[curDay] || WEEK_WORKOUT_SCHEDULE[1]!;
+    const sched = getActiveSchedule(curDay);
     setWorkout((prev) => ({
       ...prev,
       dayOfWeek: curDay,
@@ -545,7 +711,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       status: sched.isRest ? 'REST_DAY' : 'NOT_STARTED',
       exercises: sched.exercises,
     }));
-  }, []);
+  }, [getActiveSchedule, dayNames]);
 
   const recordWorkoutCompletion = async (summary: {
     totalVolumeKg: number;
@@ -689,6 +855,12 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         connectHealth,
         updateMealStatus,
         refreshDayState,
+        activeProgramId,
+        activeProgramTitle,
+        currentProgramWeek,
+        setActiveProgramId,
+        setCurrentProgramWeek,
+        selectWorkoutDay,
       }}
     >
       {children}

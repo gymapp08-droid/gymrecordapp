@@ -1618,6 +1618,33 @@ export class WorkoutsService {
       weeksCount: 12,
       days,
     });
+
+    // 3. Pre-seed default athlete assignments for out-of-the-box demo & development access
+    const defaultAthletes = [
+      { id: 'ath_1', email: 'marcus.v@alpha.fit', name: 'Marcus Vance' },
+      { id: 'ath_2', email: 'elena.rostova@alpha.fit', name: 'Elena Rostova' },
+      { id: 'user_athlete_1', email: 'athlete@alpha.io', name: 'Alpha Athlete' },
+      { id: 'demo_athlete', email: 'athlete@alpha.fit', name: 'Demo Athlete' },
+    ];
+    for (const ath of defaultAthletes) {
+      const key = `${ath.id}:${SIX_WEEK_SHREDDED_ID}`;
+      this.assignedUsers.set(key, {
+        id: `assign_${ath.id}_shredded`,
+        programId: SIX_WEEK_SHREDDED_ID,
+        userId: ath.id,
+        userEmail: ath.email,
+        userName: ath.name,
+        assignedAt: new Date('2026-01-01T00:00:00Z'),
+        status: 'ACTIVE',
+        currentWeek: 1,
+        currentDay: 1,
+        completedDays: 0,
+        completedWorkouts: 0,
+        completedExercises: 0,
+        completionPercentage: 0,
+      });
+      this.programAssignments.set(ath.id, { programId: SIX_WEEK_SHREDDED_ID, athleteId: ath.id });
+    }
   }
 
   // Testing helpers
