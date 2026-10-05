@@ -106,7 +106,7 @@ export const ProfileOnboardingScreen: React.FC<ProfileOnboardingScreenProps> = (
     <AlphaScreen>
       <AlphaHeader
         title="Biometric Baseline"
-        subtitle="Step 2 of 4 · Calibration"
+        subtitle="Step 3 of 4 · BMI & Profile"
         onBack={onBack}
       />
 

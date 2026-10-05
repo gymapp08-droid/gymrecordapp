@@ -56,6 +56,10 @@ export class RegisterDto {
   fullName!: string;
 
   @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
+  @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole = UserRole.ATHLETE;
 }

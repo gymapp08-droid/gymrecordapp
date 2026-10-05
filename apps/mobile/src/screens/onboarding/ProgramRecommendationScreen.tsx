@@ -109,7 +109,7 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
     <AlphaScreen>
       <AlphaHeader
         title="GRAVITY Catalog"
-        subtitle="Step 4 of 4 · Program Selection"
+        subtitle="Step 2 of 4 · Choose Program"
         onBack={onBack}
       />
 

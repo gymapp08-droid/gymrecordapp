@@ -14,6 +14,7 @@ import { PushNotification } from '../../services/pushNotification.service';
 import { INotification, NotificationCategory } from '@alpha/types';
 
 interface NotificationCenterScreenProps {
+  onBack?: () => void;
   onNavigateBack?: () => void;
   onOpenPreferences?: () => void;
   onOpenReminders?: () => void;
@@ -22,10 +23,12 @@ interface NotificationCenterScreenProps {
 type FilterCategory = 'ALL' | 'UNREAD' | NotificationCategory;
 
 export const NotificationCenterScreen: React.FC<NotificationCenterScreenProps> = ({
+  onBack,
   onNavigateBack,
   onOpenPreferences,
   onOpenReminders,
 }) => {
+  const handleBack = onBack || onNavigateBack;
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [activeFilter, setActiveFilter] = useState<FilterCategory>('ALL');
@@ -160,8 +163,8 @@ export const NotificationCenterScreen: React.FC<NotificationCenterScreenProps> =
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          {onNavigateBack && (
-            <TouchableOpacity onPress={onNavigateBack} style={styles.backButton}>
+          {handleBack && (
+            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
               <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
           )}

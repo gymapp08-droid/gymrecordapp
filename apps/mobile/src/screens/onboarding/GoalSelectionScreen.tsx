@@ -25,7 +25,7 @@ export const GoalSelectionScreen: React.FC<GoalSelectionScreenProps> = ({ onBack
     <AlphaScreen>
       <AlphaHeader
         title="What's Your Goal?"
-        subtitle="Step 1 of 3 · Personalization"
+        subtitle="Step 1 of 4 · Goal & Category"
         onBack={onBack}
       />
 

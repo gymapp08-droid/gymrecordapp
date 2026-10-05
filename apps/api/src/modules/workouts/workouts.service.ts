@@ -159,7 +159,7 @@ export interface StoredProgramAssignment {
   userName?: string;
   assignedAt: Date;
   assignedBy?: string;
-  status: 'NOT_STARTED' | 'ACTIVE' | 'PAUSED' | 'COMPLETED';
+  status: 'NOT_STARTED' | 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'EXPIRED' | 'REVOKED';
   currentWeek: number;
   currentDay: number;
   completedDays: number;
@@ -168,6 +168,7 @@ export interface StoredProgramAssignment {
   completionPercentage: number;
   lastWorkoutDate?: string;
   startDate?: string;
+  endDate?: string;
 }
 
 @Injectable()
@@ -435,6 +436,24 @@ export class WorkoutsService {
   }
 
   assertUserProgramAccess(user: { id: string; role?: UserRole | string }, programId: string): void {
+    const compositeKey = `${user.id}:${programId}`;
+    const assignment = this.assignedUsers.get(compositeKey);
+    if (assignment) {
+      if (assignment.status === 'PAUSED' || assignment.status === 'REVOKED') {
+        throw new ForbiddenException({
+          code: 'PROGRAM_PAUSED',
+          message: 'PROGRAM PAUSED: Your program is currently paused. Please contact your trainer.',
+        });
+      }
+      if (assignment.endDate && new Date(assignment.endDate) < new Date()) {
+        assignment.status = 'EXPIRED';
+        throw new ForbiddenException({
+          code: 'PROGRAM_EXPIRED',
+          message: 'PROGRAM EXPIRED: Your program duration has completed. Please contact your trainer.',
+        });
+      }
+    }
+
     if (programId === SIX_WEEK_SHREDDED_ID) {
       const isActive = this.programActiveState.get(programId) ?? true;
       if (user.role === UserRole.ATHLETE) {
@@ -448,6 +467,21 @@ export class WorkoutsService {
           throw new ForbiddenException({
             code: 'PROGRAM_ACCESS_DENIED',
             message: 'You are not assigned to the 6 WEEK SHREDDED program. Please contact an admin or coach for access.',
+          });
+        }
+      }
+    } else {
+      // Check if catalog program requires PRO authorization
+      const catalogProg = this.catalogPrograms.get(programId);
+      if (
+        catalogProg &&
+        (catalogProg.tier === 'PRO' || catalogProg.isPro === true) &&
+        user.role === UserRole.ATHLETE
+      ) {
+        if (!this.isUserAssignedToProgram(user.id, programId)) {
+          throw new ForbiddenException({
+            code: 'PRO_ACCESS_DENIED',
+            message: 'This is a PRO program. Please contact your trainer to obtain an active program assignment.',
           });
         }
       }
