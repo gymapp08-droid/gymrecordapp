@@ -95,7 +95,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         }}
         autoCapitalize="none"
         keyboardType="email-address"
-        placeholder="athlete@alpha.os"
+        placeholder="athlete@gravity.fit"
       />
 
       <GlassInput

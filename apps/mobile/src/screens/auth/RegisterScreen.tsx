@@ -19,6 +19,15 @@ interface RegisterScreenProps {
   onBack?: () => void;
   onSuccess?: () => void;
   onRegistrationSuccess?: (payload?: { email: string; token?: string }) => void;
+  profile?: {
+    heightCm?: number | null;
+    weightKg?: number | null;
+    gender?: string | null;
+    age?: number | null;
+    bmi?: number | null;
+    experienceLevel?: string | null;
+  } | null;
+  selectedProgramId?: string | null;
 }
 
 export const RegisterScreen: React.FC<RegisterScreenProps> = ({
@@ -26,10 +35,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   onBack,
   onSuccess,
   onRegistrationSuccess,
+  profile,
+  selectedProgramId,
 }) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -83,6 +95,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         password,
         fullName: fullName.trim(),
         phoneNumber: cleanPhone,
+        address: address.trim() || undefined,
+        heightCm: profile?.heightCm || undefined,
+        weightKg: profile?.weightKg || undefined,
+        bmi: profile?.bmi || undefined,
+        age: profile?.age || undefined,
+        gender: profile?.gender || undefined,
+        selectedProgramId: selectedProgramId || undefined,
       });
 
       if (res.success && res.data) {
@@ -204,6 +223,16 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         }}
         keyboardType="phone-pad"
         placeholder="+91 9876543210"
+      />
+
+      <GlassInput
+        label="Delivery / Residential Address"
+        value={address}
+        onChangeText={(val) => {
+          setAddress(val);
+          if (localError) setLocalError(null);
+        }}
+        placeholder="123 Performance Way, New Delhi"
       />
 
       <GlassInput

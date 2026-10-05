@@ -744,6 +744,7 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
           <div style={{ fontSize: '18px', fontWeight: 800, color: STITCH_THEME.colors.textPrimary, marginBottom: '16px' }}>
             Athlete Profile & Training Preferences
           </div>
+          {/* Biometrics & Contact Dossier */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', fontSize: '13px' }}>
             <div>
               <span style={{ color: STITCH_THEME.colors.textMuted }}>Height:</span>{' '}
@@ -754,8 +755,27 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
               <span style={{ color: '#F8FAFC', fontWeight: 600 }}>{profile.weightKg || 78} kg</span>
             </div>
             <div>
+              <span style={{ color: STITCH_THEME.colors.textMuted }}>BMI:</span>{' '}
+              <span style={{ color: STITCH_THEME.colors.accentCyan, fontWeight: 700 }}>
+                {dossier.recentMetrics?.bmi ||
+                  ((profile.weightKg || 78) / Math.pow((profile.heightCm || 180) / 100, 2)).toFixed(1)}
+              </span>
+            </div>
+            <div>
               <span style={{ color: STITCH_THEME.colors.textMuted }}>Gender:</span>{' '}
               <span style={{ color: '#F8FAFC', fontWeight: 600 }}>{profile.gender || 'MALE'}</span>
+            </div>
+            <div>
+              <span style={{ color: STITCH_THEME.colors.textMuted }}>Phone:</span>{' '}
+              <span style={{ color: '#F8FAFC', fontWeight: 600 }}>
+                {(overview as any).phoneNumber || (dossier360?.profile as any)?.phoneNumber || '+91 9876543210'}
+              </span>
+            </div>
+            <div>
+              <span style={{ color: STITCH_THEME.colors.textMuted }}>Address:</span>{' '}
+              <span style={{ color: '#F8FAFC', fontWeight: 600 }}>
+                {(dossier360?.profile as any)?.address || (overview as any).address || 'New Delhi, India'}
+              </span>
             </div>
             <div>
               <span style={{ color: STITCH_THEME.colors.textMuted }}>Units:</span>{' '}

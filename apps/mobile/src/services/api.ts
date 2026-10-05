@@ -29,7 +29,7 @@ export class ApiClient {
         data: null,
         error: {
           code: 'NETWORK_ERROR',
-          message: 'Unable to reach ALPHA services. Check network connection.',
+          message: 'Unable to reach GRAVITY services. Check network connection.',
         },
       };
     }
@@ -53,7 +53,7 @@ export class ApiClient {
         data: null,
         error: {
           code: 'NETWORK_ERROR',
-          message: 'Unable to reach ALPHA services. Check network connection.',
+          message: 'Unable to reach GRAVITY services. Check network connection.',
         },
       };
     }
@@ -77,7 +77,7 @@ export class ApiClient {
         data: null,
         error: {
           code: 'NETWORK_ERROR',
-          message: 'Unable to reach ALPHA services. Check network connection.',
+          message: 'Unable to reach GRAVITY services. Check network connection.',
         },
       };
     }
@@ -103,7 +103,7 @@ export class ApiClient {
         data: null,
         error: {
           code: 'NETWORK_ERROR',
-          message: 'Unable to reach ALPHA services. Check network connection.',
+          message: 'Unable to reach GRAVITY services. Check network connection.',
         },
       };
     }

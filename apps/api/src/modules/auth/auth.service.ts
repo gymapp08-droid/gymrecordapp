@@ -33,6 +33,14 @@ export interface StoredUser {
   email: string;
   passwordHash: string;
   fullName: string;
+  phoneNumber?: string;
+  address?: string;
+  heightCm?: number;
+  weightKg?: number;
+  bmi?: number;
+  age?: number;
+  gender?: string;
+  selectedProgramId?: string;
   role: UserRole;
   status: AccountStatus;
   isActive: boolean;
@@ -161,7 +169,7 @@ export class AuthService implements OnModuleInit {
     const normalizedEmail = dto.email.toLowerCase().trim();
 
     const isTest = process.env.NODE_ENV === 'test';
-    if (!isTest && !normalizedEmail.endsWith('@gmail.com') && !normalizedEmail.endsWith('@googlemail.com') && !normalizedEmail.endsWith('@alpha.io') && !normalizedEmail.endsWith('@gravity.io') && !normalizedEmail.endsWith('@alpha.fit')) {
+    if (!isTest && !normalizedEmail.endsWith('@gmail.com') && !normalizedEmail.endsWith('@googlemail.com') && !normalizedEmail.endsWith('@alpha.io') && !normalizedEmail.endsWith('@gravity.io') && !normalizedEmail.endsWith('@gravity.fit') && !normalizedEmail.endsWith('@gravityperformance.os') && !normalizedEmail.endsWith('@alpha.fit')) {
       throw new BadRequestException({
         code: 'INVALID_EMAIL_DOMAIN',
         message: 'Only verified Google accounts (@gmail.com) are permitted for athlete registration.',
@@ -183,6 +191,14 @@ export class AuthService implements OnModuleInit {
       email: normalizedEmail,
       passwordHash,
       fullName: dto.fullName.trim(),
+      phoneNumber: dto.phoneNumber?.trim(),
+      address: dto.address?.trim(),
+      heightCm: dto.heightCm,
+      weightKg: dto.weightKg,
+      bmi: dto.bmi,
+      age: dto.age,
+      gender: dto.gender,
+      selectedProgramId: dto.selectedProgramId,
       role: dto.role || UserRole.ATHLETE,
       status: AccountStatus.ACTIVE,
       isActive: true,
@@ -193,7 +209,7 @@ export class AuthService implements OnModuleInit {
     };
 
     this.inMemoryUsers.set(normalizedEmail, newUser);
-    this.logger.log(`Registered user [${userId}] ${normalizedEmail}`);
+    this.logger.log(`Registered user [${userId}] ${normalizedEmail} (Program: ${dto.selectedProgramId || 'None'})`);
 
     // Create verification token
     const rawVerificationToken = HashUtil.generateSecureToken(32);

@@ -60,6 +60,34 @@ export class RegisterDto {
   phoneNumber?: string;
 
   @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsNumber()
+  heightCm?: number;
+
+  @IsOptional()
+  @IsNumber()
+  weightKg?: number;
+
+  @IsOptional()
+  @IsNumber()
+  bmi?: number;
+
+  @IsOptional()
+  @IsNumber()
+  age?: number;
+
+  @IsOptional()
+  @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsString()
+  selectedProgramId?: string;
+
+  @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole = UserRole.ATHLETE;
 }

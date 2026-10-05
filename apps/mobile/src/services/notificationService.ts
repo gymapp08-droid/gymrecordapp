@@ -98,8 +98,8 @@ class SmartNotificationService {
 
     return new Promise((resolve) => {
       Alert.alert(
-        'ALPHA Smart Reminders & Alarms',
-        'Enable timely notifications for your morning workouts (06:00 AM), 5 meal check-ins, hydration, and Sunday progress reviews. ALPHA automatically suppresses alarms on Rest Days or when tasks are already logged.',
+        'GRAVITY Smart Reminders & Alarms',
+        'Enable timely notifications for your morning workouts (06:00 AM), 5 meal check-ins, hydration, and Sunday progress reviews. GRAVITY automatically suppresses alarms on Rest Days or when tasks are already logged.',
         [
           {
             text: 'Not Now',

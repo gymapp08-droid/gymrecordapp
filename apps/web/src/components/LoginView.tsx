@@ -111,7 +111,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               marginBottom: '16px',
             }}
           >
-            α
+            G
           </div>
           <h1
             style={{
@@ -150,7 +150,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
             lineHeight: 1.5,
           }}
         >
-          Role-based governance active. Athletes execute on Alpha Mobile OS.
+          Role-based governance active. Athletes execute on GRAVITY Mobile OS.
         </div>
 
         {/* Error Alert */}
@@ -188,7 +188,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@alpha.io or coach@alpha.io"
+              placeholder="admin@gravity.fit or coach@gravity.fit"
               required
               autoComplete="email"
               style={{

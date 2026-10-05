@@ -135,10 +135,26 @@ type SubView =
 
 function MainNavigator() {
   const { status } = useAuth();
-  const { recordWorkoutCompletion, setActiveProgramId } = usePerformance();
+  const { recordWorkoutCompletion, setActiveProgramId, activeProgramId } = usePerformance();
   const [authRoute, setAuthRoute] = useState<AuthRoute>('SPLASH');
   const [activeTab, setActiveTab] = useState<MainTab>('HOME');
   const [activeSubView, setActiveSubView] = useState<SubView>(null);
+  const [subViewHistory, setSubViewHistory] = useState<SubView[]>([]);
+
+  const navigateToSubView = (subView: SubView) => {
+    setSubViewHistory((prev) => (activeSubView ? [...prev, activeSubView] : prev));
+    setActiveSubView(subView);
+  };
+
+  const navigateBackSubView = () => {
+    if (subViewHistory.length > 0) {
+      const prev = subViewHistory[subViewHistory.length - 1];
+      setSubViewHistory((h) => h.slice(0, -1));
+      setActiveSubView(prev);
+    } else {
+      setActiveSubView(null);
+    }
+  };
 
   // Onboarding user configuration state across multi-step flow
   const [onboardingGoal, setOnboardingGoal] = useState<string>('cat-fat-loss');
@@ -268,7 +284,7 @@ function MainNavigator() {
       if (status === 'authenticated') {
         // If inside an active subview (e.g. AI Coach, Active Workout, Add Food, Meal Detail, etc.)
         if (activeSubView !== null) {
-          setActiveSubView(null);
+          navigateBackSubView();
           return true;
         }
         // If not on HOME tab, return to HOME tab
@@ -398,6 +414,8 @@ function MainNavigator() {
           <RegisterScreen
             onBack={() => setAuthRoute('PROFILE')}
             onNavigateToLogin={() => setAuthRoute('LOGIN')}
+            profile={onboardingProfile}
+            selectedProgramId={activeProgramId}
             onRegistrationSuccess={(payload) => {
               if (payload?.email) setPendingVerificationEmail(payload.email);
               if (payload?.token) setPendingVerificationToken(payload.token);
@@ -575,47 +593,48 @@ function MainNavigator() {
           <StatusBar barStyle="light-content" backgroundColor="#05070B" />
           {activeSubView === 'COMMAND_HUB' && (
             <MoreMenuScreen
-              onBack={() => setActiveSubView(null)}
+              onBack={navigateBackSubView}
               onNavigate={(route) => {
                 switch (route) {
                   case 'PROFILE':
-                    setActiveSubView('PROFILE_VIEW');
+                    navigateToSubView('PROFILE_VIEW');
                     break;
                   case 'BODY_METRICS':
-                    setActiveSubView('BODY_METRICS');
+                    navigateToSubView('BODY_METRICS');
                     break;
                   case 'GOALS':
-                    setActiveSubView('GOALS');
+                    navigateToSubView('GOALS');
                     break;
                   case 'MILESTONES':
-                    setActiveSubView('MILESTONES');
+                    navigateToSubView('MILESTONES');
                     break;
                   case 'EXERCISE_LIBRARY':
-                    setActiveSubView('EXERCISE_LIBRARY');
+                    navigateToSubView('EXERCISE_LIBRARY');
                     break;
                   case 'FOOD_LIBRARY':
-                    setActiveSubView('FOOD_LIBRARY');
+                    navigateToSubView('FOOD_LIBRARY');
                     break;
                   case 'CALENDAR':
-                    setActiveSubView('CALENDAR');
+                    navigateToSubView('CALENDAR');
                     break;
                   case 'INTEGRATIONS':
-                    setActiveSubView('INTEGRATIONS');
+                    navigateToSubView('INTEGRATIONS');
                     break;
                   case 'REMINDERS':
-                    setActiveSubView('REMINDERS');
+                    navigateToSubView('REMINDERS');
                     break;
                   case 'NOTIFICATIONS':
-                    setActiveSubView('NOTIFICATIONS');
+                    navigateToSubView('NOTIFICATIONS');
                     break;
                   case 'SETTINGS':
-                    setActiveSubView('SETTINGS');
+                    navigateToSubView('SETTINGS');
                     break;
                   case 'PROGRAM_CATALOG':
-                    setActiveSubView('PROGRAM_CATALOG');
+                    navigateToSubView('PROGRAM_CATALOG');
                     break;
                   case 'SHREDDED_PROGRAM':
                     setActiveSubView(null);
+                    setSubViewHistory([]);
                     setActiveTab('WORKOUT');
                     break;
                   default:
@@ -750,38 +769,43 @@ function MainNavigator() {
           )}
 
           {activeSubView === 'INTEGRATIONS' && (
-            <IntegrationsScreen onBack={() => setActiveSubView(null)} />
+            <IntegrationsScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'REMINDERS' && (
-            <RemindersScreen onBack={() => setActiveSubView(null)} />
+            <RemindersScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'NOTIFICATIONS' && (
-            <NotificationCenterScreen onBack={() => setActiveSubView(null)} />
+            <NotificationCenterScreen
+              onBack={navigateBackSubView}
+              onOpenReminders={() => navigateToSubView('REMINDERS')}
+              onOpenPreferences={() => navigateToSubView('REMINDER_SETTINGS')}
+            />
           )}
 
           {activeSubView === 'SETTINGS' && (
-            <SettingsScreen onBack={() => setActiveSubView(null)} />
+            <SettingsScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'AI_COACH' && (
-            <AICoachScreen onBack={() => setActiveSubView(null)} />
+            <AICoachScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'WEEKLY_CHECKIN' && (
-            <WeeklyCheckInScreen onBack={() => setActiveSubView(null)} />
+            <WeeklyCheckInScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'REMINDER_SETTINGS' && (
-            <ReminderSettingsScreen onBack={() => setActiveSubView(null)} />
+            <ReminderSettingsScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'PROGRAM_CATALOG' && (
             <ProgramRecommendationScreen
-              onBack={() => setActiveSubView(null)}
+              onBack={navigateBackSubView}
               onSelectProgram={() => {
                 setActiveSubView(null);
+                setSubViewHistory([]);
                 setActiveTab('WORKOUT');
               }}
             />
