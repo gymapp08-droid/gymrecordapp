@@ -60,7 +60,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'overview', label: 'Overview', icon: '🏠' },
         { id: 'clients', label: 'Athletes', icon: '👥' },
-        { id: 'shredded-program', label: '6 WEEK SHREDDED', icon: '⚡' },
         { id: 'programs', label: 'Programs', icon: '📖', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
         { id: 'workouts', label: 'Workouts', icon: '🏋️', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
         { id: 'nutrition', label: 'Nutrition', icon: '🍎', disabled: isTrainer, hint: isTrainer ? 'Nutritionists only' : undefined },
