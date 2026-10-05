@@ -23,7 +23,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <View style={styles.logoWrapper}>
             <AlphaLogo size={84} glow />
           </View>
-          <Text style={styles.brandTitle}>ALPHA</Text>
+          <Text style={styles.brandTitle}>GRAVITY</Text>
           <Text style={styles.brandSubtitle}>PERSONAL PERFORMANCE OS</Text>
         </View>
 

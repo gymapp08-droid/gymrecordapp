@@ -76,7 +76,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
       <View style={styles.header}>
         <Text style={styles.title}>WELCOME BACK</Text>
-        <Text style={styles.subtitle}>Enter your account credentials to access ALPHA.</Text>
+        <Text style={styles.subtitle}>Enter your account credentials to access GRAVITY.</Text>
       </View>
 
       {(error || localError) && (

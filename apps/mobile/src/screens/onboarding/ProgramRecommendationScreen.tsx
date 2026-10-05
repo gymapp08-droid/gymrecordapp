@@ -2,17 +2,24 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { AlphaScreen, AlphaHeader, PrimaryButton, StatusBadge } from '../../components';
 import { Theme } from '../../theme/tokens';
+import { usePerformance } from '../../context/PerformanceContext';
+import programCatalogData from '../../data/program-catalog.json';
 import { UserProfileData } from './ProfileOnboardingScreen';
 import { TrainingPreferencesData } from './TrainingPreferencesScreen';
 
 export interface RecommendedProgram {
   id: string;
+  categoryId?: string;
   name: string;
   tagline: string;
   matchScore: number;
   matchReason: string;
+  duration?: string;
+  workoutDaysPerWeek?: number;
+  restDaysPerWeek?: number;
   weeklySchedule: { dayNumber: number; dayName: string; workoutTitle: string; focus: string }[];
   recommendedWeeks: number;
+  nutritionOverview?: string;
 }
 
 interface ProgramRecommendationScreenProps {
@@ -26,218 +33,218 @@ interface ProgramRecommendationScreenProps {
   onSelectProgram: (program: RecommendedProgram | any) => void;
 }
 
+const CATEGORY_NAMES: Record<string, string> = {
+  'cat-fat-loss': 'Fat Loss',
+  'cat-muscle-building': 'Muscle Building',
+  'cat-single-muscle': 'Single Muscle',
+  'cat-bodyweight': 'Bodyweight',
+  'cat-medical': 'Clinical & Health',
+  'cat-family': 'Family & Kids',
+  'cat-specialized-nutrition': 'Specialized Diet',
+};
+
 export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenProps> = ({
   goalId,
   goal,
-  profileData,
-  profile,
-  preferencesData,
-  preferences,
   onBack,
   onSelectProgram,
 }) => {
-  const effectiveGoal = goalId || goal || 'HYPERTROPHY';
-  const effectiveProfile = profileData || profile || null;
-  const effectivePreferences = preferencesData || preferences || null;
+  const { setActiveProgramId } = usePerformance();
 
-  // Deterministic transparent recommendation engine (Section 14)
-  const candidatePrograms: RecommendedProgram[] = useMemo(() => {
-    const days = effectivePreferences?.daysPerWeek || 4;
-    const exp = effectiveProfile?.experienceLevel || 'INTERMEDIATE';
-    const parsedGoal = effectiveGoal.toUpperCase();
-    const env = effectivePreferences?.environment || 'COMMERCIAL_GYM';
+  // Selected Category filter
+  const initialCategory = useMemo(() => {
+    const g = (goalId || goal || '').toLowerCase();
+    if (g.includes('muscle') || g.includes('hypertrophy')) return 'cat-muscle-building';
+    if (g.includes('single') || g.includes('arms') || g.includes('chest')) return 'cat-single-muscle';
+    if (g.includes('bodyweight') || g.includes('home')) return 'cat-bodyweight';
+    if (g.includes('medical') || g.includes('health')) return 'cat-medical';
+    if (g.includes('family') || g.includes('kids')) return 'cat-family';
+    if (g.includes('specialized') || g.includes('nutrition') || g.includes('keto')) return 'cat-specialized-nutrition';
+    return 'cat-fat-loss';
+  }, [goalId, goal]);
 
-    const programs: RecommendedProgram[] = [];
+  const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
 
-    // Option S: 6 WEEK SHREDDED (12-Week Extended)
-    programs.push({
-      id: 'prog_6_week_shredded_12w',
-      name: '6 WEEK SHREDDED (12-Week Extended)',
-      tagline: 'High-Density Superset & Giant Set Fat Loss Protocol by Guru Mann, USA',
-      matchScore: 99,
-      matchReason: 'Master high-density superset, giant set, and drop set protocol for aggressive fat loss, conditioning, and lean muscle preservation.',
-      recommendedWeeks: 12,
-      weeklySchedule: [
-        { dayNumber: 1, dayName: 'Monday', workoutTitle: 'Shoulders + Triceps & Upper Abs', focus: 'Super Sets & Giant Sets' },
-        { dayNumber: 2, dayName: 'Tuesday', workoutTitle: 'Chest + Upper Back & Lower Abs', focus: 'Giant Sets & Drop Sets' },
-        { dayNumber: 3, dayName: 'Wednesday', workoutTitle: 'Cardio & Upper Abs', focus: 'HIIC 20-min Treadmill Protocol' },
-        { dayNumber: 4, dayName: 'Thursday', workoutTitle: 'Lat, Mid Back + Biceps & Lower Abs', focus: 'Super Sets & Giant Sets' },
-        { dayNumber: 5, dayName: 'Friday', workoutTitle: 'Quads, Ham & Calves & Upper Abs', focus: 'Super Sets & Giant Sets' },
-        { dayNumber: 6, dayName: 'Saturday', workoutTitle: 'Cardio & Lower Abs', focus: 'HIIC 20-min Treadmill Protocol' },
-        { dayNumber: 7, dayName: 'Sunday', workoutTitle: 'Rest & Recovery', focus: 'Complete Rest' },
-      ],
-    });
+  const categories = useMemo(() => {
+    return (programCatalogData.categories || []).map((c: any) => ({
+      id: c.id,
+      name: CATEGORY_NAMES[c.id] || c.name,
+    }));
+  }, []);
 
-    // Option A: Push / Pull / Legs
-    const pplScore =
-      (parsedGoal.includes('HYPERTROPHY') || parsedGoal.includes('MUSCLE') ? 40 : 25) +
-      (days >= 5 ? 35 : days === 4 ? 25 : 10) +
-      (env === 'COMMERCIAL_GYM' ? 20 : 10) +
-      (exp === 'INTERMEDIATE' || exp === 'ADVANCED' ? 5 : 0);
+  const catalogPrograms = useMemo(() => {
+    const list = (programCatalogData.programs || []) as any[];
+    return list.filter((p) => p.categoryId === activeCategory);
+  }, [activeCategory]);
 
-    programs.push({
-      id: 'prog_ppl',
-      name: 'Push / Pull / Legs (PPL)',
-      tagline: 'High Hypertrophy Periodization Split',
-      matchScore: Math.min(pplScore, 98),
-      matchReason: 'Optimized for muscle hypertrophy and joint recovery with designated push, pull, and leg days.',
-      recommendedWeeks: 12,
-      weeklySchedule: [
-        { dayNumber: 1, dayName: 'Monday', workoutTitle: 'Chest + Triceps', focus: 'Horizontal Push & Triceps' },
-        { dayNumber: 2, dayName: 'Tuesday', workoutTitle: 'Back + Biceps', focus: 'Vertical / Horizontal Pull & Biceps' },
-        { dayNumber: 3, dayName: 'Wednesday', workoutTitle: 'Shoulders + Abs', focus: 'Overhead Press & Core Stabilization' },
-        { dayNumber: 4, dayName: 'Thursday', workoutTitle: 'Legs & Calves', focus: 'Squats, Quads, Hamstrings & Calves' },
-        { dayNumber: 5, dayName: 'Friday', workoutTitle: 'Upper Body Power', focus: 'Compound Upper Volume' },
-        { dayNumber: 6, dayName: 'Saturday', workoutTitle: 'Cardio / Active Recovery', focus: 'Zone 2 / Mobility' },
-        { dayNumber: 7, dayName: 'Sunday', workoutTitle: 'Rest & Recovery', focus: 'Complete Rest' },
-      ],
-    });
+  const [selectedProgramId, setSelectedProgramId] = useState<string>(() => {
+    if (activeCategory === 'cat-fat-loss') return 'prog_6_week_shredded_12w';
+    return catalogPrograms[0]?.id || 'prog_6_week_shredded_12w';
+  });
 
-    // Option B: Upper / Lower
-    const ulScore =
-      (days === 4 ? 45 : days === 3 ? 30 : 20) +
-      (parsedGoal.includes('STRENGTH') ? 35 : 25) +
-      (exp === 'INTERMEDIATE' || exp === 'BEGINNER' ? 18 : 10);
+  // When switching category, pick first program
+  const handleSelectCategory = (catId: string) => {
+    setActiveCategory(catId);
+    const inCat = (programCatalogData.programs || []).filter((p: any) => p.categoryId === catId);
+    if (inCat.length > 0 && inCat[0]) {
+      setSelectedProgramId(inCat[0].id);
+    }
+  };
 
-    programs.push({
-      id: 'prog_upper_lower',
-      name: 'Upper / Lower Split',
-      tagline: 'Balanced Strength & Volume Distribution',
-      matchScore: Math.min(ulScore, 95),
-      matchReason: 'Balances systemic central nervous system fatigue with 2x weekly frequency per muscle group.',
-      recommendedWeeks: 10,
-      weeklySchedule: [
-        { dayNumber: 1, dayName: 'Monday', workoutTitle: 'Upper Body A', focus: 'Chest, Back & Shoulders Heavy' },
-        { dayNumber: 2, dayName: 'Tuesday', workoutTitle: 'Lower Body A', focus: 'Squats, Hamstrings & Calves' },
-        { dayNumber: 3, dayName: 'Wednesday', workoutTitle: 'Rest Day', focus: 'Cardio & Recovery' },
-        { dayNumber: 4, dayName: 'Thursday', workoutTitle: 'Upper Body B', focus: 'Hypertrophy Press & Pull Volume' },
-        { dayNumber: 5, dayName: 'Friday', workoutTitle: 'Lower Body B', focus: 'Deadlifts & Leg Hypertrophy' },
-        { dayNumber: 6, dayName: 'Saturday', workoutTitle: 'Rest Day', focus: 'Active Recovery' },
-        { dayNumber: 7, dayName: 'Sunday', workoutTitle: 'Rest & Recovery', focus: 'Complete Rest' },
-      ],
-    });
+  const selectedProgram = useMemo(() => {
+    const prog = (programCatalogData.programs || []).find((p: any) => p.id === selectedProgramId);
+    return prog || catalogPrograms[0] || (programCatalogData.programs || [])[0];
+  }, [selectedProgramId, catalogPrograms]);
 
-    // Option C: Full Body Density
-    const fbScore =
-      (days === 3 ? 50 : days <= 3 ? 35 : 15) +
-      (parsedGoal.includes('FAT_LOSS') || parsedGoal.includes('FITNESS') ? 35 : 20) +
-      (exp === 'BEGINNER' ? 15 : 5);
+  const handleConfirmSelection = () => {
+    if (selectedProgram) {
+      setActiveProgramId(selectedProgram.id);
+      onSelectProgram(selectedProgram);
+    }
+  };
 
-    programs.push({
-      id: 'prog_full_body',
-      name: 'Full Body Density',
-      tagline: 'Maximum Efficiency & Caloric Burn',
-      matchScore: Math.min(fbScore, 92),
-      matchReason: 'Hits every major compound movement pattern with high energy expenditure per session.',
-      recommendedWeeks: 8,
-      weeklySchedule: [
-        { dayNumber: 1, dayName: 'Monday', workoutTitle: 'Full Body A', focus: 'Squat & Bench Press Compound' },
-        { dayNumber: 2, dayName: 'Tuesday', workoutTitle: 'Rest Day', focus: 'Active Recovery' },
-        { dayNumber: 3, dayName: 'Wednesday', workoutTitle: 'Full Body B', focus: 'Deadlift & Overhead Press Compound' },
-        { dayNumber: 4, dayName: 'Thursday', workoutTitle: 'Rest Day', focus: 'Active Recovery' },
-        { dayNumber: 5, dayName: 'Friday', workoutTitle: 'Full Body C', focus: 'Pull-up & Lunge Density' },
-        { dayNumber: 6, dayName: 'Saturday', workoutTitle: 'Rest Day', focus: 'Cardio & Mobility' },
-        { dayNumber: 7, dayName: 'Sunday', workoutTitle: 'Rest & Recovery', focus: 'Complete Rest' },
-      ],
-    });
-
-    // Sort by match score descending
-    return programs.sort((a, b) => b.matchScore - a.matchScore);
-  }, [effectiveGoal, effectiveProfile, effectivePreferences]);
-
-  const [selectedId, setSelectedId] = useState<string>(candidatePrograms[0]?.id || 'prog_ppl');
-  const activeProgram =
-    candidatePrograms.find((p) => p.id === selectedId) ||
-    candidatePrograms[0] || {
-      id: 'prog_default',
-      name: 'Alpha Performance Split',
-      tagline: 'Standard Periodization Protocol',
-      matchScore: 90,
-      matchReason: 'Standard foundational training split.',
-      recommendedWeeks: 8,
-      weeklySchedule: [],
-    };
+  const dayNames = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   return (
     <AlphaScreen>
       <AlphaHeader
-        title="Recommended Protocol"
+        title="GRAVITY Catalog"
         subtitle="Step 4 of 4 · Program Selection"
         onBack={onBack}
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.leadText}>
-          Based on your biometrics, target goal, and weekly availability, the system has structured the optimal program.
+          Select a verified program from the GRAVITY catalog. The program directly establishes your weekly training frequency, rest periods, exercise split, and meal architecture.
         </Text>
 
-        {/* Candidate Program Selector Cards */}
+        {/* Category Horizontal Selector */}
+        <Text style={styles.sectionLabel}>PROGRAM CATEGORIES</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryScroll}
+        >
+          {categories.map((cat) => {
+            const isSelected = cat.id === activeCategory;
+            return (
+              <TouchableOpacity
+                key={cat.id}
+                style={[styles.categoryPill, isSelected && styles.categoryPillActive]}
+                onPress={() => handleSelectCategory(cat.id)}
+                activeOpacity={0.8}
+              >
+                <Text
+                  style={[styles.categoryPillText, isSelected && styles.categoryPillTextActive]}
+                >
+                  {cat.name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* Programs in Category */}
+        <Text style={styles.sectionLabel}>AVAILABLE PROGRAMS ({catalogPrograms.length})</Text>
         <View style={styles.candidateList}>
-          {candidatePrograms.map((prog, idx) => {
-            const isSelected = prog.id === selectedId;
-            const isTopMatch = idx === 0;
+          {catalogPrograms.map((prog: any, idx: number) => {
+            const isSelected = prog.id === selectedProgramId;
+            const isFirst = idx === 0;
             return (
               <TouchableOpacity
                 key={prog.id}
                 style={[styles.programCard, isSelected && styles.programCardActive]}
-                onPress={() => setSelectedId(prog.id)}
+                onPress={() => setSelectedProgramId(prog.id)}
                 activeOpacity={0.8}
               >
                 <View style={styles.cardTop}>
                   <View style={styles.titleCol}>
                     <View style={styles.badgeRow}>
-                      {isTopMatch && <StatusBadge label="TOP RECOMMENDATION" status="success" />}
-                      <View style={styles.scoreBadge}>
-                        <Text style={styles.scoreText}>{prog.matchScore}% MATCH</Text>
+                      <View style={styles.fittedBadge}>
+                        <Text style={styles.fittedBadgeText}>Program fitted by Gravity</Text>
                       </View>
+                      {isFirst && <StatusBadge label="POPULAR" status="success" />}
                     </View>
                     <Text style={[styles.programTitle, isSelected && styles.programTitleActive]}>
                       {prog.name}
                     </Text>
-                    <Text style={styles.tagline}>{prog.tagline}</Text>
+                    <Text style={styles.tagline} numberOfLines={2}>
+                      {prog.description || prog.goal || 'Structured training and nutrition protocol.'}
+                    </Text>
                   </View>
                   <View style={[styles.radioCircle, isSelected && styles.radioCircleActive]}>
                     {isSelected && <View style={styles.radioDot} />}
                   </View>
                 </View>
 
-                <Text style={styles.reasonText}>{prog.matchReason}</Text>
+                {/* Protocol Metrics */}
+                <View style={styles.metaRow}>
+                  <View style={styles.metaChip}>
+                    <Text style={styles.metaLabel}>DURATION</Text>
+                    <Text style={styles.metaValue}>{prog.duration || '6-12 Weeks'}</Text>
+                  </View>
+                  <View style={styles.metaChip}>
+                    <Text style={styles.metaLabel}>WORKOUT DAYS</Text>
+                    <Text style={styles.metaValue}>{prog.workoutDaysPerWeek || 6} Days/Wk</Text>
+                  </View>
+                  <View style={styles.metaChip}>
+                    <Text style={styles.metaLabel}>REST DAYS</Text>
+                    <Text style={styles.metaValue}>{prog.restDaysPerWeek || 1} Days/Wk</Text>
+                  </View>
+                </View>
               </TouchableOpacity>
             );
           })}
         </View>
 
-        {/* Selected Program Weekly Schedule Preview */}
-        <View style={styles.schedulePreviewCard}>
-          <View style={styles.previewHeader}>
-            <Text style={styles.previewTitle}>WEEKLY TRAINING SCHEDULE</Text>
-            <StatusBadge label={`${activeProgram.recommendedWeeks} WEEKS`} status="neutral" />
-          </View>
+        {/* Selected Program Deep Dive Preview */}
+        {selectedProgram && (
+          <View style={styles.schedulePreviewCard}>
+            <View style={styles.previewHeader}>
+              <View>
+                <Text style={styles.previewTitle}>WEEKLY SCHEDULE PREVIEW</Text>
+                <Text style={styles.previewSubName}>{selectedProgram.name}</Text>
+              </View>
+              <StatusBadge label={selectedProgram.duration || '12 WEEKS'} status="neutral" />
+            </View>
 
-          <View style={styles.daysList}>
-            {(activeProgram?.weeklySchedule || []).map((d) => {
-              const isRest = (d?.workoutTitle || '').toLowerCase().includes('rest');
-              return (
-                <View key={d.dayNumber} style={styles.dayRow}>
-                  <View style={styles.dayNameCol}>
-                    <Text style={styles.dayName}>{d.dayName}</Text>
-                    <Text style={styles.dayNumberText}>Day {d.dayNumber}</Text>
+            {/* Nutrition highlight */}
+            {selectedProgram.nutritionPlans && selectedProgram.nutritionPlans.length > 0 && (
+              <View style={styles.nutritionBox}>
+                <Text style={styles.nutritionBoxTitle}>INTEGRATED NUTRITION PLAN</Text>
+                <Text style={styles.nutritionBoxText}>
+                  Includes {selectedProgram.nutritionPlans[0]?.meals?.length || 5} scheduled meals per day with exact macronutrient prescriptions.
+                </Text>
+              </View>
+            )}
+
+            <View style={styles.daysList}>
+              {(selectedProgram.days || []).map((d: any) => {
+                const isRest = (d?.title || '').toLowerCase().includes('rest') || (d?.exercises || []).length === 0;
+                return (
+                  <View key={d.dayOfWeek} style={styles.dayRow}>
+                    <View style={styles.dayNameCol}>
+                      <Text style={styles.dayName}>{dayNames[d.dayOfWeek] || `Day ${d.dayOfWeek}`}</Text>
+                      <Text style={styles.dayNumberText}>Day {d.dayOfWeek}</Text>
+                    </View>
+                    <View style={styles.workoutCol}>
+                      <Text style={[styles.workoutTitle, isRest && styles.restTitle]}>
+                        {d.title || (isRest ? 'Rest & Recovery' : 'Scheduled Training')}
+                      </Text>
+                      <Text style={styles.focusText}>
+                        {isRest ? 'Active recovery & hydration' : `${(d.exercises || []).length} prescribed exercises`}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.workoutCol}>
-                    <Text style={[styles.workoutTitle, isRest && styles.restTitle]}>
-                      {d.workoutTitle}
-                    </Text>
-                    <Text style={styles.focusText}>{d.focus}</Text>
-                  </View>
-                </View>
-              );
-            })}
+                );
+              })}
+            </View>
           </View>
-        </View>
+        )}
 
         <PrimaryButton
-          title={`Select ${activeProgram.name} & Continue`}
-          onPress={() => onSelectProgram(activeProgram)}
+          title={`Activate ${selectedProgram?.name || 'Program'} & Begin`}
+          onPress={handleConfirmSelection}
           style={styles.selectBtn}
         />
       </ScrollView>
@@ -253,9 +260,42 @@ const styles = StyleSheet.create({
   },
   leadText: {
     color: Theme.colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 19,
     fontFamily: Theme.typography.fontBody,
+  },
+  sectionLabel: {
+    color: Theme.colors.textMuted,
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    fontFamily: Theme.typography.fontMono,
+    marginTop: 4,
+  },
+  categoryScroll: {
+    gap: 8,
+    paddingVertical: 4,
+  },
+  categoryPill: {
+    backgroundColor: Theme.colors.surfaceElevated,
+    borderRadius: Theme.borderRadius.pill,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  categoryPillActive: {
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    borderColor: Theme.colors.cyanGlow,
+  },
+  categoryPillText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Theme.colors.textSecondary,
+  },
+  categoryPillTextActive: {
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
   },
   candidateList: {
     gap: 12,
@@ -270,7 +310,7 @@ const styles = StyleSheet.create({
   },
   programCardActive: {
     borderColor: Theme.colors.cyanGlow,
-    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    backgroundColor: 'rgba(0, 240, 255, 0.06)',
   },
   cardTop: {
     flexDirection: 'row',
@@ -286,22 +326,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginBottom: 4,
+    flexWrap: 'wrap',
   },
-  scoreBadge: {
-    backgroundColor: 'rgba(0, 240, 255, 0.15)',
+  fittedBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: Theme.borderRadius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
   },
-  scoreText: {
-    color: Theme.colors.cyanGlow,
-    fontSize: 10,
+  fittedBadgeText: {
+    color: Theme.colors.emeraldSuccess,
+    fontSize: 9,
     fontWeight: '800',
     fontFamily: Theme.typography.fontMono,
+    letterSpacing: 0.5,
   },
   programTitle: {
     color: Theme.colors.textPrimary,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '800',
     fontFamily: Theme.typography.fontDisplay,
   },
@@ -311,7 +355,34 @@ const styles = StyleSheet.create({
   tagline: {
     color: Theme.colors.textMuted,
     fontSize: 12,
+    lineHeight: 16,
     fontFamily: Theme.typography.fontBody,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  metaChip: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 6,
+    padding: 6,
+    alignItems: 'center',
+  },
+  metaLabel: {
+    fontSize: 8,
+    fontWeight: '700',
+    color: Theme.colors.textMuted,
+    fontFamily: Theme.typography.fontMono,
+  },
+  metaValue: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Theme.colors.textPrimary,
+    marginTop: 2,
   },
   radioCircle: {
     width: 22,
@@ -333,12 +404,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: Theme.colors.cyanGlow,
   },
-  reasonText: {
-    color: Theme.colors.textSecondary,
-    fontSize: 12,
-    lineHeight: 18,
-    fontFamily: Theme.typography.fontBody,
-  },
   schedulePreviewCard: {
     backgroundColor: Theme.colors.surfaceElevated,
     borderRadius: Theme.borderRadius.lg,
@@ -354,13 +419,39 @@ const styles = StyleSheet.create({
   },
   previewTitle: {
     color: Theme.colors.textMuted,
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     letterSpacing: 1,
     fontFamily: Theme.typography.fontMono,
   },
+  previewSubName: {
+    color: Theme.colors.textPrimary,
+    fontSize: 13,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+  nutritionBox: {
+    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.25)',
+    padding: 10,
+    gap: 2,
+  },
+  nutritionBoxTitle: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: Theme.colors.cyanGlow,
+    fontFamily: Theme.typography.fontMono,
+    letterSpacing: 0.5,
+  },
+  nutritionBoxText: {
+    fontSize: 11,
+    color: Theme.colors.textSecondary,
+    lineHeight: 15,
+  },
   daysList: {
-    gap: 10,
+    gap: 8,
   },
   dayRow: {
     flexDirection: 'row',
@@ -372,17 +463,17 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.05)',
   },
   dayNameCol: {
-    width: 90,
+    width: 85,
   },
   dayName: {
     color: Theme.colors.textPrimary,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     fontFamily: Theme.typography.fontBody,
   },
   dayNumberText: {
     color: Theme.colors.textMuted,
-    fontSize: 10,
+    fontSize: 9,
     fontFamily: Theme.typography.fontMono,
   },
   workoutCol: {
@@ -390,7 +481,7 @@ const styles = StyleSheet.create({
   },
   workoutTitle: {
     color: Theme.colors.cyanGlow,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     fontFamily: Theme.typography.fontBody,
   },
@@ -399,7 +490,7 @@ const styles = StyleSheet.create({
   },
   focusText: {
     color: Theme.colors.textSecondary,
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: Theme.typography.fontBody,
   },
   selectBtn: {

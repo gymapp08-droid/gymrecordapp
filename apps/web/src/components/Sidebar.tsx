@@ -150,11 +150,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             flexShrink: 0,
           }}
         >
-          α
+          G
         </div>
         <div>
           <div style={{ fontWeight: 800, letterSpacing: '0.1em', fontSize: '13px', color: STITCH_THEME.colors.textPrimary }}>
-            ALPHA
+            GRAVITY
           </div>
           <div
             style={{

@@ -1,0 +1,545 @@
+Designed & Created by Guru Mann
+ISSA/ASFA/NASM/ACE Level-­‐III CERTIFIED | Biomechanics & Kinesiology – Human Kinetic
+FB: GuruMannFitness YOUTUBE: Health and Fitness | Guru Mann Fitness INSTA: GuruMann
+MALE MACROS
+MACROS 	<150lb 	151-­‐165lb 	166-­‐180lb 	181-­‐195lb 	196lb <
+WEEK 1 	P-­‐1.2g
+C-­‐1.2g
+F-­‐0.5g
+P/C/F
+168/168/70
+1974 Cal
+P/C/F
+181/181/75
+2128 Cal
+P/C/F
+199/199/83
+2339 Cal
+P/C/F
+216/216/90
+2538 Cal
+P/C/F
+235/235/98
+2762 Cal
+WEEK 2 	P-­‐1.2g
+C-­‐1.0g
+F-­‐0.5g
+P/C/F
+168/140/70
+1862 Cal
+P/C/F
+181/151/75
+2007 Cal
+P/C/F
+199/166/83
+2207 Cal
+P/C/F
+216/181/90
+2394 Cal
+P/C/F
+235/196/98
+2606 Cal
+WEEK 3 	P-­‐1.2g
+C-­‐0.7g
+F-­‐0.5g
+P/C/F
+168/98/70
+1694 Cal
+P/C/F
+181/105/75
+1825 Cal
+P/C/F
+199/116/83
+2007 Cal
+P/C/F
+216/126/90
+2178 Cal
+P/C/F
+235/137/98
+2370 Cal
+WEEK 4 	P-­‐1.2g
+C-­‐0.3g
+F-­‐0.5g
+P/C/F
+168/42/70
+1584 Cal
+P/C/F
+181/45/75
+1584 Cal
+P/C/F
+199/49/83
+1742 Cal
+P/C/F
+216/54/90
+1890 Cal
+P/C/F
+235/49/98
+2057 Cal
+WEEK 5 	P-­‐1.2g
+C-­‐0g
+F-­‐0.5g
+P/C/F
+168/0/70
+1407 Cal
+P/C/F
+181/0/75
+2339 Cal
+P/C/F
+199/0/83
+1543 Cal
+P/C/F
+216/0/90
+1674 Cal
+P/C/F
+235/0/98
+1822 Cal
+WEEK 6 	P-­‐1.2g
+C-­‐1.2g
+F-­‐0.5g
+P/C/F
+168/168/70
+1974 Cal
+P/C/F
+181/181/75
+2128 Cal
+P/C/F
+199/199/83
+2339 Cal
+P/C/F
+216/216/90
+2538 Cal
+P/C/F
+235/235/98
+2762 Cal
+FEMALE MACROS
+MACROS 	<110lb 	111-­‐124lb 	125-­‐139lb 	140-­‐154lb 	155lb <
+WEEK 1 	P-­‐1.2g
+C-­‐1.2g
+F-­‐0.5g
+P/C/F
+126/126/52
+1480 Cal
+P/C/F
+138/138/57
+1621 Cal
+P/C/F
+150/150/62
+1762 Cal
+P/C/F
+168/168/70
+1974 Cal
+P/C/F
+186/186/77
+2185 Cal
+WEEK 2 	P-­‐1.2g
+C-­‐1.0g
+F-­‐0.5g
+P/C/F
+126/105/52
+1396 Cal
+P/C/F
+138/115/64
+1529 Cal
+P/C/F
+150/125/62
+1662 Cal
+P/C/F
+168/140/70
+1862 Cal
+P/C/F
+186/155/77
+2061 Cal
+WEEK 3 	P-­‐1.2g
+C-­‐0.7g
+F-­‐0.5g
+P/C/F
+126/73/52
+1270 Cal
+P/C/F
+138/80/57
+1391 Cal
+P/C/F
+150/87/62
+1512 Cal
+P/C/F
+168/98/70
+1694 Cal
+P/C/F
+186/108/77
+1875 Cal
+WEEK 4 	P-­‐1.2g
+C-­‐0.3g
+F-­‐0.5g
+P/C/F
+126/31/52
+1102 Cal
+P/C/F
+138/34/57
+1207 Cal
+P/C/F
+150/37/62
+1312 Cal
+P/C/F
+168/42/70
+1470 Cal
+P/C/F
+186/46/77
+1627 Cal
+WEEK 5 	P-­‐1.2g
+C-­‐0g
+F-­‐0.5g
+P/C/F
+126/0/52
+976 Cal
+P/C/F
+138/0/57
+1162 Cal
+P/C/F
+150/0/62
+1162 Cal
+P/C/F
+168/0/70
+1301 Cal
+P/C/F
+186/0/77
+1441 Cal
+WEEK 6 	P-­‐1.2g
+C-­‐1.2g
+F-­‐0.5g
+P/C/F
+126/126/52
+1480 Cal
+P/C/F
+138/138/57
+1621 Cal
+P/C/F
+150/150/62
+1762 Cal
+P/C/F
+168/168/70
+1974 Cal
+P/C/F
+186/186/77
+2185 Cal
+DESIGNED & CREATED
+BY GURU MANN
+
+-- 1 of 5 --
+
+Designed & Created by Guru Mann
+ISSA/ASFA/NASM/ACE Level-­‐III CERTIFIED | Biomechanics & Kinesiology – Human Kinetic
+FB: GuruMannFitness YOUTUBE: Health and Fitness | Guru Mann Fitness INSTA: GuruMann
+EXAMPLE: 	MALE 181LBS – 2538 CALORIES
+TIME 	NON-­‐VEG 	VEG
+UPON
+WALKING UP
+GREEN TEA EXTRACT
+-­‐ 500mg with 1 glass of water
+GREEN TEA EXTRACT
+-­‐ 500mg with 1 glass of water
+BREAKFAST
+8-­‐9AM
+PROTEIN PANCAKE
+-­‐1 Whole Egg
+-­‐2/3 Whey Protein
+-­‐1sp Chia Seed
+-­‐1/4 cup Oats
+-­‐1/3 Banana
+-­‐2pinch Cinnamon
+PROTEIN PANCAKE
+-­‐3-­‐5sp Milk
+-­‐2/3 Whey Protein
+-­‐2sp Chia Seed
+-­‐1/4 cup Oats
+-­‐1/3 Banana
+-­‐2pinch Cinnamon
+SNACK
+10-­‐11AM
+EGGS & NUTS
+-­‐7 Egg Whites
+-­‐1 Apple
+-­‐28g Almonds (20-­‐22pieces)
+EGGS & NUTS
+-­‐300ml Non fat Milk
+-­‐1 Apple
+-­‐28g Almonds (20-­‐22pieces)
+30min
+BEFORE
+LUNCH
+GREEN TEA EXTRACT
+-­‐ 500mg with 1 glass of water
+GREEN TEA EXTRACT
+-­‐ 500mg with 1 glass of water
+LUNCH
+1-­‐2PM
+BROCCOLI BEAN SALAD
+-­‐100g Grilled Chicken
+-­‐1/2 cup Black Kidney Beans
+-­‐1/2 cup Lettuce
+-­‐1/2 cup Broccoli (or Cauliflower)
+-­‐2sp Onion
+-­‐2sp Tomato
+-­‐2/3sp Olive Oil
+-­‐1/2 Lemon
+BROCCOLI BEAN SALAD
+-­‐50g Paneer or Soy Chunk
+-­‐1/2 cup Black Kidney Beans
+-­‐1/2 cup Lettuce
+-­‐1/2 cup Broccoli (or Cauliflower)
+-­‐2sp Onion
+-­‐2sp Tomato
+-­‐2/3sp Olive Oil
+-­‐1/2 Lemon
+SNACK
+3-­‐4PM
+PROTEIN YOGURT
+-­‐1 cup Low Fat Yogurt
+-­‐2/3 Scoop Whey
+-­‐1/2 Pear/Apple
+-­‐26g Peanuts
+PROTEIN YOGURT
+-­‐1 cup Low Fat Yogurt
+-­‐2/3 Scoop Whey
+-­‐1/2 Pear/Apple
+-­‐26g Peanuts
+PRE W/O
+5PM
+PRE W/O SUPPLEMENT
+-­‐1scoop C4 or Amino energy
+-­‐200ml Cold Water +500mg GTE
+OR
+PRE W/O WITHOUT SUPPLEMENT
+-­‐½tbs Coffee (Nescafe)
+-­‐240ml Hot Water
+PRE W/O SUPPLEMENT
+-­‐1scoop C4 or Amino energy
+-­‐200ml Cold Water+500mg GTE
+OR
+PRE W/O WITHOUT SUPPLEMENT
+-­‐½tbs Coffee (Nescafe)
+-­‐240ml Hot Water
+WORKOUT
+POST W/O
+6-­‐7PM
+POST W/O SUPPLEMENT
+-­‐1-­‐2scoop Whey Protein+ 5g Glutamine
+-­‐300ml Cold Water
+-­‐1 cup Grapes
+OR
+POST W/O WITHOUT SUPPLEMENT
+-­‐6 Boiled Egg Whites
+-­‐1 cup Grapes
+POST W/O SUPPLEMENT
+-­‐1-­‐2scoop Whey Protein+ 5g Glutamine
+-­‐300ml Cold Water
+-­‐1 cup Grapes
+OR
+POST W/O WITHOUT SUPPLEMENT
+-­‐1cup Milk + 2sp Protinex
+-­‐1 cup Grapes
+
+-- 2 of 5 --
+
+Designed & Created by Guru Mann
+ISSA/ASFA/NASM/ACE Level-­‐III CERTIFIED | Biomechanics & Kinesiology – Human Kinetic
+FB: GuruMannFitness YOUTUBE: Health and Fitness | Guru Mann Fitness INSTA: GuruMann
+DINNER
+8-­‐9PM
+PINEAPPLE RICE
+-­‐80g Grilled Chicken Breast
+-­‐1/2 cup Brown Rice
+-­‐2sp Onions
+-­‐2sp Tomato
+-­‐1 slice Pineapple
+-­‐1sp Ketchup
+-­‐Salt/Pepper/Garlic Power
+-­‐1/2 Lemon
+PINEAPPLE RICE
+-­‐50g Paneer
+-­‐1/2 cup Brown Rice
+-­‐2sp Onions
+-­‐2sp Tomato
+-­‐1 slice Pineapple
+-­‐1sp Ketchup
+-­‐Salt/Pepper/Garlic Power
+-­‐1/2 Lemon
+BEFORE BED
+10-­‐11PM
+PROTEIN MILK
+-­‐1cup(240ml) Low Fat Milk
+-­‐1/2 Casein or Whey
+-­‐18 Almonds (crushed)
+PROTEIN MILK
+-­‐1cup(240ml) Low Fat Milk
+-­‐1/2 Casein or Whey
+-­‐18 Almonds (crushed)
+TOTAL 	CAL – 2538 	Pro – 216g 	Carbs – 216g 	Fat – 90g
+EXAMPLE: 	FEMALE 125LBS – 1762 CALORIES
+TIME 	NON-­‐VEG 	VEG
+UPON
+WALKING UP
+GREEN TEA EXTRACT
+-­‐ 500mg with 1 glass of water
+GREEN TEA EXTRACT
+-­‐ 500mg with 1 glass of water
+BREAKFAST
+8-­‐9AM
+PROTEIN PANCAKE
+-­‐1 Whole Egg
+-­‐1/3 Whey Protein
+-­‐1sp Chia Seed
+-­‐1/8 cup Oats
+-­‐1/4 Banana
+-­‐2pinch Cinnamon
+PROTEIN PANCAKE
+-­‐3sp Milk
+-­‐1/3 Whey Protein
+-­‐2sp Chia Seed
+-­‐1/8 cup Oats
+-­‐1/4 Banana
+-­‐2pinch Cinnamon
+SNACK
+10-­‐11AM
+EGGS & NUTS
+-­‐4 Egg Whites
+-­‐1/2 Apple
+-­‐18g Almonds (12pieces)
+MILK & NUTS
+-­‐240ml Milk
+-­‐1/2 Apple
+-­‐18g Almonds (12pieces)
+30min
+BEFORE
+LUNCH
+GREEN TEA EXTRACT
+-­‐ 500mg with 1 glass of water
+GREEN TEA EXTRACT
+-­‐ 500mg with 1 glass of water
+LUNCH
+1-­‐2PM
+BROCCOLI BEAN SALAD
+-­‐50g Grilled Chicken
+-­‐1/3 cup Black Kidney Beans
+-­‐1/2 cup Lettuce
+-­‐1/2 cup Broccoli (or Cauliflower)
+-­‐2sp Onion
+-­‐2sp Tomato
+-­‐2/3sp Olive Oil
+-­‐1/2 Lemon
+BROCCOLI BEAN SALAD
+-­‐50g Paneer or Soy Chunk
+-­‐1/3 cup Black Kidney Beans
+-­‐1/2 cup Lettuce
+-­‐1/2 cup Broccoli (or Cauliflower)
+-­‐2sp Onion
+-­‐2sp Tomato
+-­‐2/3sp Olive Oil
+-­‐1/2 Lemon
+SNACK
+3-­‐4PM
+PROTEIN YOGURT 	PROTEIN YOGURT
+
+-- 3 of 5 --
+
+Designed & Created by Guru Mann
+ISSA/ASFA/NASM/ACE Level-­‐III CERTIFIED | Biomechanics & Kinesiology – Human Kinetic
+FB: GuruMannFitness YOUTUBE: Health and Fitness | Guru Mann Fitness INSTA: GuruMann
+-­‐1 cup Low Fat Yogurt
+-­‐1/3 Scoop Whey
+-­‐1/2 Pear/Apple
+-­‐18g Peanuts
+-­‐1 cup Low Fat Yogurt
+-­‐1/3 Scoop Whey
+-­‐1/2 Pear/Apple
+-­‐18g Peanuts
+PRE W/O
+5PM
+PRE W/O SUPPLEMENT
+-­‐1scoop Amino energy
+-­‐200ml Cold Water
+-­‐500mg Green Tea Extract
+OR
+PRE W/O WITHOUT SUPPLEMENT
+-­‐½tbs Coffee (Nescafe)
+-­‐240ml Hot Water
+PRE W/O SUPPLEMENT
+-­‐1scoop Amino energy
+-­‐200ml Cold Water
+-­‐500mg Green Tea Extract
+OR
+PRE W/O WITHOUT SUPPLEMENT
+-­‐½tbs Coffee (Nescafe)
+-­‐240ml Hot Water
+WORKOUT
+POST W/O
+6-­‐7PM
+POST W/O SUPPLEMENT
+-­‐1scoop Whey Protein+ 5g Glutamine
+-­‐300ml Cold Water
+-­‐1 cup Grapes
+OR
+POST W/O WITHOUT SUPPLEMENT
+-­‐5 Boiled Egg Whites
+-­‐1 cup Grapes
+POST W/O SUPPLEMENT
+-­‐1scoop Whey Protein+ 5g Glutamine
+-­‐300ml Cold Water
+-­‐1 cup Grapes
+OR
+POST W/O WITHOUT SUPPLEMENT
+-­‐240ml Non Fat Milk
+-­‐ 2sp Sugar Free Protinex
+-­‐1 cup Grapes
+DINNER
+8-­‐9PM
+PINEAPPLE RICE
+-­‐60g Grilled Chicken Breast
+-­‐2/3 cup Brown Rice
+-­‐2sp Onions
+-­‐2sp Tomato
+-­‐1/2 slice Pineapple
+-­‐1sp Ketchup
+-­‐Salt/Pepper/Garlic Power
+-­‐1/2 Lemon
+PINEAPPLE RICE
+-­‐80g Paneer
+-­‐2/3 cup Brown Rice
+-­‐2sp Onions
+-­‐2sp Tomato
+-­‐1/2 slice Pineapple
+-­‐1sp Ketchup
+-­‐Salt/Pepper/Garlic Power
+-­‐1/2 Lemon
+BEFORE BED
+10-­‐11PM
+PROTEIN MILK
+-­‐2/3cup(200ml) Low Fat Warm Milk
+-­‐1/3 Casein or Whey
+-­‐10 Almonds (crushed)
+PROTEIN MILK
+-­‐2/3cup(200ml) Low Fat Warm Milk
+-­‐1/3 Casein or Whey
+-­‐10 Almonds (crushed)
+TOTAL 	CAL – 1762 	Pro – 150g 	Carbs – 150g 	Fat – 62g
+IMPORTANT INFO
+1. 	This is Veg/Non Veg Nutrition Plan for both Men & women.
+2. 	Above nutrition plan is based on 181 pound for Men and 125 pound for Women.
+3. 	Pick your weight and take the calories accordingly.
+4. 	Lower your carbs every week.
+
+-- 4 of 5 --
+
+Designed & Created by Guru Mann
+ISSA/ASFA/NASM/ACE Level-­‐III CERTIFIED | Biomechanics & Kinesiology – Human Kinetic
+FB: GuruMannFitness YOUTUBE: Health and Fitness | Guru Mann Fitness INSTA: GuruMann
+5. 	Week 5 will be zero carbs day, means no rice, no oats, no grapes.
+6. 	You can add White fish once or twice a week at lunch or dinner.
+7. 	You can have flaxseed instead of chia seed if needed.
+8. 	You can replace Almonds with walnuts in meal 6.
+9. 	Drink 4 liters of water a day.
+10. Add orange in snack if needed.
+11. Sleep 8 hours.
+12. Take your picture every week with measurements.
+
+-- 5 of 5 --
+

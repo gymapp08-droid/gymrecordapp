@@ -99,7 +99,7 @@ export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({
                 borderRadius: '4px',
               }}
             >
-              ALPHA Operations
+              GRAVITY Operations
             </span>
             <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>•</span>
             <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, fontFamily: STITCH_THEME.typography.fontMono }}>

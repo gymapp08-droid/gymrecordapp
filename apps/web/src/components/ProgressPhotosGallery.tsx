@@ -81,7 +81,7 @@ export const ProgressPhotosGallery: React.FC<ProgressPhotosGalleryProps> = ({
       >
         <span>🛡️</span>
         <span>
-          <strong>ALPHA Privacy Protection:</strong> Photos are strictly confined to authorized coaches. Client possesses full revocation authority.
+          <strong>GRAVITY Privacy Protection:</strong> Photos are strictly confined to authorized coaches. Client possesses full revocation authority.
         </span>
       </div>
 
@@ -139,7 +139,7 @@ export const ProgressPhotosGallery: React.FC<ProgressPhotosGalleryProps> = ({
                       color: STITCH_THEME.colors.accentCyan,
                     }}
                   >
-                    ALPHA VAULT • {athleteName.toUpperCase()}
+                    GRAVITY VAULT • {athleteName.toUpperCase()}
                   </div>
 
                   {/* Pose Badge */}

@@ -4,11 +4,13 @@ import { AlphaScreen, AlphaHeader, PrimaryButton } from '../../components';
 import { Theme } from '../../theme/tokens';
 
 const GOAL_OPTIONS = [
-  { id: 'BUILD_MUSCLE', title: 'Build Muscle', desc: 'Hypertrophy-focused periodization & progressive volume' },
-  { id: 'LOSE_FAT', title: 'Lose Fat', desc: 'Caloric deficit management & metabolic conditioning' },
-  { id: 'GET_LEAN', title: 'Get Lean', desc: 'Body recomposition, muscle retention & cardio density' },
-  { id: 'IMPROVE_ENDURANCE', title: 'Improve Endurance', desc: 'VO2 Max enhancement, Zone 2 running & stamina' },
-  { id: 'STAY_HEALTHY', title: 'Stay Healthy', desc: 'Longevity, daily movement, hydration & recovery' },
+  { id: 'cat-muscle-building', title: 'Muscle Building & Hypertrophy', desc: 'Periodized hypertrophy, progressive overload & lean mass protocols' },
+  { id: 'cat-fat-loss', title: 'Fat Loss & Conditioning', desc: 'Aggressive caloric deficit management, supersets & metabolic conditioning' },
+  { id: 'cat-single-muscle', title: 'Single Muscle Specialization', desc: 'Hyper-focused isolation programs for arms, chest, shoulders & back' },
+  { id: 'cat-bodyweight', title: 'Bodyweight & Home Workouts', desc: 'Calisthenics density, core conditioning & zero-gym resistance flows' },
+  { id: 'cat-medical', title: 'Clinical & Health Diets', desc: 'Medical nutrition therapy for liver health, thyroid, blood sugar & longevity' },
+  { id: 'cat-family', title: 'Kids & Family Nutrition', desc: 'Wholesome family meal structures, youth growth & athletic nutrition' },
+  { id: 'cat-specialized-nutrition', title: 'Specialized Nutrition Protocols', desc: 'Targeted diet plans including Keto, Intermittent Fasting & detox' },
 ];
 
 interface GoalSelectionScreenProps {
@@ -17,7 +19,7 @@ interface GoalSelectionScreenProps {
 }
 
 export const GoalSelectionScreen: React.FC<GoalSelectionScreenProps> = ({ onBack, onNext }) => {
-  const [selectedGoal, setSelectedGoal] = useState<string>('BUILD_MUSCLE');
+  const [selectedGoal, setSelectedGoal] = useState<string>('cat-fat-loss');
 
   return (
     <AlphaScreen>

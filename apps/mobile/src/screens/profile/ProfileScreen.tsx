@@ -21,7 +21,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const handleLogout = () => {
     Alert.alert(
       'Disconnect Protocol',
-      'Are you sure you want to sign out of ALPHA OS on this device?',
+      'Are you sure you want to sign out of GRAVITY OS on this device?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -57,9 +57,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </Text>
           </View>
           <Text style={styles.userName}>{displayName}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'athlete@alpha.os'}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'athlete@gravity.os'}</Text>
           <View style={styles.tierPill}>
-            <StatusBadge label="ALPHA ELITE MEMBER" status="success" />
+            <StatusBadge label="GRAVITY ELITE MEMBER" status="success" />
           </View>
         </View>
 

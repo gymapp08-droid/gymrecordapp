@@ -74,7 +74,7 @@ export const AlphaUpdateModal: React.FC = () => {
     return (
       <View style={styles.restartingOverlay}>
         <ActivityIndicator size="large" color={Theme.colors.cyanGlow} />
-        <Text style={styles.restartingTitle}>RESTARTING ALPHA OS</Text>
+        <Text style={styles.restartingTitle}>RESTARTING GRAVITY OS</Text>
         <Text style={styles.restartingSubtitle}>Applying verified update package...</Text>
       </View>
     );
@@ -86,7 +86,7 @@ export const AlphaUpdateModal: React.FC = () => {
       <View pointerEvents="none" style={styles.downloadingPill}>
         <ActivityIndicator size="small" color={Theme.colors.cyanGlow} style={{ marginRight: 8 }} />
         <View>
-          <Text style={styles.downloadingTitle}>ALPHA OS UPDATE</Text>
+          <Text style={styles.downloadingTitle}>GRAVITY OS UPDATE</Text>
           <Text style={styles.downloadingSubtitle}>Downloading verified bundle in background...</Text>
         </View>
       </View>
@@ -119,7 +119,7 @@ export const AlphaUpdateModal: React.FC = () => {
   }
 
   // If ready to restart and no workout in progress:
-  // Show full polished ALPHA modal
+  // Show full polished GRAVITY modal
   if (isReady) {
     return (
       <Modal transparent visible={isReady} animationType="fade" onRequestClose={dismissUpdateBanner}>
@@ -132,7 +132,7 @@ export const AlphaUpdateModal: React.FC = () => {
             </View>
 
             {/* Title & Description */}
-            <Text style={styles.modalTitle}>ALPHA Performance OS</Text>
+            <Text style={styles.modalTitle}>GRAVITY Performance OS</Text>
             <Text style={styles.modalDescription}>
               A certified over-the-air update has been downloaded. Restart the application to apply
               the latest performance improvements and enhancements immediately.

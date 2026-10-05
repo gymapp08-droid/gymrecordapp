@@ -836,16 +836,87 @@ export interface IProgramSplitDay {
   executionInstructions?: string | null;
 }
 
+export interface IProgramCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  programsCount?: number;
+}
+
+export interface INutritionMealItem {
+  id: string;
+  mealId: string;
+  foodName: string;
+  quantity?: string | null;
+  unit?: string | null;
+  notes?: string | null;
+}
+
+export interface INutritionMeal {
+  id: string;
+  nutritionPlanId: string;
+  mealNumber: number;
+  mealName: string;
+  mealTime?: string | null;
+  notes?: string | null;
+  items: INutritionMealItem[];
+}
+
+export interface IProgramNutrition {
+  id: string;
+  programId: string;
+  planName: string;
+  targetAudience?: string | null;
+  totalCalories?: number | null;
+  proteinGrams?: number | null;
+  carbGrams?: number | null;
+  fatGrams?: number | null;
+  notes?: string | null;
+  sourceDocumentHash?: string | null;
+  meals: INutritionMeal[];
+}
+
+export interface IProgramSourceDocument {
+  id: string;
+  programId?: string | null;
+  documentType: string;
+  title: string;
+  sourceUrl: string;
+  localPath?: string | null;
+  sha256: string;
+  extractedText?: string | null;
+  importedAt: Date;
+}
+
 export interface IProgramDetail {
   id: string;
   creatorId: string;
+  categoryId?: string | null;
+  categoryName?: string | null;
   name: string;
+  slug?: string | null;
   description?: string | null;
+  goal?: string | null;
+  duration?: string | null;
+  workoutDaysPerWeek?: number | null;
+  restDaysPerWeek?: number | null;
+  cardioDaysPerWeek?: number | null;
+  absDaysPerWeek?: number | null;
+  sourceUrl?: string | null;
+  sourceDocumentHash?: string | null;
+  isActive?: boolean;
   weeksCount: number;
   status: ProgramStatus;
   version: number;
   parentProgramId?: string | null;
   days: IProgramSplitDay[];
+  nutritionPlans?: IProgramNutrition[];
+  sourceDocuments?: IProgramSourceDocument[];
   displayDuration?: string;
   sourceDuration?: string;
   sourceAttribution?: string;

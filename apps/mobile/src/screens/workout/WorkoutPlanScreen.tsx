@@ -19,6 +19,7 @@ import {
   HIIC_TREADMILL_PROTOCOL,
   SIX_WEEK_SHREDDED_PROGRAM_DETAIL,
 } from '../../data/sixWeekShredded';
+import programCatalogData from '../../data/program-catalog.json';
 
 interface WorkoutPlanScreenProps {
   onStartWorkout?: (dayTitle: string) => void;
@@ -36,7 +37,7 @@ const DAY_TAB_INFO: { dayOfWeek: number; dayShort: string; dayFull: string; colo
 
 export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWorkout }) => {
   const {
-    activeProgramId: _activeProgramId,
+    activeProgramId,
     activeProgramTitle,
     currentProgramWeek,
     setCurrentProgramWeek,
@@ -50,7 +51,61 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
   const [showProgramInfo, setShowProgramInfo] = useState<boolean>(false);
 
   const isCycle1 = selectedWeek <= 6;
-  const canonicalDayPlan = CANONICAL_6_WEEK_SPLIT[selectedDay] || CANONICAL_6_WEEK_SPLIT[1]!;
+
+  const is6WeekShredded =
+    !activeProgramId ||
+    activeProgramId === 'prog_6_week_shredded_12w' ||
+    activeProgramId === '6-week-shredded';
+
+  const catalogProgram = React.useMemo(() => {
+    if (is6WeekShredded) return null;
+    return (programCatalogData.programs || []).find((p: any) => p.id === activeProgramId);
+  }, [is6WeekShredded, activeProgramId]);
+
+  const canonicalDayPlan = React.useMemo(() => {
+    if (is6WeekShredded || !catalogProgram) {
+      return CANONICAL_6_WEEK_SPLIT[selectedDay] || CANONICAL_6_WEEK_SPLIT[1]!;
+    }
+    const day = (catalogProgram.days || []).find((d: any) => d.dayOfWeek === selectedDay);
+    if (!day || !day.exercises || day.exercises.length === 0) {
+      return {
+        dayNumber: selectedDay,
+        dayName: DAY_TAB_INFO.find((d) => d.dayOfWeek === selectedDay)?.dayFull || 'Rest Day',
+        workoutType: 'RECOVERY' as const,
+        title: 'Rest & Recovery',
+        muscleGroups: ['Regeneration & Mobility'],
+        liftingSpeedInstructions: 'Rest and replenish glycogen stores.',
+        restInstructions: 'Full muscular recovery.',
+        prescriptions: [],
+      };
+    }
+
+    return {
+      dayNumber: selectedDay,
+      dayName: DAY_TAB_INFO.find((d) => d.dayOfWeek === selectedDay)?.dayFull || `Day ${selectedDay}`,
+      workoutType: 'RESISTANCE' as const,
+      title: day.title || `${catalogProgram.name} - Day ${selectedDay}`,
+      muscleGroups: [catalogProgram.goal || catalogProgram.name],
+      liftingSpeedInstructions: 'Controlled eccentric cadence, explosive concentric drive.',
+      restInstructions: day.exercises[0]?.restInstructions || '60–90 sec rest between sets.',
+      prescriptions: day.exercises.map((ex: any, idx: number) => ({
+        exerciseId: `ex-${idx + 1}`,
+        exerciseName: ex.name,
+        primaryMuscle: catalogProgram.goal || 'General Movement',
+        orderIndex: idx,
+        setGroupType: (ex.setGroupType || 'Regular Set') as any,
+        groupNumber: ex.groupNumber || idx + 1,
+        targetSets: 3,
+        targetReps: 10,
+        prescribedReps: ex.prescribedReps || '3 sets · 10–12 reps',
+        setReps: ['12 reps', '10 reps', '10 reps'],
+        restSeconds: 60,
+        restInstructions: ex.restInstructions || '60 sec rest',
+        workoutInstructions: ex.notes || 'Execute with strict technique and controlled tempo.',
+        notes: ex.notes || undefined,
+      })),
+    };
+  }, [is6WeekShredded, catalogProgram, selectedDay]);
 
   const handleSelectDay = (dow: number) => {
     setSelectedDay(dow);
@@ -70,7 +125,7 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
       groupNumber: number;
       groupType: string;
       restInstructions?: string;
-      items: typeof canonicalDayPlan.prescriptions;
+      items: any[];
     }[] = [];
 
     for (const p of canonicalDayPlan.prescriptions) {
@@ -374,7 +429,7 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
                     {/* Set breakdown chips if multi-set */}
                     {ex.setReps && ex.setReps.length > 0 && (
                       <View style={styles.setChipsRow}>
-                        {ex.setReps.map((r, sIdx) => (
+                        {ex.setReps.map((r: string, sIdx: number) => (
                           <View key={sIdx} style={styles.setChip}>
                             <Text style={styles.setChipLabel}>Set {sIdx + 1}:</Text>
                             <Text style={styles.setChipReps}>{r}</Text>

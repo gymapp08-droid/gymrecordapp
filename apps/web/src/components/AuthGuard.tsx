@@ -56,7 +56,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           letterSpacing: '0.05em',
         }}
       >
-        VERIFYING ALPHA PORTAL CREDENTIALS...
+        VERIFYING GRAVITY PORTAL CREDENTIALS...
       </div>
     );
   }

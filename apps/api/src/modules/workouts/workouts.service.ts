@@ -6,6 +6,8 @@ import {
   Logger,
   Optional,
 } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 import { HashUtil } from '@alpha/utils';
 import {
   WorkoutStatus,
@@ -63,12 +65,25 @@ export interface StoredExercise {
 
 export interface StoredProgram {
   id: string;
-  creatorId: string;
+  creatorId?: string;
+  categoryId?: string;
+  categoryName?: string;
   name: string;
+  slug?: string;
   description?: string;
-  isTemplate: boolean;
+  goal?: string;
+  duration?: string;
+  workoutDaysPerWeek?: number;
+  restDaysPerWeek?: number;
+  cardioDaysPerWeek?: number;
+  absDaysPerWeek?: number;
+  isTemplate?: boolean;
+  isActive?: boolean;
+  isArchived?: boolean;
   weeksCount: number;
-  days: StoredProgramDay[];
+  days: any[];
+  nutritionPlans?: any[];
+  sourceDocuments?: any[];
 }
 
 export interface StoredProgramDay {
@@ -169,12 +184,15 @@ export class WorkoutsService {
   private readonly programActiveState = new Map<string, boolean>();
   private readonly userProgress = new Map<string, IUserProgramProgress>();
   private readonly canonicalExerciseIds = new Set<string>();
+  private readonly categories = new Map<string, any>();
+  private readonly catalogPrograms = new Map<string, any>();
 
   constructor(@Optional() private readonly prisma?: PrismaService) {
     this.seedDefaultExercises();
     this.seedDefaultProgram();
     this.seedDefaultTemplates();
     this.seedSixWeekShredded();
+    this.seedCatalogPrograms();
   }
 
   // -------------------------------------------------------------
@@ -436,54 +454,97 @@ export class WorkoutsService {
     }
   }
 
-  async getPrograms(user?: IAuthUser): Promise<any[]> {
-    const list: any[] = [];
-    const alphaSplit = this.programs.get('default_program_alpha_split');
-    if (alphaSplit) {
-      list.push(alphaSplit);
-    }
+  getCategories(): any[] {
+    return Array.from(this.categories.values());
+  }
 
+  async getPrograms(user?: IAuthUser, categoryId?: string, search?: string): Promise<any[]> {
+    let list: any[] = [];
+
+    // Always evaluate canonical 6 Week Shredded program access
     const shredded = this.programs.get(SIX_WEEK_SHREDDED_ID);
     if (shredded) {
-      // If user is athlete, only include 6 WEEK SHREDDED if explicitly assigned
       if (user && user.role === UserRole.ATHLETE) {
         if (this.isUserAssignedToProgram(user.id, SIX_WEEK_SHREDDED_ID)) {
           list.push({
             ...SIX_WEEK_SHREDDED_PROGRAM_DETAIL,
+            id: SIX_WEEK_SHREDDED_ID,
             isActive: this.programActiveState.get(SIX_WEEK_SHREDDED_ID) ?? true,
           });
         }
       } else {
-        // Admin, coach, trainer or unauthenticated view
         list.push({
           ...SIX_WEEK_SHREDDED_PROGRAM_DETAIL,
+          id: SIX_WEEK_SHREDDED_ID,
           isActive: this.programActiveState.get(SIX_WEEK_SHREDDED_ID) ?? true,
         });
       }
+    }
+
+    // Add all active catalog programs (skip duplicate 6 week shredded)
+    for (const prog of this.catalogPrograms.values()) {
+      if (prog.id === SIX_WEEK_SHREDDED_ID || prog.slug === '6-week-shredded') continue;
+      if (prog.isActive !== false) {
+        list.push(prog);
+      }
+    }
+
+    if (categoryId) {
+      list = list.filter((p) => p.categoryId === categoryId);
+    }
+
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.goal && p.goal.toLowerCase().includes(q)) ||
+          (p.categoryName && p.categoryName.toLowerCase().includes(q)),
+      );
     }
 
     return list;
   }
 
   async getProgramById(programId: string, user?: IAuthUser): Promise<any> {
-    const program = this.programs.get(programId);
+    if (user && programId === SIX_WEEK_SHREDDED_ID) {
+      this.assertUserProgramAccess(user, programId);
+    }
+
+    let program = this.programs.get(programId);
+    if (!program) {
+      // Look up in catalog programs by id or slug
+      program = this.catalogPrograms.get(programId);
+      if (!program) {
+        for (const p of this.catalogPrograms.values()) {
+          if (p.slug === programId || p.id === programId) {
+            program = p;
+            break;
+          }
+        }
+      }
+    }
+
     if (!program) {
       throw new NotFoundException({ code: 'PROGRAM_NOT_FOUND', message: `Program [${programId}] not found` });
     }
 
-    if (user) {
-      this.assertUserProgramAccess(user, programId);
-    }
-
-    if (programId === SIX_WEEK_SHREDDED_ID) {
+    if (programId === SIX_WEEK_SHREDDED_ID || program.slug === '6-week-shredded') {
       return {
+        ...program,
         ...SIX_WEEK_SHREDDED_PROGRAM_DETAIL,
-        isActive: this.programActiveState.get(programId) ?? true,
+        id: SIX_WEEK_SHREDDED_ID,
+        isActive: this.programActiveState.get(SIX_WEEK_SHREDDED_ID) ?? true,
         schedule12Weeks: build12WeekSchedule(),
       };
     }
 
     return program;
+  }
+
+  async getProgramNutrition(programId: string, user?: IAuthUser): Promise<any[]> {
+    const prog = await this.getProgramById(programId, user);
+    return prog.nutritionPlans || [];
   }
 
   async getProgramSchedule12Weeks(programId: string, user?: IAuthUser): Promise<IProgramCycleWeek[]> {
@@ -943,7 +1004,8 @@ export class WorkoutsService {
     if (dto.workoutTemplateId) {
       for (const p of this.programs.values()) {
         for (const d of p.days) {
-          const t = d.templates.find((tpl) => tpl.id === dto.workoutTemplateId);
+          if (!d.templates || !Array.isArray(d.templates)) continue;
+          const t = d.templates.find((tpl: any) => tpl.id === dto.workoutTemplateId);
           if (t) {
             templateExercises = t.exercises;
             break;
@@ -1544,9 +1606,11 @@ export class WorkoutsService {
     this.programs.set(programId, {
       id: programId,
       creatorId: 'system_coach_admin',
-      name: 'ALPHA 12-Week Performance Split',
-      description: 'Elite hypertrophy and functional strength split engineered for maximum biological momentum.',
-      isTemplate: true,
+      name: 'ALPHA 12-Week Performance Split (Legacy Archive)',
+      description: 'Legacy template archived safely for historical user data integrity.',
+      isTemplate: false,
+      isActive: false,
+      isArchived: true,
       weeksCount: 12,
       days,
     });
@@ -1644,6 +1708,45 @@ export class WorkoutsService {
         completionPercentage: 0,
       });
       this.programAssignments.set(ath.id, { programId: SIX_WEEK_SHREDDED_ID, athleteId: ath.id });
+    }
+  }
+
+  private seedCatalogPrograms() {
+    try {
+      const possiblePaths = [
+        path.join(__dirname, 'data/program-catalog.json'),
+        path.join(process.cwd(), 'apps/api/src/modules/workouts/data/program-catalog.json'),
+        path.join(process.cwd(), 'storage/catalog/program-catalog.json'),
+      ];
+      let foundPath: string | null = null;
+      for (const p of possiblePaths) {
+        if (fs.existsSync(p)) {
+          foundPath = p;
+          break;
+        }
+      }
+
+      if (foundPath) {
+        const raw = fs.readFileSync(foundPath, 'utf8');
+        const catalog = JSON.parse(raw);
+        if (Array.isArray(catalog.categories)) {
+          catalog.categories.forEach((cat: any) => {
+            const count = (catalog.programs || []).filter((p: any) => p.categoryId === cat.id && p.isActive).length;
+            this.categories.set(cat.id, { ...cat, programsCount: count });
+          });
+        }
+        if (Array.isArray(catalog.programs)) {
+          catalog.programs.forEach((prog: any) => {
+            this.catalogPrograms.set(prog.id, prog);
+            this.programs.set(prog.id, prog);
+            this.programs.set(prog.slug, prog);
+            this.programActiveState.set(prog.id, prog.isActive ?? true);
+          });
+        }
+        this.logger.log(`Loaded ${this.catalogPrograms.size} programs across ${this.categories.size} categories from catalog.`);
+      }
+    } catch (err: any) {
+      this.logger.warn(`Failed to seed catalog programs: ${err.message}`);
     }
   }
 

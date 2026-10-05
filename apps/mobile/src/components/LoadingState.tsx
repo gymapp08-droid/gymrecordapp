@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import { Theme } from '../theme/tokens';
 
-export const LoadingState: React.FC<{ label?: string }> = ({ label = 'Syncing ALPHA telemetry...' }) => {
+export const LoadingState: React.FC<{ label?: string }> = ({ label = 'Syncing GRAVITY telemetry...' }) => {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color={Theme.colors.cyanGlow} />

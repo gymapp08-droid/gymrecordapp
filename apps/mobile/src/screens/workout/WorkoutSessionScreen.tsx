@@ -16,6 +16,24 @@ import { SecureStorage } from '../../services/secureStorage';
 
 export type SetType = 'WARMUP' | 'WORKING' | 'TOP_SET' | 'BACKOFF' | 'DROP_SET' | 'FAILURE';
 
+export type ExecutionTimerState =
+  | 'READY'
+  | 'WORKING'
+  | 'TRANSITION'
+  | 'REST'
+  | 'NEXT_EXERCISE'
+  | 'NEXT_ROUND'
+  | 'COMPLETE';
+
+export function parseRestSeconds(instructions?: string, defaultSec: number = 60): number {
+  if (!instructions) return defaultSec;
+  const match = instructions.match(/(\d+)\s*(?:sec|second|s\b)/i);
+  if (match && match[1]) return parseInt(match[1], 10);
+  const minMatch = instructions.match(/(\d+)\s*(?:min|minute)/i);
+  if (minMatch && minMatch[1]) return parseInt(minMatch[1], 10) * 60;
+  return defaultSec;
+}
+
 export interface RecordedSet {
   id: string;
   setNumber: number;
@@ -38,6 +56,10 @@ export interface WorkoutExerciseState {
   equipment: string;
   isSkipped: boolean;
   skipReason?: string;
+  setGroupType: 'STRAIGHT_SET' | 'SUPERSET' | 'GIANT_SET' | 'DROP_SET' | string;
+  groupNumber?: number;
+  restInstructions?: string;
+  tempo?: string;
   previousPerformance: {
     sets: { weightKg: number; reps: number }[];
     totalVolumeKg: number;
@@ -75,6 +97,9 @@ function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): Wor
         targetArea: 'Mid & Sternal Pectoralis',
         equipment: 'Barbell, Flat Bench',
         isSkipped: false,
+        setGroupType: 'STRAIGHT_SET',
+        groupNumber: 1,
+        restInstructions: '60 sec rest',
         previousPerformance: { sets: [{ weightKg: 60, reps: 10 }], totalVolumeKg: 600 },
         sets: [
           { id: 's-1-1', setNumber: 1, setType: 'WORKING', targetWeightKg: 60, targetReps: 10, actualWeightKg: 60, actualReps: 0, isCompleted: false },
@@ -100,10 +125,19 @@ function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): Wor
     const weightMatch = presc.match(/@\s*(\d+(\.\d+)?)\s*kg/i);
     if (weightMatch && weightMatch[1]) weightKg = parseFloat(weightMatch[1]);
 
+    const upperPresc = presc.toUpperCase();
+    let groupType: 'STRAIGHT_SET' | 'SUPERSET' | 'GIANT_SET' | 'DROP_SET' | string =
+      ex?.setGroupType || 'STRAIGHT_SET';
+    if (!ex?.setGroupType) {
+      if (upperPresc.includes('SUPERSET') || upperPresc.includes('SUPER SET')) groupType = 'SUPERSET';
+      else if (upperPresc.includes('GIANT SET') || upperPresc.includes('GIANTSET')) groupType = 'GIANT_SET';
+      else if (upperPresc.includes('DROP SET') || upperPresc.includes('DROPSET')) groupType = 'DROP_SET';
+    }
+
     const sets: RecordedSet[] = Array.from({ length: Math.max(1, setCount) }, (_, sIdx) => ({
       id: `s-${idx + 1}-${sIdx + 1}`,
       setNumber: sIdx + 1,
-      setType: 'WORKING',
+      setType: groupType === 'DROP_SET' ? 'DROP_SET' : 'WORKING',
       targetWeightKg: weightKg,
       targetReps: repCount,
       actualWeightKg: weightKg,
@@ -120,6 +154,10 @@ function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): Wor
       targetArea: exName,
       equipment: 'Standard Gym Equipment',
       isSkipped: false,
+      setGroupType: groupType,
+      groupNumber: ex?.groupNumber || idx + 1,
+      restInstructions: ex?.restInstructions || '60 sec rest',
+      tempo: ex?.tempo,
       previousPerformance: {
         sets: [{ weightKg, reps: repCount }],
         totalVolumeKg: weightKg * repCount,
@@ -143,6 +181,10 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
   );
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
+  // Execution Timer States: READY | WORKING | TRANSITION | REST | NEXT_EXERCISE | NEXT_ROUND | COMPLETE
+  const [timerState, setTimerState] = useState<ExecutionTimerState>('READY');
+  const [guidanceMessage, setGuidanceMessage] = useState<string | null>(null);
+
   // Restore active draft if present
   useEffect(() => {
     SecureStorage.getItem('active_workout_draft')
@@ -159,6 +201,10 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                 equipment: ex?.equipment || 'Standard Gym Equipment',
                 isSkipped: !!ex?.isSkipped,
                 skipReason: ex?.skipReason || '',
+                setGroupType: ex?.setGroupType || 'STRAIGHT_SET',
+                groupNumber: ex?.groupNumber || idx + 1,
+                restInstructions: ex?.restInstructions || '60 sec rest',
+                tempo: ex?.tempo,
                 previousPerformance: {
                   sets: Array.isArray(ex?.previousPerformance?.sets) ? ex.previousPerformance.sets : [{ weightKg: 40, reps: 10 }],
                   totalVolumeKg: typeof ex?.previousPerformance?.totalVolumeKg === 'number' ? ex.previousPerformance.totalVolumeKg : 400,
@@ -193,8 +239,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
   }, [exercises, elapsedSeconds]);
 
   // Rest timer
-  const [restSeconds, setRestSeconds] = useState<number>(90);
-  const [initialRestDuration] = useState<number>(90);
+  const [restSeconds, setRestSeconds] = useState<number>(60);
   const [isRestActive, setIsRestActive] = useState<boolean>(false);
 
   // Skip modal
@@ -216,7 +261,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Rest countdown clock
+  // Rest countdown clock with ExecutionTimerState transitions
   useEffect(() => {
     let restTimer: any;
     if (isRestActive && restSeconds > 0) {
@@ -224,6 +269,8 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
         setRestSeconds((prev) => {
           if (prev <= 1) {
             setIsRestActive(false);
+            setTimerState('NEXT_EXERCISE');
+            setGuidanceMessage('Rest complete. Ready for next working set!');
             return 0;
           }
           return prev - 1;
@@ -261,31 +308,96 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
     0
   );
 
-  // Set toggle handler
+  // Set toggle handler with true workout engine transitions (Supersets, Giant Sets, Drop Sets)
   const handleToggleSet = (setId: string) => {
-    setExercises((prev) =>
-      prev.map((ex, exIdx) => {
-        if (exIdx !== currentIndex) return ex;
-        return {
-          ...ex,
-          sets: ex.sets.map((s) => {
-            if (s.id !== setId) return s;
-            const nextCompleted = !s.isCompleted;
-            // If checking off and actual reps is currently 0, pre-prompt user to keep or change target reps
-            const nextActualReps = nextCompleted && s.actualReps === 0 ? s.targetReps : s.actualReps;
-            return {
-              ...s,
-              isCompleted: nextCompleted,
-              actualReps: nextActualReps,
-            };
-          }),
-        };
-      })
-    );
+    let targetSet: RecordedSet | undefined;
+    const nextExercises = safeExercises.map((ex, exIdx) => {
+      if (exIdx !== currentIndex) return ex;
+      return {
+        ...ex,
+        sets: ex.sets.map((s) => {
+          if (s.id !== setId) return s;
+          const nextCompleted = !s.isCompleted;
+          const nextActualReps = nextCompleted && s.actualReps === 0 ? s.targetReps : s.actualReps;
+          targetSet = {
+            ...s,
+            isCompleted: nextCompleted,
+            actualReps: nextActualReps,
+          };
+          return targetSet;
+        }),
+      };
+    });
 
-    // Trigger rest timer on completing a set
-    setRestSeconds(initialRestDuration);
-    setIsRestActive(true);
+    setExercises(nextExercises);
+
+    // If set was unmarked / unchecked
+    if (!targetSet || !targetSet.isCompleted) {
+      setTimerState('WORKING');
+      setIsRestActive(false);
+      setGuidanceMessage(null);
+      return;
+    }
+
+    const curEx = safeExercises[currentIndex] || safeExercises[0]!;
+    const groupType = curEx.setGroupType || 'STRAIGHT_SET';
+
+    if (groupType === 'SUPERSET' || groupType === 'GIANT_SET') {
+      const curGroup = curEx.groupNumber;
+      const groupIndices = safeExercises
+        .map((e, i) => ({ e, i }))
+        .filter(({ e }) => (curGroup ? e.groupNumber === curGroup : e.setGroupType === groupType))
+        .map(({ i }) => i);
+
+      const isLastInGroup =
+        groupIndices.length === 0 || groupIndices[groupIndices.length - 1] === currentIndex;
+
+      if (!isLastInGroup) {
+        // Zero rest between grouped exercises! Transition immediately.
+        const nextGroupIdx = groupIndices.find((i) => i > currentIndex) ?? currentIndex + 1;
+        setTimerState('TRANSITION');
+        setIsRestActive(false);
+        setRestSeconds(0);
+        setGuidanceMessage(
+          `TRANSITION (0s REST): Move immediately to ${safeExercises[nextGroupIdx]?.name || 'next exercise'}!`
+        );
+        setCurrentIndex(nextGroupIdx);
+      } else {
+        // Last exercise in group round -> Prescribed group rest!
+        const restSec = parseRestSeconds(curEx.restInstructions, 90);
+        setTimerState('REST');
+        setRestSeconds(restSec);
+        setIsRestActive(true);
+
+        const groupRemaining = groupIndices.some((gi) =>
+          nextExercises[gi]?.sets.some((s) => !s.isCompleted)
+        );
+        if (groupRemaining) {
+          const firstIdx = groupIndices[0]!;
+          setGuidanceMessage(
+            `Round completed! Prescribed rest ${restSec}s. Next round begins on ${safeExercises[firstIdx]?.name}.`
+          );
+          setCurrentIndex(firstIdx);
+        } else {
+          setGuidanceMessage(
+            `All rounds complete for this ${groupType === 'SUPERSET' ? 'Superset' : 'Giant Set'}! Prescribed rest ${restSec}s.`
+          );
+        }
+      }
+    } else if (groupType === 'DROP_SET') {
+      setTimerState('WORKING');
+      setGuidanceMessage(
+        'DROP SET: Immediately drop load 20–30% and continue repetitions to failure with zero rest!'
+      );
+      setIsRestActive(false);
+    } else {
+      // STRAIGHT_SET
+      const restSec = parseRestSeconds(curEx.restInstructions, 60);
+      setTimerState('REST');
+      setRestSeconds(restSec);
+      setIsRestActive(true);
+      setGuidanceMessage(`Rest Interval: ${restSec}s prescribed recovery.`);
+    }
   };
 
   // Update actual reps for a set (User Controlled)
@@ -543,9 +655,19 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
         <View style={styles.exerciseHeroCard}>
           <View style={styles.exerciseHeroTop}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.targetMuscleLabel}>
-                {(currentExercise?.muscleGroup || 'TARGET').toUpperCase()} · {(currentExercise?.targetArea || 'GENERAL').toUpperCase()}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <Text style={styles.targetMuscleLabel}>
+                  {(currentExercise?.muscleGroup || 'TARGET').toUpperCase()} · {(currentExercise?.targetArea || 'GENERAL').toUpperCase()}
+                </Text>
+                {currentExercise?.setGroupType && currentExercise.setGroupType !== 'STRAIGHT_SET' && (
+                  <View style={styles.groupBadge}>
+                    <Text style={styles.groupBadgeText}>
+                      {currentExercise.setGroupType.replace('_', ' ')}
+                      {currentExercise.groupNumber ? ` · G${currentExercise.groupNumber}` : ''}
+                    </Text>
+                  </View>
+                )}
+              </View>
               <Text style={styles.currentExerciseName}>{currentExercise?.name || 'Exercise'}</Text>
               <Text style={styles.equipmentText}>Equipment: {currentExercise?.equipment || 'Gym Equipment'}</Text>
             </View>
@@ -559,6 +681,21 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
               </TouchableOpacity>
             )}
           </View>
+
+          {/* Guidance Message for Engine States (e.g. 0s rest transition, drop sets, round rest) */}
+          {guidanceMessage && (
+            <View style={[styles.guidanceCard, timerState === 'TRANSITION' && styles.guidanceCardTransition]}>
+              <View style={styles.guidanceTopRow}>
+                <View style={[styles.guidanceStateBadge, timerState === 'TRANSITION' && styles.guidanceStateTransition]}>
+                  <Text style={styles.guidanceStateBadgeText}>{timerState}</Text>
+                </View>
+                {currentExercise?.restInstructions ? (
+                  <Text style={styles.guidanceRestText}>{currentExercise.restInstructions}</Text>
+                ) : null}
+              </View>
+              <Text style={styles.guidanceMsgText}>{guidanceMessage}</Text>
+            </View>
+          )}
 
           {/* Last Session Historical Baseline (For Progressive Overload) */}
           <View style={styles.lastSessionBox}>
@@ -597,7 +734,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
               >
                 <View style={styles.setIndexWrap}>
                   <Text style={styles.setIndexText}>{set.setNumber}</Text>
-                  <Text style={styles.setTypeSub}>{set.setType === 'WORKING' ? 'W' : 'T'}</Text>
+                  <Text style={styles.setTypeSub}>{set.setType === 'WORKING' ? 'W' : set.setType === 'DROP_SET' ? 'D' : 'T'}</Text>
                 </View>
 
                 {/* Plan Target */}
@@ -678,11 +815,22 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
         </View>
 
         {/* Rest Timer Banner */}
-        <View style={styles.restBanner}>
+        <View style={[styles.restBanner, timerState === 'TRANSITION' && styles.restBannerTransition]}>
           <View style={styles.restLeft}>
-            <Text style={styles.restIcon}>⏱️</Text>
+            <Text style={styles.restIcon}>{timerState === 'TRANSITION' ? '⚡' : '⏱️'}</Text>
             <View>
-              <Text style={styles.restLabel}>REST INTERVAL COUNTDOWN</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={styles.restLabel}>
+                  {timerState === 'TRANSITION'
+                    ? 'ZERO REST TRANSITION'
+                    : timerState === 'REST'
+                    ? 'GROUP REST COUNTDOWN'
+                    : 'EXECUTION TIMER'}
+                </Text>
+                <View style={[styles.timerStatePill, timerState === 'TRANSITION' ? styles.timerStateTransition : styles.timerStateRest]}>
+                  <Text style={styles.timerStatePillText}>{timerState}</Text>
+                </View>
+              </View>
               <Text style={styles.restDigits}>{formatTimer(restSeconds)}</Text>
             </View>
           </View>
@@ -709,6 +857,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
               onPress={() => {
                 setIsRestActive(false);
                 setRestSeconds(0);
+                setTimerState('WORKING');
               }}
             >
               <Text style={styles.restMiniBtnText}>SKIP</Text>
@@ -1440,5 +1589,84 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     marginTop: 8,
+  },
+  groupBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.4)',
+  },
+  groupBadgeText: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    fontWeight: '800',
+    color: Theme.colors.amberWarning,
+    letterSpacing: 0.5,
+  },
+  guidanceCard: {
+    backgroundColor: 'rgba(30, 41, 59, 0.7)',
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 10,
+    marginTop: 10,
+    gap: 4,
+  },
+  guidanceCardTransition: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: Theme.colors.emeraldSuccess,
+  },
+  guidanceTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  guidanceStateBadge: {
+    backgroundColor: 'rgba(0, 240, 255, 0.15)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  guidanceStateTransition: {
+    backgroundColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  guidanceStateBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: Theme.colors.cyanGlow,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+  },
+  guidanceRestText: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    fontStyle: 'italic',
+  },
+  guidanceMsgText: {
+    fontSize: 12,
+    color: Theme.colors.textPrimary,
+    fontWeight: '600',
+  },
+  restBannerTransition: {
+    borderColor: Theme.colors.emeraldSuccess,
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+  },
+  timerStatePill: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  timerStateRest: {
+    backgroundColor: 'rgba(0, 240, 255, 0.15)',
+  },
+  timerStateTransition: {
+    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+  },
+  timerStatePillText: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: Theme.colors.cyanGlow,
+    fontFamily: Theme.typography.telemetry.fontFamily,
   },
 });

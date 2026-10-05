@@ -113,7 +113,7 @@ export const SafeOffboardingModal: React.FC<SafeOffboardingModalProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px', color: STITCH_THEME.colors.accentCyan }}>🛡️</span>
             <span style={{ fontSize: '12px', fontWeight: 700, color: STITCH_THEME.colors.accentCyan, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              ALPHA Non-Destructive Guarantee
+              GRAVITY Non-Destructive Guarantee
             </span>
           </div>
           <p style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, lineHeight: 1.5, margin: 0 }}>

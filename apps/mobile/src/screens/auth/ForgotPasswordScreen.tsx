@@ -31,7 +31,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
         setError(res.error?.message || 'Unable to process reset request. Please check the email entered.');
       }
     } catch {
-      setError('Network error. Unable to reach ALPHA services.');
+      setError('Network error. Unable to reach GRAVITY services.');
     } finally {
       setLoading(false);
     }

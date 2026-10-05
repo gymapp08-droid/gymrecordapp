@@ -95,15 +95,29 @@ export class WorkoutsController {
     return this.workoutsService.deleteWorkoutTemplate(id);
   }
 
-  // --- Program & Split ---
+  // --- Categories & Program Catalog ---
+  @Get('categories')
+  async getCategories() {
+    return this.workoutsService.getCategories();
+  }
+
   @Get('programs')
-  async getPrograms(@CurrentUser() user: IAuthUser) {
-    return this.workoutsService.getPrograms(user);
+  async getPrograms(
+    @CurrentUser() user: IAuthUser,
+    @Query('categoryId') categoryId?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.workoutsService.getPrograms(user, categoryId, search);
   }
 
   @Get('programs/:id')
   async getProgramById(@Param('id') id: string, @CurrentUser() user: IAuthUser) {
     return this.workoutsService.getProgramById(id, user);
+  }
+
+  @Get('programs/:id/nutrition')
+  async getProgramNutrition(@Param('id') id: string, @CurrentUser() user: IAuthUser) {
+    return this.workoutsService.getProgramNutrition(id, user);
   }
 
   @Get('programs/:id/schedule')

@@ -122,7 +122,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               color: STITCH_THEME.colors.textPrimary,
             }}
           >
-            ALPHA
+            GRAVITY
           </h1>
           <p
             style={{
@@ -327,7 +327,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
         </form>
 
         <div style={{ textAlign: 'center', fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>
-          ALPHA Performance OS • Production-grade server RBAC
+          GRAVITY Performance OS • Production-grade server RBAC
         </div>
       </div>
     </div>

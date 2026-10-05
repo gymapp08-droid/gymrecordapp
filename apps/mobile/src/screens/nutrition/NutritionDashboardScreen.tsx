@@ -32,12 +32,13 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
   const waterLiters = activity.waterLiters;
   const waterTarget = activity.waterTarget;
 
-  const meals = nutrition.meals.map((m) => {
+  const meals = nutrition.meals.map((m, idx) => {
     let statusType: 'success' | 'warning' | 'neutral' = 'neutral';
     if (m.status === 'COMPLETED_PLANNED') statusType = 'success';
     else if (m.status === 'COMPLETED_MODIFIED' || m.status === 'PARTIAL') statusType = 'warning';
 
     return {
+      id: m.id || `meal-${idx}`,
       type: m.type,
       title: m.title,
       plannedCals: m.plannedCals,
@@ -57,7 +58,7 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
     <AlphaScreen>
       <AlphaHeader
         title="Nutrition OS"
-        subtitle="METABOLIC TELEMETRY & MACROS"
+        subtitle="GRAVITY NUTRITION PROTOCOL"
         rightAction={
           <TouchableOpacity
             style={styles.addBtnHeader}
@@ -98,8 +99,18 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
               <Text style={styles.macroValue}>
                 {protein.current} / {protein.target}g
               </Text>
-              <Text style={styles.macroSub}>86% Target</Text>
-              <View style={[styles.macroMiniBar, { width: '86%', backgroundColor: Theme.colors.cyanGlow }]} />
+              <Text style={styles.macroSub}>
+                {Math.round((protein.current / (protein.target || 1)) * 100)}% Target
+              </Text>
+              <View
+                style={[
+                  styles.macroMiniBar,
+                  {
+                    width: `${Math.min(Math.round((protein.current / (protein.target || 1)) * 100), 100)}%`,
+                    backgroundColor: Theme.colors.cyanGlow,
+                  },
+                ]}
+              />
             </View>
 
             <View style={styles.macroItem}>
@@ -107,8 +118,18 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
               <Text style={styles.macroValue}>
                 {carbs.current} / {carbs.target}g
               </Text>
-              <Text style={styles.macroSub}>68% Target</Text>
-              <View style={[styles.macroMiniBar, { width: '68%', backgroundColor: '#3882F6' }]} />
+              <Text style={styles.macroSub}>
+                {Math.round((carbs.current / (carbs.target || 1)) * 100)}% Target
+              </Text>
+              <View
+                style={[
+                  styles.macroMiniBar,
+                  {
+                    width: `${Math.min(Math.round((carbs.current / (carbs.target || 1)) * 100), 100)}%`,
+                    backgroundColor: '#3882F6',
+                  },
+                ]}
+              />
             </View>
 
             <View style={styles.macroItem}>
@@ -116,8 +137,18 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
               <Text style={styles.macroValue}>
                 {fats.current} / {fats.target}g
               </Text>
-              <Text style={styles.macroSub}>82% Target</Text>
-              <View style={[styles.macroMiniBar, { width: '82%', backgroundColor: '#F59E0B' }]} />
+              <Text style={styles.macroSub}>
+                {Math.round((fats.current / (fats.target || 1)) * 100)}% Target
+              </Text>
+              <View
+                style={[
+                  styles.macroMiniBar,
+                  {
+                    width: `${Math.min(Math.round((fats.current / (fats.target || 1)) * 100), 100)}%`,
+                    backgroundColor: '#F59E0B',
+                  },
+                ]}
+              />
             </View>
           </View>
         </View>
@@ -184,7 +215,7 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
         <View style={styles.mealsList}>
           {meals.map((meal) => (
             <TouchableOpacity
-              key={meal.type}
+              key={meal.id}
               style={styles.mealCard}
               onPress={() => onOpenMealDetail(meal.type)}
               activeOpacity={0.8}
@@ -230,7 +261,9 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
         <View style={styles.tacticalCard}>
           <Text style={styles.tacticalTag}>TACTICAL NUTRITION DIRECTIVE</Text>
           <Text style={styles.tacticalText}>
-            "Protein is at 155g (86% of target) with 2 meals remaining. Allocate at least 25g protein during dinner to maintain full muscle protein synthesis threshold following today's pushing session."
+            {remainingCals > 0
+              ? `Energy intake is currently at ${caloriesConsumed} kcal (${calPercent}% of ${caloriesTarget} kcal target). Consume remaining ${remainingCals} kcal across your scheduled meals to support recovery and lean performance.`
+              : `Daily caloric target of ${caloriesTarget} kcal achieved. Focus on hydration and recovery for tomorrow's training.`}
           </Text>
         </View>
       </ScrollView>

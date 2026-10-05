@@ -43,7 +43,7 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({ onNavigate, onBa
     <AlphaScreen>
       <AlphaHeader
         title="Command Hub"
-        subtitle="ALPHA PERFORMANCE PLATFORM"
+        subtitle="GRAVITY PERFORMANCE PLATFORM"
         onBack={onBack}
       />
 

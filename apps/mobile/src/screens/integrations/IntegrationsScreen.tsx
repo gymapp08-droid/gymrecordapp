@@ -180,7 +180,7 @@ export const IntegrationsScreen: React.FC<IntegrationsScreenProps> = ({
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Integrations & Wearables</Text>
         <Text style={styles.headerSubtitle}>
-          Connect official health platforms and smart devices. ALPHA never fabricates telemetry.
+          Connect official health platforms and smart devices. GRAVITY never fabricates telemetry.
         </Text>
       </View>
 
@@ -198,7 +198,7 @@ export const IntegrationsScreen: React.FC<IntegrationsScreenProps> = ({
             <Text style={styles.emptyTitle}>No Devices Connected</Text>
             <Text style={styles.emptyDescription}>
               Connect Apple Health or Android Health Connect to automatically import your daily steps,
-              cardio, and biometrics into ALPHA.
+              cardio, and biometrics into GRAVITY.
             </Text>
           </GlassCard>
         ) : (

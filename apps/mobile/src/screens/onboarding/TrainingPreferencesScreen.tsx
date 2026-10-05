@@ -8,10 +8,10 @@ export type TrainingEnvironment = 'COMMERCIAL_GYM' | 'HOME_GYM' | 'MINIMAL_EQUIP
 export type ProgramSplit = 'PPL' | 'UPPER_LOWER' | 'FULL_BODY' | 'CLASSIC_SPLIT';
 
 export interface TrainingPreferencesData {
-  daysPerWeek: number;
+  daysPerWeek?: number;
   sessionDurationMin: number;
   environment: TrainingEnvironment;
-  splitPreference: ProgramSplit;
+  splitPreference?: ProgramSplit;
   equipmentDetails?: string[];
 }
 
@@ -34,35 +34,8 @@ const ENVIRONMENT_OPTIONS = [
   },
   {
     id: 'MINIMAL_EQUIPMENT' as const,
-    label: 'Minimal Equipment',
-    desc: 'Dumbbells, resistance bands, pull-up bar, and bodyweight',
-  },
-];
-
-const SPLIT_OPTIONS = [
-  {
-    id: 'PPL' as const,
-    label: 'Push / Pull / Legs',
-    days: '3–6 days/wk',
-    desc: 'High hypertrophy frequency targeting muscle synergies together.',
-  },
-  {
-    id: 'UPPER_LOWER' as const,
-    label: 'Upper / Lower',
-    days: '4 days/wk',
-    desc: 'Balanced recovery and systemic volume distribution across upper and lower body.',
-  },
-  {
-    id: 'FULL_BODY' as const,
-    label: 'Full Body Density',
-    days: '3 days/wk',
-    desc: 'High training efficiency hitting every major movement pattern per session.',
-  },
-  {
-    id: 'CLASSIC_SPLIT' as const,
-    label: 'Classic Bodypart Split',
-    days: '4–5 days/wk',
-    desc: 'Direct muscle isolation focus with dedicated training days.',
+    label: 'Minimal Equipment & Bodyweight',
+    desc: 'Dumbbells, resistance bands, pull-up bar, and calisthenics',
   },
 ];
 
@@ -71,18 +44,15 @@ export const TrainingPreferencesScreen: React.FC<TrainingPreferencesScreenProps>
   onNext,
   onFinish,
 }) => {
-  const [daysPerWeek, setDaysPerWeek] = useState<number>(4);
   const [sessionDurationMin, setSessionDurationMin] = useState<number>(60);
   const [environment, setEnvironment] = useState<TrainingEnvironment>('COMMERCIAL_GYM');
-  const [splitPreference, setSplitPreference] = useState<ProgramSplit>('PPL');
 
   const handleNext = () => {
     try {
       const data: TrainingPreferencesData = {
-        daysPerWeek,
+        daysPerWeek: 0,
         sessionDurationMin,
         environment,
-        splitPreference,
       };
       const callback = onNext || onFinish;
       if (typeof callback === 'function') {
@@ -103,54 +73,11 @@ export const TrainingPreferencesScreen: React.FC<TrainingPreferencesScreenProps>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.leadText}>
-          Configure your training cadence and equipment access. The recommendation engine will select an optimal program structure.
+          Configure your training environment and session duration. Your weekly workout frequency and rest days are governed directly by your chosen GRAVITY program.
         </Text>
 
-        {/* Weekly Frequency */}
-        <Text style={styles.sectionLabel}>WEEKLY FREQUENCY (DAYS)</Text>
-        <View style={styles.frequencyRow}>
-          {[3, 4, 5, 6].map((day) => {
-            const isSelected = daysPerWeek === day;
-            return (
-              <TouchableOpacity
-                key={day}
-                style={[styles.freqCard, isSelected && styles.freqCardActive]}
-                onPress={() => setDaysPerWeek(day)}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.freqNumber, isSelected && styles.freqNumberActive]}>
-                  {day}
-                </Text>
-                <Text style={[styles.freqSub, isSelected && styles.freqSubActive]}>
-                  days / wk
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Session Duration */}
-        <Text style={[styles.sectionLabel, { marginTop: 8 }]}>SESSION DURATION</Text>
-        <View style={styles.durationRow}>
-          {[45, 60, 75, 90].map((dur) => {
-            const isSelected = sessionDurationMin === dur;
-            return (
-              <TouchableOpacity
-                key={dur}
-                style={[styles.durationPill, isSelected && styles.durationPillActive]}
-                onPress={() => setSessionDurationMin(dur)}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.durationText, isSelected && styles.durationTextActive]}>
-                  {dur} min
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Training Environment (Section 12) */}
-        <Text style={[styles.sectionLabel, { marginTop: 8 }]}>TRAINING ENVIRONMENT</Text>
+        {/* Training Environment */}
+        <Text style={styles.sectionLabel}>TRAINING ENVIRONMENT</Text>
         <View style={styles.optionList}>
           {ENVIRONMENT_OPTIONS.map((item) => {
             const isSelected = environment === item.id;
@@ -173,37 +100,28 @@ export const TrainingPreferencesScreen: React.FC<TrainingPreferencesScreenProps>
           })}
         </View>
 
-        {/* Split Preference (Section 13) */}
-        <Text style={[styles.sectionLabel, { marginTop: 8 }]}>PREFERRED PROGRAM SPLIT</Text>
-        <View style={styles.optionList}>
-          {SPLIT_OPTIONS.map((item) => {
-            const isSelected = splitPreference === item.id;
+        {/* Session Duration */}
+        <Text style={[styles.sectionLabel, { marginTop: 8 }]}>TARGET SESSION DURATION</Text>
+        <View style={styles.durationRow}>
+          {[45, 60, 75, 90].map((dur) => {
+            const isSelected = sessionDurationMin === dur;
             return (
               <TouchableOpacity
-                key={item.id}
-                style={[styles.optionCard, isSelected && styles.optionCardActive]}
-                onPress={() => setSplitPreference(item.id)}
+                key={dur}
+                style={[styles.durationPill, isSelected && styles.durationPillActive]}
+                onPress={() => setSessionDurationMin(dur)}
                 activeOpacity={0.8}
               >
-                <View style={styles.cardHeader}>
-                  <View style={styles.titleWithBadge}>
-                    <Text style={[styles.cardTitle, isSelected && styles.cardTitleActive]}>
-                      {item.label}
-                    </Text>
-                    <View style={styles.pillBadge}>
-                      <Text style={styles.pillBadgeText}>{item.days}</Text>
-                    </View>
-                  </View>
-                  {isSelected && <Text style={styles.checkIcon}>✓</Text>}
-                </View>
-                <Text style={styles.cardDesc}>{item.desc}</Text>
+                <Text style={[styles.durationText, isSelected && styles.durationTextActive]}>
+                  {dur} min
+                </Text>
               </TouchableOpacity>
             );
           })}
         </View>
 
         <PrimaryButton
-          title="Analyze & Recommend Program"
+          title="Browse Matching Programs"
           onPress={handleNext}
           style={styles.continueBtn}
         />

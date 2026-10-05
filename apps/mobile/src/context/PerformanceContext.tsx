@@ -3,12 +3,17 @@ import { getTodayDayOfWeek, DEFAULT_TIMEZONE } from '../utils/timezone';
 import { SecureStorage } from '../services/secureStorage';
 import { ApiClient } from '../services/api';
 import { CANONICAL_6_WEEK_SPLIT } from '../data/sixWeekShredded';
+import programCatalogData from '../data/program-catalog.json';
 
 export interface WorkoutExerciseSummary {
   number: string;
   name: string;
   prescription: string;
   isCompleted: boolean;
+  setGroupType?: 'STRAIGHT_SET' | 'SUPERSET' | 'GIANT_SET' | 'DROP_SET' | string;
+  groupNumber?: number;
+  restInstructions?: string;
+  tempo?: string;
 }
 
 export interface TodayWorkoutState {
@@ -343,6 +348,114 @@ export const SHREDDED_WEEK_WORKOUT_SCHEDULE: Record<
   },
 };
 
+export function resolveScheduleForProgram(programId: string, dayOfWeek: number) {
+  if (
+    programId === 'prog_6_week_shredded_12w' ||
+    programId === '6-week-shredded' ||
+    programId === '6_WEEK_SHREDDED' ||
+    programId === 'prog-6-week-shredded'
+  ) {
+    return SHREDDED_WEEK_WORKOUT_SCHEDULE[dayOfWeek] || SHREDDED_WEEK_WORKOUT_SCHEDULE[1]!;
+  }
+
+  const catalog: any = programCatalogData;
+  const program = (catalog.programs || []).find(
+    (p: any) =>
+      p.id === programId ||
+      p.slug === programId ||
+      (p.name && p.name.toLowerCase() === programId.toLowerCase())
+  );
+
+  if (program && Array.isArray(program.days)) {
+    const day = program.days.find((d: any) => d.dayOfWeek === dayOfWeek);
+    if (day && Array.isArray(day.exercises) && day.exercises.length > 0) {
+      return {
+        name: day.title || `Day ${dayOfWeek} Workout`,
+        category: program.name,
+        estimatedMinutes: 55,
+        isRest: false,
+        exercises: day.exercises.map((ex: any, i: number) => ({
+          number: String(i + 1).padStart(2, '0'),
+          name: ex.name,
+          prescription: `${ex.setGroupType || 'STRAIGHT_SET'} · ${ex.prescribedReps || '10-12 reps'}`,
+          isCompleted: false,
+          setGroupType: ex.setGroupType || 'STRAIGHT_SET',
+          groupNumber: ex.groupNumber || i + 1,
+          restInstructions: ex.restInstructions,
+          tempo: ex.tempo,
+        })),
+      };
+    }
+    // Found program but no exercises on this day -> Rest day
+    return {
+      name: 'Rest & Recovery',
+      category: program.name,
+      estimatedMinutes: 0,
+      isRest: true,
+      exercises: [],
+    };
+  }
+
+  return WEEK_WORKOUT_SCHEDULE[dayOfWeek] || WEEK_WORKOUT_SCHEDULE[1]!;
+}
+
+export function resolveMealsForProgram(programId: string): MealRecord[] {
+  if (
+    programId === 'prog_6_week_shredded_12w' ||
+    programId === '6-week-shredded' ||
+    programId === '6_WEEK_SHREDDED' ||
+    programId === 'prog-6-week-shredded'
+  ) {
+    return DEFAULT_5_MEALS;
+  }
+
+  const catalog: any = programCatalogData;
+  const program = (catalog.programs || []).find(
+    (p: any) =>
+      p.id === programId ||
+      p.slug === programId ||
+      (p.name && p.name.toLowerCase() === programId.toLowerCase())
+  );
+
+  if (program && Array.isArray(program.nutritionPlans) && program.nutritionPlans.length > 0) {
+    const plan = program.nutritionPlans[0];
+    if (Array.isArray(plan.meals) && plan.meals.length > 0) {
+      return plan.meals.map((m: any, idx: number) => {
+        let type: MealCategory = 'LUNCH';
+        const name = (m.mealName || '').toUpperCase();
+        if (name.includes('BREAKFAST') || idx === 0) type = 'BREAKFAST';
+        else if (name.includes('PRE') || name.includes('SNACK')) type = 'SNACK';
+        else if (name.includes('POST') || name.includes('SHAKE')) type = 'PRE_WORKOUT';
+        else if (name.includes('DINNER') || idx === plan.meals.length - 1) type = 'DINNER';
+
+        const itemsStr = Array.isArray(m.items) && m.items.length > 0
+          ? m.items.map((it: any) => it.foodName).join(', ')
+          : 'Prescribed whole foods';
+
+        return {
+          id: `m-prog-${idx + 1}`,
+          type,
+          title: m.mealName || `Meal ${idx + 1}`,
+          mealNumber: m.mealNumber || idx + 1,
+          scheduledTime: m.mealTime || '12:00',
+          plannedGrams: 350,
+          actualGrams: 0,
+          plannedCals: m.calories || 500,
+          actualCals: 0,
+          proteinGrams: m.proteinGrams || 35,
+          carbsGrams: m.carbGrams || 50,
+          fatGrams: m.fatGrams || 14,
+          status: 'UPCOMING' as const,
+          statusLabel: 'Planned',
+          itemsSummary: itemsStr,
+        };
+      });
+    }
+  }
+
+  return DEFAULT_5_MEALS;
+}
+
 // Section 34: 5 structured meals per day
 const DEFAULT_5_MEALS: MealRecord[] = [
   {
@@ -446,10 +559,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const getActiveSchedule = useCallback(
     (dow: number, programIdToUse?: string) => {
       const pid = programIdToUse || activeProgramId;
-      if (pid === 'prog_6_week_shredded_12w') {
-        return SHREDDED_WEEK_WORKOUT_SCHEDULE[dow] || SHREDDED_WEEK_WORKOUT_SCHEDULE[1]!;
-      }
-      return WEEK_WORKOUT_SCHEDULE[dow] || WEEK_WORKOUT_SCHEDULE[1]!;
+      return resolveScheduleForProgram(pid, dow);
     },
     [activeProgramId]
   );
@@ -615,14 +725,47 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (savedNote) setDailyNote(savedNote);
 
       // 3b. Restore active program selection
-      const savedProgId = await SecureStorage.getItem('alpha_active_program_id');
+      const savedProgId = (await SecureStorage.getItem('gravity_active_program_id')) || (await SecureStorage.getItem('alpha_active_program_id'));
       if (savedProgId) {
         setActiveProgramIdState(savedProgId);
-        setActiveProgramTitle(
-          savedProgId === 'prog_6_week_shredded_12w'
-            ? '6 WEEK SHREDDED (12 WEEKS)'
-            : 'ALPHA Hypertrophy Split'
+        const catalog: any = programCatalogData;
+        const prog = (catalog.programs || []).find(
+          (p: any) => p.id === savedProgId || p.slug === savedProgId || (p.name && p.name.toLowerCase() === savedProgId.toLowerCase())
         );
+        if (savedProgId === 'prog_6_week_shredded_12w' || savedProgId === '6-week-shredded') {
+          setActiveProgramTitle('6 WEEK SHREDDED (12 WEEKS)');
+        } else if (prog && prog.name) {
+          setActiveProgramTitle(prog.name);
+        } else {
+          setActiveProgramTitle('GRAVITY Training Program');
+        }
+
+        const restoredSched = resolveScheduleForProgram(savedProgId, todayDayOfWeek);
+        setWorkout((prev) => ({
+          ...prev,
+          name: restoredSched.name,
+          category: restoredSched.category,
+          isRestDay: restoredSched.isRest,
+          estimatedMinutes: restoredSched.estimatedMinutes,
+          totalExercises: restoredSched.exercises.length,
+          totalSets: restoredSched.exercises.length * 3,
+          status: restoredSched.isRest ? 'REST_DAY' : 'NOT_STARTED',
+          exercises: restoredSched.exercises,
+        }));
+
+        const restoredMeals = resolveMealsForProgram(savedProgId);
+        const totalCals = restoredMeals.reduce((acc, m) => acc + (m.plannedCals || 0), 0);
+        const totalP = restoredMeals.reduce((acc, m) => acc + (m.proteinGrams || 0), 0);
+        const totalC = restoredMeals.reduce((acc, m) => acc + (m.carbsGrams || 0), 0);
+        const totalF = restoredMeals.reduce((acc, m) => acc + (m.fatGrams || 0), 0);
+        setNutrition((prev) => ({
+          ...prev,
+          meals: restoredMeals,
+          caloriesTarget: totalCals > 0 ? totalCals : prev.caloriesTarget,
+          proteinTarget: totalP > 0 ? totalP : prev.proteinTarget,
+          carbsTarget: totalC > 0 ? totalC : prev.carbsTarget,
+          fatTarget: totalF > 0 ? totalF : prev.fatTarget,
+        }));
       }
 
       // 4. Fetch user's active program from backend if authenticated
@@ -678,13 +821,22 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const setActiveProgramId = (programId: string) => {
     setActiveProgramIdState(programId);
-    if (programId === 'prog_6_week_shredded_12w') {
+    const catalog: any = programCatalogData;
+    const prog = (catalog.programs || []).find(
+      (p: any) => p.id === programId || p.slug === programId || (p.name && p.name.toLowerCase() === programId.toLowerCase())
+    );
+    if (programId === 'prog_6_week_shredded_12w' || programId === '6-week-shredded') {
       setActiveProgramTitle('6 WEEK SHREDDED (12 WEEKS)');
+    } else if (prog && prog.name) {
+      setActiveProgramTitle(prog.name);
     } else {
-      setActiveProgramTitle('ALPHA Hypertrophy Split');
+      setActiveProgramTitle('GRAVITY Training Program');
     }
+
+    SecureStorage.setItem('gravity_active_program_id', programId);
     SecureStorage.setItem('alpha_active_program_id', programId);
-    const sched = getActiveSchedule(todayDayOfWeek, programId);
+
+    const sched = resolveScheduleForProgram(programId, todayDayOfWeek);
     setWorkout((prev) => ({
       ...prev,
       name: sched.name,
@@ -695,6 +847,20 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       totalSets: sched.exercises.length * 3,
       status: sched.isRest ? 'REST_DAY' : 'NOT_STARTED',
       exercises: sched.exercises,
+    }));
+
+    const meals = resolveMealsForProgram(programId);
+    const totalCals = meals.reduce((acc, m) => acc + (m.plannedCals || 0), 0);
+    const totalP = meals.reduce((acc, m) => acc + (m.proteinGrams || 0), 0);
+    const totalC = meals.reduce((acc, m) => acc + (m.carbsGrams || 0), 0);
+    const totalF = meals.reduce((acc, m) => acc + (m.fatGrams || 0), 0);
+    setNutrition((prev) => ({
+      ...prev,
+      meals,
+      caloriesTarget: totalCals > 0 ? totalCals : prev.caloriesTarget,
+      proteinTarget: totalP > 0 ? totalP : prev.proteinTarget,
+      carbsTarget: totalC > 0 ? totalC : prev.carbsTarget,
+      fatTarget: totalF > 0 ? totalF : prev.fatTarget,
     }));
   };
 

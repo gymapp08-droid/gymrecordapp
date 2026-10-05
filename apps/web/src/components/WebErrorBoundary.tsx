@@ -82,7 +82,7 @@ export class WebErrorBoundary extends Component<Props, State> {
                   letterSpacing: '0.08em',
                 }}
               >
-                ALPHA ENTERPRISE RECOVERY SUBSYSTEM
+                GRAVITY ENTERPRISE RECOVERY SUBSYSTEM
               </span>
             </div>
 

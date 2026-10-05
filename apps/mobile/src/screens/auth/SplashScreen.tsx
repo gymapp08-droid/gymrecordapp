@@ -56,7 +56,7 @@ export const SplashScreen: React.FC<{ onFinish?: () => void; onComplete?: () => 
       </Animated.View>
 
       <Animated.View style={[styles.textGroup, { opacity: fadeAnim }]}>
-        <Text style={styles.brandMainTitle}>ALPHA</Text>
+        <Text style={styles.brandMainTitle}>GRAVITY</Text>
         <Text style={styles.brandSubtitle}>YOUR HIGHER SELF</Text>
         <View style={styles.mottoContainer}>
           <Text style={styles.brandMotto}>DISCIPLINE BUILDS FREEDOM</Text>
