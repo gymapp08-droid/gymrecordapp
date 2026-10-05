@@ -23,6 +23,7 @@ import programCatalogData from '../../data/program-catalog.json';
 
 interface WorkoutPlanScreenProps {
   onStartWorkout?: (dayTitle: string) => void;
+  onBrowsePrograms?: () => void;
 }
 
 const DAY_TAB_INFO: { dayOfWeek: number; dayShort: string; dayFull: string; colorAccent: string }[] = [
@@ -35,7 +36,7 @@ const DAY_TAB_INFO: { dayOfWeek: number; dayShort: string; dayFull: string; colo
   { dayOfWeek: 7, dayShort: 'Sun', dayFull: 'Sunday', colorAccent: '#10B981' },
 ];
 
-export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWorkout }) => {
+export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWorkout, onBrowsePrograms }) => {
   const {
     activeProgramId,
     activeProgramTitle,
@@ -153,19 +154,36 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
         <View style={styles.headerTitleContainer}>
           <View style={styles.programTagRow}>
             <Text style={styles.headerSubtitle}>PROGRAM PROTOCOL</Text>
-            <StatusBadge label="12 WEEKS" status="neutral" />
-            <StatusBadge label={isCycle1 ? 'CYCLE 1 (W1-6)' : 'CYCLE 2 (W7-12)'} status="info" />
+            <StatusBadge label={catalogProgram ? (catalogProgram.duration || 'PROGRAM') : '12 WEEKS'} status="neutral" />
+            {is6WeekShredded ? (
+              <StatusBadge label={isCycle1 ? 'CYCLE 1 (W1-6)' : 'CYCLE 2 (W7-12)'} status="info" />
+            ) : (
+              <StatusBadge label="ACTIVE" status="success" />
+            )}
           </View>
           <Text style={styles.headerTitle}>{activeProgramTitle || '6 WEEK SHREDDED'}</Text>
-          <Text style={styles.authorText}>Author: Guru Mann, USA · Certified Strength Coach</Text>
+          <Text style={styles.authorText}>
+            {is6WeekShredded ? 'Author: Guru Mann, USA · Certified Strength Coach' : 'Program fitted by Gravity'}
+          </Text>
         </View>
-        <TouchableOpacity
-          style={styles.infoButton}
-          onPress={() => setShowProgramInfo(!showProgramInfo)}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.infoButtonText}>{showProgramInfo ? '✕' : 'ℹ'}</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          {onBrowsePrograms && (
+            <TouchableOpacity
+              style={styles.catalogButton}
+              onPress={onBrowsePrograms}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.catalogButtonText}>CATALOG 📚</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles.infoButton}
+            onPress={() => setShowProgramInfo(!showProgramInfo)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.infoButtonText}>{showProgramInfo ? '✕' : 'ℹ'}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Program Info Drawer (Toggleable) */}
@@ -506,6 +524,20 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: Theme.colors.textSecondary,
     marginTop: 2,
+  },
+  catalogButton: {
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    borderWidth: 1,
+    borderColor: Theme.colors.cyanGlow,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: Theme.borderRadius.md,
+  },
+  catalogButtonText: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 10,
+    fontWeight: '800',
+    fontFamily: Theme.typography.telemetry.fontFamily,
   },
   infoButton: {
     width: 36,

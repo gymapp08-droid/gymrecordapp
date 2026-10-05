@@ -128,7 +128,8 @@ type SubView =
   | 'SETTINGS'
   | 'AI_COACH'
   | 'WEEKLY_CHECKIN'
-  | 'REMINDER_SETTINGS';
+  | 'REMINDER_SETTINGS'
+  | 'PROGRAM_CATALOG';
 
 function MainNavigator() {
   const { status } = useAuth();
@@ -467,6 +468,7 @@ function MainNavigator() {
         {activeTab === 'WORKOUT' && (
           <WorkoutPlanScreen
             onStartWorkout={() => setActiveSubView('ACTIVE_WORKOUT')}
+            onBrowsePrograms={() => setActiveSubView('PROGRAM_CATALOG')}
           />
         )}
 
@@ -600,6 +602,9 @@ function MainNavigator() {
                     break;
                   case 'SETTINGS':
                     setActiveSubView('SETTINGS');
+                    break;
+                  case 'PROGRAM_CATALOG':
+                    setActiveSubView('PROGRAM_CATALOG');
                     break;
                   case 'SHREDDED_PROGRAM':
                     setActiveSubView(null);
@@ -762,6 +767,16 @@ function MainNavigator() {
 
           {activeSubView === 'REMINDER_SETTINGS' && (
             <ReminderSettingsScreen onBack={() => setActiveSubView(null)} />
+          )}
+
+          {activeSubView === 'PROGRAM_CATALOG' && (
+            <ProgramRecommendationScreen
+              onBack={() => setActiveSubView(null)}
+              onSelectProgram={() => {
+                setActiveSubView(null);
+                setActiveTab('WORKOUT');
+              }}
+            />
           )}
 
           {/* Metric modal inside Body Metrics */}
