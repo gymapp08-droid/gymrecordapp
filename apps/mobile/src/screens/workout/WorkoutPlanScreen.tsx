@@ -56,7 +56,9 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
   const is6WeekShredded =
     !activeProgramId ||
     activeProgramId === 'prog_6_week_shredded_12w' ||
-    activeProgramId === '6-week-shredded';
+    activeProgramId === 'prog-6-week-shredded' ||
+    activeProgramId === '6-week-shredded' ||
+    activeProgramId === '6_WEEK_SHREDDED';
 
   const catalogProgram = React.useMemo(() => {
     if (is6WeekShredded) return null;

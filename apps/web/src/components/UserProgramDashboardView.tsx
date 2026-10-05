@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { STITCH_THEME } from '../styles/stitch-theme';
+import PROGRAM_CATALOG_RAW from '../data/program-catalog.json';
 
 interface UserProgramDashboardProps {
   userId?: string;
+  programId?: string;
   onBack?: () => void;
 }
 
 export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
   userId: _userId = 'ath_current',
+  programId,
   onBack,
 }) => {
+  const [activeProgramId, setActiveProgramId] = useState<string>(programId || 'prog-6-week-shredded');
   const [currentWeek, setCurrentWeek] = useState<number>(1);
   const [currentDay, setCurrentDay] = useState<number>(1); // 1 = Monday
   const [programStatus, setProgramStatus] = useState<'NOT_STARTED' | 'ACTIVE' | 'PAUSED' | 'COMPLETED'>('ACTIVE');
@@ -23,14 +27,23 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
   const [workoutNote, setWorkoutNote] = useState<string>('');
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
-  // Total resistance & cardio workouts across 12 weeks = 12 * 6 = 72 workouts (Sunday is Recovery)
-  const completedWorkoutsCount = completedDayKeys.size;
-  const completionPercentage = Math.min(100, Math.round((completedWorkoutsCount / 72) * 100));
+  const is6WeekShredded =
+    activeProgramId === 'prog_6_week_shredded_12w' ||
+    activeProgramId === 'prog-6-week-shredded' ||
+    activeProgramId === '6-week-shredded' ||
+    activeProgramId === '6_WEEK_SHREDDED';
+
+  const catalogProgram = (PROGRAM_CATALOG_RAW.programs || []).find(
+    (p: any) => p.id === activeProgramId || p.slug === activeProgramId
+  );
+
+  const totalProgramWeeks = is6WeekShredded ? 12 : ((catalogProgram as any)?.durationWeeks || (catalogProgram as any)?.weeksCount || 6);
 
   const handleStartProgram = () => {
     setProgramStatus('ACTIVE');
     setProgramStartDate(new Date().toISOString());
-    setActionNotice('6 WEEK SHREDDED program activated! Week 1 Day 1 ready.');
+    const progTitle = is6WeekShredded ? '6 WEEK SHREDDED' : (catalogProgram?.name || 'Workout Program');
+    setActionNotice(`${progTitle} program activated! Week 1 Day 1 ready.`);
     setTimeout(() => setActionNotice(null), 4000);
   };
 
@@ -55,7 +68,7 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
     // Advance to next day or next week
     if (currentDay < 7) {
       setCurrentDay(currentDay + 1);
-    } else if (currentWeek < 12) {
+    } else if (currentWeek < totalProgramWeeks) {
       setCurrentWeek(currentWeek + 1);
       setCurrentDay(1);
     } else {
@@ -71,7 +84,7 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
   const canonicalSourceWeek = currentWeek <= 6 ? currentWeek : currentWeek - 6;
 
   // Day workout details matching the authoritative source split
-  const SPLIT_DAYS = [
+  const SHREDDED_SPLIT_DAYS = [
     {
       dayOfWeek: 1,
       dayName: 'Monday',
@@ -392,7 +405,37 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
     },
   ];
 
-  const currentSplit = SPLIT_DAYS.find((d) => d.dayOfWeek === currentDay) || SPLIT_DAYS[0]!;
+  const splitDays = useMemo(() => {
+    if (is6WeekShredded || !catalogProgram) {
+      return SHREDDED_SPLIT_DAYS;
+    }
+    return (catalogProgram.days || []).map((d: any) => ({
+      dayOfWeek: d.dayOfWeek,
+      dayName: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][d.dayOfWeek - 1] || `Day ${d.dayOfWeek}`,
+      title: d.title || `Day ${d.dayOfWeek} Workout`,
+      muscleGroups: d.muscleGroup || catalogProgram.goal || 'Target Muscles',
+      restNote: 'Follow standard rest intervals between rounds.',
+      tempoNote: 'Controlled eccentric cadence, explosive concentric drive.',
+      isCardio: d.title?.toLowerCase().includes('cardio') || false,
+      isRest: (d.exercises || []).length === 0,
+      groups: [
+        {
+          type: 'Targeted Exercises',
+          exercises: (d.exercises || []).map((ex: any) => ({
+            id: ex.id,
+            name: ex.name,
+            targetReps: `${ex.targetSets || 3} sets · ${ex.prescribedReps || '10-12 reps'}`,
+            sets: ex.targetSets || 3,
+          })),
+        },
+      ],
+    }));
+  }, [is6WeekShredded, catalogProgram]);
+
+  const currentSplit = splitDays.find((d: any) => d.dayOfWeek === currentDay) || splitDays[0] || SHREDDED_SPLIT_DAYS[0]!;
+  const completedWorkoutsCount = completedDayKeys.size;
+  const totalWorkoutsCount = totalProgramWeeks * (splitDays.filter((d: any) => !d.isRest).length || 6);
+  const completionPercentage = Math.min(100, Math.round((completedWorkoutsCount / (totalWorkoutsCount || 72)) * 100));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -413,9 +456,34 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
           )}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h1 style={{ fontSize: '24px', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>
-                6 WEEK SHREDDED
-              </h1>
+              <select
+                value={activeProgramId}
+                onChange={(e) => {
+                  setActiveProgramId(e.target.value);
+                  setCurrentDay(1);
+                  setCurrentWeek(1);
+                }}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                  borderRadius: '6px',
+                  color: STITCH_THEME.colors.textPrimary,
+                  padding: '6px 12px',
+                  fontSize: '15px',
+                  fontWeight: 800,
+                  outline: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="prog-6-week-shredded">6 WEEK SHREDDED (12 Weeks • Fat Loss)</option>
+                {(PROGRAM_CATALOG_RAW.programs || [])
+                  .filter((p: any) => p.id !== 'prog-6-week-shredded')
+                  .map((p: any) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.durationWeeks || 6}W • {p.categoryName || 'General'})
+                    </option>
+                  ))}
+              </select>
               <span
                 style={{
                   fontSize: '10px',
@@ -427,11 +495,13 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
                   color: STITCH_THEME.colors.accentCyan,
                 }}
               >
-                12 WEEKS • 2 CYCLES
+                {is6WeekShredded ? '12 WEEKS • 2 CYCLES' : `${totalProgramWeeks} WEEKS`}
               </span>
             </div>
             <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: '2px 0 0 0' }}>
-              High-density superset, giant set, and drop set fat loss program.
+              {is6WeekShredded
+                ? 'High-density superset, giant set, and drop set fat loss program.'
+                : (catalogProgram as any)?.description || 'Engineered training progression from Gravity catalog.'}
             </p>
           </div>
         </div>
@@ -593,9 +663,9 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
           SELECT WEEK & CYCLE:
         </div>
 
-        {/* Week Buttons 1 to 12 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '6px', overflowX: 'auto' }}>
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => {
+        {/* Week Buttons */}
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${totalProgramWeeks}, 1fr)`, gap: '6px', overflowX: 'auto' }}>
+          {Array.from({ length: totalProgramWeeks }, (_, i) => i + 1).map((w) => {
             const isSelected = currentWeek === w;
             const isCycle1 = w <= 6;
             return (
@@ -618,7 +688,7 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
                 }}
               >
                 <div style={{ fontSize: '9px', color: isSelected ? STITCH_THEME.colors.accentCyan : STITCH_THEME.colors.textMuted }}>
-                  {isCycle1 ? 'C1' : 'C2'}
+                  {is6WeekShredded ? (isCycle1 ? 'C1' : 'C2') : `Wk`}
                 </div>
                 <div style={{ fontSize: '13px', fontWeight: 800, fontFamily: STITCH_THEME.typography.fontMono, marginTop: '2px' }}>
                   W{w}
@@ -630,7 +700,7 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
 
         {/* Day Buttons Mon-Sun */}
         <div style={{ display: 'flex', gap: '8px', marginTop: '16px', overflowX: 'auto', borderTop: `1px solid ${STITCH_THEME.colors.borderSubtle}`, paddingTop: '16px' }}>
-          {SPLIT_DAYS.map((day) => {
+          {splitDays.map((day: any) => {
             const isSelected = currentDay === day.dayOfWeek;
             const isDone = completedDayKeys.has(`w${currentWeek}_d${day.dayOfWeek}`);
             return (
@@ -776,7 +846,7 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {group.exercises.map((ex, exIdx) => {
+                {group.exercises.map((ex: any, exIdx: number) => {
                   return (
                     <div
                       key={exIdx}

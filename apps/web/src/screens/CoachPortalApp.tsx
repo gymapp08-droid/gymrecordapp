@@ -43,6 +43,7 @@ import { UserProgramDashboardView } from '../components/UserProgramDashboardView
 import { AuthGuard } from '../components/AuthGuard';
 import { WebErrorBoundary } from '../components/WebErrorBoundary';
 import { IAuthUser } from '@alpha/types';
+import PROGRAM_CATALOG_RAW from '../data/program-catalog.json';
 
 // Initial seed programs
 const INITIAL_PROGRAMS: IProgramDetail[] = [
@@ -176,6 +177,55 @@ const INITIAL_PROGRAMS: IProgramDetail[] = [
       { id: 'day_sws_7', dayOfWeek: 7, title: 'Recovery', exercises: [] },
     ],
   },
+];
+
+const CATALOG_PROGRAMS: IProgramDetail[] = (PROGRAM_CATALOG_RAW.programs || []).map((p: any) => {
+  const category = (PROGRAM_CATALOG_RAW.categories || []).find((c: any) => c.id === p.categoryId);
+  return {
+    id: p.id,
+    creatorId: 'author_guru_mann',
+    categoryId: p.categoryId,
+    categoryName: category?.name || 'General',
+    name: p.name,
+    slug: p.slug,
+    description: p.description || '',
+    goal: p.goal || 'General Fitness',
+    duration: `${p.durationWeeks || 6} Weeks`,
+    workoutDaysPerWeek: p.frequencyDays || 6,
+    weeksCount: p.durationWeeks || 6,
+    status: ProgramStatus.PUBLISHED,
+    version: 1,
+    displayDuration: `${p.durationWeeks || 6} Weeks`,
+    sourceDuration: `${p.durationWeeks || 6} Weeks`,
+    sourceAttribution: p.sourceAuthor || 'Program fitted by Gravity',
+    sourceUrl: p.sourceUrl,
+    createdAt: new Date('2026-01-01T00:00:00Z'),
+    updatedAt: new Date('2026-01-01T00:00:00Z'),
+    days: (p.days || []).map((d: any) => ({
+      id: d.id || `${p.id}_d${d.dayOfWeek}`,
+      dayOfWeek: d.dayOfWeek,
+      title: d.title || `Day ${d.dayOfWeek}`,
+      exercises: (d.exercises || []).map((ex: any, idx: number) => ({
+        id: ex.id || `${p.id}_d${d.dayOfWeek}_e${idx}`,
+        exerciseId: `ex_${idx}`,
+        exerciseName: ex.name,
+        primaryMuscle: ex.muscleGroup || 'Full Body',
+        orderIndex: idx,
+        targetSets: ex.targetSets || 3,
+        targetReps: ex.targetReps || 10,
+        restSeconds: ex.restSeconds || 60,
+        targetRpe: 8,
+        notes: ex.restInstructions || ex.setGroupType || '',
+      })),
+    })),
+  };
+});
+
+const ALL_PORTAL_PROGRAMS: IProgramDetail[] = [
+  ...INITIAL_PROGRAMS,
+  ...CATALOG_PROGRAMS.filter(
+    (cp) => !INITIAL_PROGRAMS.some((ip) => ip.id === cp.id || ip.name.toLowerCase() === cp.name.toLowerCase())
+  ),
 ];
 
 // Initial seed clients
@@ -416,7 +466,11 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
 
   // Data State
   const [clients, setClients] = useState<IPortalClientSummary[]>(INITIAL_CLIENTS);
-  const [programs, setPrograms] = useState<IProgramDetail[]>(INITIAL_PROGRAMS);
+  const [programs, setPrograms] = useState<IProgramDetail[]>(ALL_PORTAL_PROGRAMS);
+  const [programCategoryFilter, setProgramCategoryFilter] = useState<string>('ALL');
+  const [programSearchQuery, setProgramSearchQuery] = useState<string>('');
+  const [previewProgram, setPreviewProgram] = useState<IProgramDetail | null>(null);
+  const [selectedUserProgramId, setSelectedUserProgramId] = useState<string>('prog-6-week-shredded');
   const [events, setEvents] = useState<ICoachCalendarEvent[]>(INITIAL_EVENTS);
   const [conversations, setConversations] = useState<ICoachConversationSummary[]>(INITIAL_CONVERSATIONS);
   const [activeMsgClientId, setActiveMsgClientId] = useState<string | null>('ath_1');
@@ -933,8 +987,83 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                 )}
               </div>
 
+              {/* Category Pills & Search */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {[
+                    { id: 'ALL', name: `All Programs (${programs.length})` },
+                    ...(PROGRAM_CATALOG_RAW.categories || []).map((c: any) => ({
+                      id: c.id,
+                      name: c.name,
+                    })),
+                  ].map((cat) => {
+                    const isSelected = programCategoryFilter === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => setProgramCategoryFilter(cat.id)}
+                        style={{
+                          padding: '6px 14px',
+                          borderRadius: '20px',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          backgroundColor: isSelected ? STITCH_THEME.colors.accentCyan : 'rgba(255, 255, 255, 0.04)',
+                          color: isSelected ? '#000' : STITCH_THEME.colors.textSecondary,
+                          border: isSelected ? 'none' : `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        {cat.name}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    placeholder="Search 52 GRAVITY programs by name, category, or target goal..."
+                    value={programSearchQuery}
+                    onChange={(e) => setProgramSearchQuery(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '10px 14px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                      border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                      borderRadius: '8px',
+                      color: STITCH_THEME.colors.textPrimary,
+                      fontSize: '13px',
+                      outline: 'none',
+                    }}
+                  />
+                  {programSearchQuery && (
+                    <button
+                      onClick={() => setProgramSearchQuery('')}
+                      style={{ ...STITCH_THEME.styles.secondaryButton, padding: '8px 12px', fontSize: '12px' }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '20px' }}>
-                {programs.map((prog) => (
+                {programs
+                  .filter((prog) => {
+                    const matchesCat =
+                      programCategoryFilter === 'ALL' ||
+                      prog.categoryId === programCategoryFilter ||
+                      (programCategoryFilter === 'cat-fat-loss' && prog.id === 'prog_6_week_shredded_12w');
+                    const q = programSearchQuery.toLowerCase().trim();
+                    const matchesQuery =
+                      !q ||
+                      prog.name.toLowerCase().includes(q) ||
+                      (prog.description && prog.description.toLowerCase().includes(q)) ||
+                      (prog.categoryName && prog.categoryName.toLowerCase().includes(q));
+                    return matchesCat && matchesQuery;
+                  })
+                  .map((prog) => (
                   <div
                     key={prog.id}
                     onMouseEnter={(e) => {
@@ -967,7 +1096,7 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                             letterSpacing: '0.03em',
                           }}
                         >
-                          {prog.id === 'prog_6_week_shredded_12w' ? 'RESTRICTED ACCESS · 12 WEEKS' : `v${prog.version} · ${prog.status}`}
+                          {prog.id === 'prog_6_week_shredded_12w' ? 'RESTRICTED ACCESS · 12 WEEKS' : `${prog.categoryName || 'PROGRAM'} · v${prog.version}`}
                         </span>
                         <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
                           {prog.weeksCount} Weeks • {prog.days.length} Days/wk
@@ -976,11 +1105,9 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                       <h3 style={{ fontSize: '17px', fontWeight: 700, margin: '8px 0', color: STITCH_THEME.colors.textPrimary }}>
                         {prog.name}
                       </h3>
-                      {prog.id === 'prog_6_week_shredded_12w' && (
-                        <div style={{ fontSize: '11px', color: STITCH_THEME.colors.accentCyan, fontWeight: 600, marginBottom: '6px' }}>
-                          Author: Guru Mann, USA
-                        </div>
-                      )}
+                      <div style={{ fontSize: '11px', color: STITCH_THEME.colors.accentCyan, fontWeight: 600, marginBottom: '6px' }}>
+                        {prog.sourceAttribution || 'Program fitted by Gravity'}
+                      </div>
                       <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, lineHeight: 1.5, margin: 0 }}>
                         {prog.description}
                       </p>
@@ -988,7 +1115,7 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
 
                     <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: `1px solid ${STITCH_THEME.colors.borderSubtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
-                        {prog.id === 'prog_6_week_shredded_12w' ? '68 Source Exercises · 2 Cycles' : `${prog.days.reduce((acc, d) => acc + d.exercises.length, 0)} Total Exercises`}
+                        {prog.id === 'prog_6_week_shredded_12w' ? '68 Source Exercises · 2 Cycles' : `${prog.days.reduce((acc, d) => acc + d.exercises.length, 0)} Prescribed Exercises`}
                       </span>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         {prog.id === 'prog_6_week_shredded_12w' ? (
@@ -1000,19 +1127,33 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                               Manage Access
                             </button>
                             <button
-                              onClick={() => setActiveTab('shredded-program')}
+                              onClick={() => {
+                                setSelectedUserProgramId(prog.id);
+                                setActiveTab('shredded-program');
+                              }}
                               style={{ ...STITCH_THEME.styles.primaryButton, padding: '4px 12px', fontSize: '12px' }}
                             >
                               Start Program
                             </button>
                           </>
                         ) : (
-                          <button
-                            onClick={() => alert(`Previewing split for ${prog.name}`)}
-                            style={{ ...STITCH_THEME.styles.secondaryButton, padding: '4px 12px', fontSize: '12px' }}
-                          >
-                            Inspect Split
-                          </button>
+                          <>
+                            <button
+                              onClick={() => setPreviewProgram(prog)}
+                              style={{ ...STITCH_THEME.styles.secondaryButton, padding: '4px 12px', fontSize: '12px' }}
+                            >
+                              Inspect Split
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedUserProgramId(prog.id);
+                                setActiveTab('shredded-program');
+                              }}
+                              style={{ ...STITCH_THEME.styles.primaryButton, padding: '4px 12px', fontSize: '12px' }}
+                            >
+                              Start Program
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -1022,7 +1163,7 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
             </div>
           ) : activeTab === 'shredded-program' ? (
             /* User / Athlete 12-Week Progress Engine */
-            <UserProgramDashboardView onBack={() => setActiveTab('programs')} />
+            <UserProgramDashboardView programId={selectedUserProgramId} onBack={() => setActiveTab('programs')} />
           ) : activeTab === 'shredded-admin' ? (
             /* Admin Access Management & Canonical Inspector */
             <ProgramAccessManagementView currentRole={currentRole} onBack={() => setActiveTab('programs')} />
@@ -1212,6 +1353,123 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
           onConfirmReplace={handleConfirmReplace}
           onClose={() => setReplaceProgramTarget(null)}
         />
+      )}
+
+      {/* Inspect Split Modal */}
+      {previewProgram && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            padding: '24px',
+          }}
+        >
+          <div
+            style={{
+              ...STITCH_THEME.styles.glassCardElevated,
+              width: '740px',
+              maxHeight: '85vh',
+              overflowY: 'auto',
+              padding: '28px',
+              border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontFamily: STITCH_THEME.typography.fontMono,
+                    color: STITCH_THEME.colors.accentCyan,
+                    fontWeight: 700,
+                  }}
+                >
+                  {previewProgram.categoryName || 'GRAVITY PROGRAM'} • {previewProgram.weeksCount} WEEKS
+                </span>
+                <h2 style={{ fontSize: '20px', fontWeight: 800, margin: '4px 0 0 0', color: STITCH_THEME.colors.textPrimary }}>
+                  {previewProgram.name}
+                </h2>
+              </div>
+              <button
+                onClick={() => setPreviewProgram(null)}
+                style={{ ...STITCH_THEME.styles.secondaryButton, padding: '6px 12px', fontSize: '13px' }}
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, marginBottom: '20px', lineHeight: 1.5 }}>
+              {previewProgram.description}
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {previewProgram.days.map((d, dIdx) => (
+                <div
+                  key={d.id || dIdx}
+                  style={{
+                    padding: '16px',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: STITCH_THEME.colors.textPrimary }}>
+                      Day {d.dayOfWeek}: {d.title}
+                    </span>
+                    <span style={{ fontSize: '11px', color: STITCH_THEME.colors.accentCyan, fontFamily: STITCH_THEME.typography.fontMono }}>
+                      {d.exercises.length} Exercises
+                    </span>
+                  </div>
+                  {d.exercises.length === 0 ? (
+                    <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>Rest & Muscular Recovery</div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {d.exercises.map((ex, eIdx) => (
+                        <div
+                          key={ex.id || eIdx}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            fontSize: '12px',
+                            color: STITCH_THEME.colors.textSecondary,
+                            padding: '4px 0',
+                          }}
+                        >
+                          <span>
+                            {eIdx + 1}. {ex.exerciseName}
+                          </span>
+                          <span style={{ color: STITCH_THEME.colors.textMuted }}>
+                            {ex.targetSets} sets × {ex.targetReps} reps
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button
+                onClick={() => {
+                  setSelectedUserProgramId(previewProgram.id);
+                  setPreviewProgram(null);
+                  setActiveTab('shredded-program');
+                }}
+                style={{ ...STITCH_THEME.styles.primaryButton, padding: '8px 18px', fontSize: '13px' }}
+              >
+                Start This Program
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Invite Athlete Modal */}
