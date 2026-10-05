@@ -47,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   onSelectTab,
   currentRole,
-  onLogout,
+  onLogout: _onLogout,
   authenticatedUser,
 }) => {
   const isTrainer = currentRole === UserRole.TRAINER;
@@ -58,34 +58,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       groupName: 'WORKSPACE',
       items: [
-        { id: 'overview', label: 'Overview', icon: '◈' },
-        { id: 'clients', label: 'Athletes', icon: '⊕' },
+        { id: 'overview', label: 'Overview', icon: '🏠' },
+        { id: 'clients', label: 'Athletes', icon: '👥' },
         { id: 'shredded-program', label: '6 WEEK SHREDDED', icon: '⚡' },
-        { id: 'programs', label: 'Programs', icon: '⊟', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
-        { id: 'workouts', label: 'Workouts', icon: '◫', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
-        { id: 'nutrition', label: 'Nutrition', icon: '◉', disabled: isTrainer, hint: isTrainer ? 'Nutritionists only' : undefined },
+        { id: 'programs', label: 'Programs', icon: '📖', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'workouts', label: 'Workouts', icon: '🏋️', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'nutrition', label: 'Nutrition', icon: '🍎', disabled: isTrainer, hint: isTrainer ? 'Nutritionists only' : undefined },
       ],
     },
     {
       groupName: 'LIBRARY',
       items: [
-        { id: 'exercises', label: 'Exercises', icon: '⊞', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
-        { id: 'workouts', label: 'Workout Templates', icon: '◫', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'exercises', label: 'Exercises', icon: '🏋️', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
+        { id: 'workouts', label: 'Workout Templates', icon: '📋', disabled: isNutritionist, hint: isNutritionist ? 'Trainers only' : undefined },
       ],
     },
     {
       groupName: 'OPERATIONS',
       items: [
-        { id: 'calendar', label: 'Schedule', icon: '▦' },
-        { id: 'check-ins', label: 'Check-Ins', icon: '◷' },
-        { id: 'messages', label: 'Messages', icon: '◌' },
+        { id: 'calendar', label: 'Schedule', icon: '📅' },
+        { id: 'check-ins', label: 'Check-Ins', icon: '☑️' },
+        { id: 'messages', label: 'Messages', icon: '💬' },
       ],
     },
     {
       groupName: 'INSIGHTS',
       items: [
-        { id: 'dashboard', label: 'Analytics', icon: '▦' },
-        { id: 'reports', label: 'Reports', icon: '▤' },
+        { id: 'dashboard', label: 'Analytics', icon: '📊' },
+        { id: 'reports', label: 'Reports', icon: '📑' },
       ],
     },
     {
@@ -93,14 +93,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'admin', label: 'Admin Dashboard', icon: '🛡️', adminOnly: true },
         { id: 'shredded-admin', label: 'Shredded Access', icon: '🔒', adminOnly: true },
-        { id: 'trainers', label: 'Team', icon: '◎' },
-        { id: 'settings', label: 'Settings & Audit Log', icon: '◈' },
+        { id: 'trainers', label: 'Team', icon: '👥' },
+        { id: 'settings', label: 'Settings & Audit Log', icon: '⚙️' },
       ],
     },
   ];
 
-  const displayName = authenticatedUser?.fullName || 'Alpha Control';
-  const displayRole = authenticatedUser?.role || currentRole;
+  const displayName = authenticatedUser?.fullName || 'Master Administrator';
+  const displayRole = (authenticatedUser?.role || currentRole || 'ADMIN').toUpperCase();
   const initials = displayName
     .split(' ')
     .slice(0, 2)
@@ -111,9 +111,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside
       style={{
-        width: '220px',
-        backgroundColor: STITCH_THEME.colors.bgSecondary,
-        borderRight: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+        width: '230px',
+        backgroundColor: '#07090E',
+        borderRight: `1px solid rgba(255, 255, 255, 0.08)`,
         display: 'flex',
         flexDirection: 'column',
         height: '100vh',
@@ -121,48 +121,61 @@ export const Sidebar: React.FC<SidebarProps> = ({
         top: 0,
         flexShrink: 0,
         userSelect: 'none',
-        overflowY: 'auto',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
       }}
     >
-      {/* Brand */}
+      {/* Brand Header */}
       <div
         style={{
-          padding: '18px 16px',
+          padding: '16px 20px',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          borderBottom: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+          gap: '12px',
+          borderBottom: `1px solid rgba(255, 255, 255, 0.08)`,
           flexShrink: 0,
+          backgroundColor: '#07090E',
         }}
       >
         <div
           style={{
-            width: '30px',
-            height: '30px',
+            width: '32px',
+            height: '32px',
             borderRadius: '8px',
-            background: 'linear-gradient(135deg, #00E5FF 0%, #7928CA 100%)',
+            background: 'linear-gradient(135deg, #00E5FF 0%, #3B82F6 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 900,
-            fontSize: '15px',
-            color: '#000',
+            fontSize: '16px',
+            color: '#000000',
             flexShrink: 0,
+            boxShadow: '0 0 14px rgba(0, 240, 255, 0.3)',
           }}
         >
           G
         </div>
         <div>
-          <div style={{ fontWeight: 800, letterSpacing: '0.1em', fontSize: '13px', color: STITCH_THEME.colors.textPrimary }}>
+          <div
+            style={{
+              fontWeight: 800,
+              letterSpacing: '0.08em',
+              fontSize: '14px',
+              color: '#FFFFFF',
+              lineHeight: 1.1,
+            }}
+          >
             GRAVITY
           </div>
           <div
             style={{
-              fontSize: '9px',
-              color: STITCH_THEME.colors.accentCyan,
-              letterSpacing: '0.06em',
+              fontSize: '9.5px',
+              color: '#00F0FF',
+              letterSpacing: '0.08em',
               fontFamily: STITCH_THEME.typography.fontMono,
               textTransform: 'uppercase',
+              fontWeight: 700,
+              marginTop: '3px',
             }}
           >
             Management Portal
@@ -170,28 +183,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* Nav */}
-      <nav style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
+      {/* Nav List with Subtle Minimal Scrollbar */}
+      <nav
+        style={{
+          flex: 1,
+          padding: '14px 10px',
+          overflowY: 'auto',
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(255, 255, 255, 0.08) transparent',
+        }}
+      >
         {navGroups.map((group, gIdx) => {
           const visibleItems = group.items.filter((it) => !it.adminOnly || isAdmin);
           if (visibleItems.length === 0) return null;
 
           return (
-            <div key={gIdx} style={{ marginBottom: '20px' }}>
+            <div key={gIdx} style={{ marginBottom: '22px' }}>
               <div
                 style={{
-                  fontSize: '9px',
-                  fontWeight: 600,
-                  color: STITCH_THEME.colors.textMuted,
-                  letterSpacing: '0.1em',
-                  padding: '0 10px 6px',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  color: '#64748B',
+                  letterSpacing: '0.12em',
+                  padding: '0 12px 6px',
                   textTransform: 'uppercase',
                 }}
               >
                 {group.groupName}
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 {visibleItems.map((item) => {
                   const isActive = activeTab === item.id;
                   return (
@@ -204,66 +225,68 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         position: 'relative',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '9px',
-                        padding: '7px 10px 7px 13px',
-                        borderRadius: '6px',
-                        border: 'none',
-                        backgroundColor: isActive ? 'rgba(0, 229, 255, 0.06)' : 'transparent',
+                        gap: '12px',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: isActive ? '1px solid rgba(0, 240, 255, 0.22)' : '1px solid transparent',
+                        backgroundColor: isActive ? 'rgba(0, 240, 255, 0.08)' : 'transparent',
                         color: item.disabled
-                          ? STITCH_THEME.colors.textDisabled
+                          ? '#475569'
                           : isActive
-                          ? STITCH_THEME.colors.accentCyan
-                          : STITCH_THEME.colors.textSecondary,
-                        fontSize: '12.5px',
+                          ? '#00F0FF'
+                          : '#94A3B8',
+                        fontSize: '13px',
                         fontWeight: isActive ? 600 : 400,
                         cursor: item.disabled ? 'not-allowed' : 'pointer',
                         textAlign: 'left',
                         width: '100%',
-                        transition: 'background-color 0.1s ease, color 0.1s ease',
-                        opacity: item.disabled ? 0.4 : 1,
+                        transition: 'all 0.15s ease',
+                        opacity: item.disabled ? 0.45 : 1,
                         boxSizing: 'border-box',
                         overflow: 'hidden',
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive && !item.disabled) {
-                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
-                          e.currentTarget.style.color = STITCH_THEME.colors.textPrimary;
+                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)';
+                          e.currentTarget.style.color = '#F8FAFC';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isActive && !item.disabled) {
                           e.currentTarget.style.backgroundColor = 'transparent';
-                          e.currentTarget.style.color = STITCH_THEME.colors.textSecondary;
+                          e.currentTarget.style.color = '#94A3B8';
                         }
                       }}
                     >
-                      {/* Active left accent */}
+                      {/* Active indicator bar */}
                       {isActive && (
                         <span
                           style={{
                             position: 'absolute',
                             left: 0,
-                            top: '4px',
-                            bottom: '4px',
+                            top: '6px',
+                            bottom: '6px',
                             width: '3px',
-                            backgroundColor: STITCH_THEME.colors.accentCyan,
-                            borderRadius: '0 2px 2px 0',
+                            backgroundColor: '#00F0FF',
+                            borderRadius: '0 3px 3px 0',
+                            boxShadow: '0 0 8px rgba(0, 240, 255, 0.6)',
                           }}
                         />
                       )}
                       <span
                         style={{
-                          fontSize: '13px',
-                          width: '15px',
+                          fontSize: '14px',
+                          width: '18px',
                           textAlign: 'center',
                           flexShrink: 0,
-                          fontFamily: STITCH_THEME.typography.fontMono,
-                          opacity: isActive ? 1 : 0.7,
+                          opacity: isActive ? 1 : 0.75,
                         }}
                       >
                         {item.icon}
                       </span>
-                      <span style={{ flex: 1, letterSpacing: '0.01em' }}>{item.label}</span>
+                      <span style={{ flex: 1, letterSpacing: '0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {item.label}
+                      </span>
                     </button>
                   );
                 })}
@@ -273,30 +296,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Footer */}
+      {/* Bottom Profile Area */}
       <div
         style={{
           padding: '12px 14px',
-          borderTop: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+          borderTop: `1px solid rgba(255, 255, 255, 0.08)`,
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
           flexShrink: 0,
+          backgroundColor: '#07090E',
         }}
       >
         <div
           style={{
-            width: '30px',
-            height: '30px',
+            width: '34px',
+            height: '34px',
             borderRadius: '50%',
-            backgroundColor: 'rgba(0, 229, 255, 0.12)',
-            border: `1px solid rgba(0, 229, 255, 0.25)`,
+            backgroundColor: 'rgba(0, 240, 255, 0.12)',
+            border: `1px solid rgba(0, 240, 255, 0.35)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '11px',
+            fontSize: '12px',
             fontWeight: 700,
-            color: STITCH_THEME.colors.accentCyan,
+            color: '#00F0FF',
             flexShrink: 0,
           }}
         >
@@ -305,9 +329,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              fontSize: '12px',
+              fontSize: '12.5px',
               fontWeight: 600,
-              color: STITCH_THEME.colors.textPrimary,
+              color: '#F8FAFC',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
@@ -318,35 +342,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div
             style={{
               fontSize: '10px',
-              color: STITCH_THEME.colors.textMuted,
-              textTransform: 'uppercase',
+              color: '#94A3B8',
+              fontWeight: 600,
               letterSpacing: '0.04em',
             }}
           >
-            {String(displayRole)}
+            {displayRole}
           </div>
         </div>
-        {onLogout && (
-          <button
-            onClick={onLogout}
-            title="Sign Out"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: STITCH_THEME.colors.textMuted,
-              cursor: 'pointer',
-              fontSize: '13px',
-              padding: '4px',
-              borderRadius: '4px',
-              flexShrink: 0,
-              lineHeight: 1,
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = STITCH_THEME.colors.accentCrimson)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = STITCH_THEME.colors.textMuted)}
-          >
-            ↩
-          </button>
-        )}
+        <div style={{ color: '#64748B', fontSize: '11px' }}>
+          ⇅
+        </div>
       </div>
     </aside>
   );

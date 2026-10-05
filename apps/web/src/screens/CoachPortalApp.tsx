@@ -228,6 +228,36 @@ const ALL_PORTAL_PROGRAMS: IProgramDetail[] = [
   ),
 ];
 
+const CARD_THUMBNAILS: Record<string, string> = {
+  prog_hypertrophy_v1: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80',
+  prog_recomp_v2: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=600&q=80',
+  prog_6_week_shredded_12w: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
+  'prog-gainer-pure-mass': 'https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=600&q=80',
+  'prog-mass-up': 'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=600&q=80',
+  'prog-size-8': 'https://images.unsplash.com/photo-1581009137042-c552e485697a?auto=format&fit=crop&w=600&q=80',
+};
+
+const CATEGORY_THUMBNAILS: Record<string, string> = {
+  'cat-muscle-building': 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80',
+  'cat-fat-loss': 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80',
+  'cat-single-muscle': 'https://images.unsplash.com/photo-1581009137042-c552e485697a?auto=format&fit=crop&w=600&q=80',
+  'cat-bodyweight': 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?auto=format&fit=crop&w=600&q=80',
+  'cat-medical': 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=600&q=80',
+  'cat-family': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=600&q=80',
+  'cat-specialized-nutrition': 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+};
+
+const getProgramThumbnail = (prog: IProgramDetail): string => {
+  const cardThumb = CARD_THUMBNAILS[prog.id];
+  if (cardThumb) return cardThumb;
+  if (prog.categoryId) {
+    const catThumb = CATEGORY_THUMBNAILS[prog.categoryId];
+    if (catThumb) return catThumb;
+  }
+  return 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80';
+};
+
+
 // Initial seed clients
 const INITIAL_CLIENTS: IPortalClientSummary[] = [
   {
@@ -469,7 +499,16 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
   const [programs, setPrograms] = useState<IProgramDetail[]>(ALL_PORTAL_PROGRAMS);
   const [programCategoryFilter, setProgramCategoryFilter] = useState<string>('ALL');
   const [programSearchQuery, setProgramSearchQuery] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'recent' | 'name' | 'duration' | 'exercises'>('recent');
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const [previewProgram, setPreviewProgram] = useState<IProgramDetail | null>(null);
+
+  const getCategoryCount = (catId: string) => {
+    if (catId === 'ALL') return programs.length;
+    return programs.filter((p) => {
+      return p.categoryId === catId || (catId === 'cat-fat-loss' && p.id === 'prog_6_week_shredded_12w');
+    }).length;
+  };
   const [selectedUserProgramId, setSelectedUserProgramId] = useState<string>('prog-6-week-shredded');
   const [events, setEvents] = useState<ICoachCalendarEvent[]>(INITIAL_EVENTS);
   const [conversations, setConversations] = useState<ICoachConversationSummary[]>(INITIAL_CONVERSATIONS);
@@ -854,6 +893,7 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
         }}
         currentRole={currentRole}
         onLogout={onLogout}
+        authenticatedUser={authenticatedUser}
       />
 
       {/* Main Workspace Layout */}
@@ -870,42 +910,44 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
         />
 
         {/* Quick Actions Bar — context-aware */}
-        <div
-          style={{
-            borderBottom: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-            padding: '7px 24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            gap: '8px',
-            backgroundColor: STITCH_THEME.colors.bgSecondary,
-          }}
-        >
-          {currentRole !== UserRole.NUTRITIONIST && (
-            <button
-              onClick={() => setIsBuildingProgram(true)}
-              style={{
-                ...STITCH_THEME.styles.secondaryButton,
-                fontSize: '12px',
-                padding: '5px 12px',
-              }}
-            >
-              + New Program
-            </button>
-          )}
-          {currentRole !== UserRole.TRAINER && (
-            <button
-              onClick={() => setIsBuildingMealPlan(true)}
-              style={{
-                ...STITCH_THEME.styles.secondaryButton,
-                fontSize: '12px',
-                padding: '5px 12px',
-              }}
-            >
-              + New Meal Plan
-            </button>
-          )}
-        </div>
+        {activeTab !== 'programs' && (
+          <div
+            style={{
+              borderBottom: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+              padding: '7px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: '8px',
+              backgroundColor: STITCH_THEME.colors.bgSecondary,
+            }}
+          >
+            {currentRole !== UserRole.NUTRITIONIST && (
+              <button
+                onClick={() => setIsBuildingProgram(true)}
+                style={{
+                  ...STITCH_THEME.styles.secondaryButton,
+                  fontSize: '12px',
+                  padding: '5px 12px',
+                }}
+              >
+                + New Program
+              </button>
+            )}
+            {currentRole !== UserRole.TRAINER && (
+              <button
+                onClick={() => setIsBuildingMealPlan(true)}
+                style={{
+                  ...STITCH_THEME.styles.secondaryButton,
+                  fontSize: '12px',
+                  padding: '5px 12px',
+                }}
+              >
+                + New Meal Plan
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Dynamic Main Content Area */}
         <main style={{ flex: 1, padding: '24px', maxWidth: '1440px', width: '100%', margin: '0 auto' }}>
@@ -973,28 +1015,98 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
           ) : activeTab === 'programs' ? (
             /* Programs Library View */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {/* Page Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 6px 0' }}>Training Programs</h1>
-                  <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, margin: 0 }}>
-                    Immutable versioned programs, multi-day splits, and exercise prescriptions.
-                  </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div
+                    style={{
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '10px',
+                      backgroundColor: 'rgba(0, 240, 255, 0.08)',
+                      border: '1px solid rgba(0, 240, 255, 0.25)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '20px',
+                    }}
+                  >
+                    📖
+                  </div>
+                  <div>
+                    <h1 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 4px 0', letterSpacing: '-0.02em', color: '#FFFFFF' }}>
+                      Training Programs
+                    </h1>
+                    <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>
+                      Immutable versioned programs, multi-day splits, and exercise prescriptions.
+                    </p>
+                  </div>
                 </div>
-                {currentRole !== UserRole.NUTRITIONIST && (
-                  <button onClick={() => setIsBuildingProgram(true)} style={STITCH_THEME.styles.primaryButton}>
-                    + Create Program
-                  </button>
-                )}
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {currentRole !== UserRole.TRAINER && (
+                    <button
+                      onClick={() => setIsBuildingMealPlan(true)}
+                      style={{
+                        height: '38px',
+                        padding: '0 16px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '8px',
+                        color: '#F8FAFC',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'all 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)')}
+                    >
+                      <span>+</span>
+                      <span>New Meal Plan</span>
+                    </button>
+                  )}
+                  {currentRole !== UserRole.NUTRITIONIST && (
+                    <button
+                      onClick={() => setIsBuildingProgram(true)}
+                      style={{
+                        height: '38px',
+                        padding: '0 18px',
+                        backgroundColor: '#00F0FF',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: '#07090E',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'all 0.15s ease',
+                        boxShadow: '0 0 16px rgba(0, 240, 255, 0.3)',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#38F4FF')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#00F0FF')}
+                    >
+                      <span>+</span>
+                      <span>Create Program</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
-              {/* Category Pills & Search */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {/* Category Pills & Search / Sort Controls */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Category Pills */}
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                   {[
                     { id: 'ALL', name: `All Programs (${programs.length})` },
                     ...(PROGRAM_CATALOG_RAW.categories || []).map((c: any) => ({
                       id: c.id,
-                      name: c.name,
+                      name: `${c.name} (${getCategoryCount(c.id)})`,
                     })),
                   ].map((cat) => {
                     const isSelected = programCategoryFilter === cat.id;
@@ -1003,15 +1115,18 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                         key={cat.id}
                         onClick={() => setProgramCategoryFilter(cat.id)}
                         style={{
-                          padding: '6px 14px',
+                          height: '32px',
+                          padding: '0 16px',
                           borderRadius: '20px',
                           fontSize: '12px',
                           fontWeight: 600,
                           cursor: 'pointer',
-                          backgroundColor: isSelected ? STITCH_THEME.colors.accentCyan : 'rgba(255, 255, 255, 0.04)',
-                          color: isSelected ? '#000' : STITCH_THEME.colors.textSecondary,
-                          border: isSelected ? 'none' : `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                          backgroundColor: isSelected ? '#00F0FF' : 'rgba(255, 255, 255, 0.04)',
+                          color: isSelected ? '#07090E' : '#94A3B8',
+                          border: isSelected ? 'none' : `1px solid rgba(255, 255, 255, 0.08)`,
                           transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap',
+                          boxShadow: isSelected ? '0 0 12px rgba(0, 240, 255, 0.35)' : 'none',
                         }}
                       >
                         {cat.name}
@@ -1020,34 +1135,139 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                   })}
                 </div>
 
+                {/* Search Bar + Sort Dropdown */}
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <input
-                    type="text"
-                    placeholder="Search 52 GRAVITY programs by name, category, or target goal..."
-                    value={programSearchQuery}
-                    onChange={(e) => setProgramSearchQuery(e.target.value)}
-                    style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                      border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-                      borderRadius: '8px',
-                      color: STITCH_THEME.colors.textPrimary,
-                      fontSize: '13px',
-                      outline: 'none',
-                    }}
-                  />
-                  {programSearchQuery && (
+                  <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ position: 'absolute', left: '14px', color: '#64748B', fontSize: '15px', pointerEvents: 'none' }}>⌕</span>
+                    <input
+                      type="text"
+                      placeholder={`Search ${programs.length} GRAVITY programs by name, category, or target goal...`}
+                      value={programSearchQuery}
+                      onChange={(e) => setProgramSearchQuery(e.target.value)}
+                      style={{
+                        width: '100%',
+                        height: '42px',
+                        padding: '0 40px 0 40px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                        border: `1px solid rgba(255, 255, 255, 0.09)`,
+                        borderRadius: '8px',
+                        color: '#F8FAFC',
+                        fontSize: '13px',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                        transition: 'border-color 0.15s ease, background-color 0.15s ease',
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = 'rgba(0, 240, 255, 0.5)';
+                        e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.09)';
+                        e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                      }}
+                    />
+                    {programSearchQuery && (
+                      <button
+                        onClick={() => setProgramSearchQuery('')}
+                        style={{
+                          position: 'absolute',
+                          right: '12px',
+                          background: 'none',
+                          border: 'none',
+                          color: '#94A3B8',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Sort Dropdown */}
+                  <div style={{ position: 'relative' }}>
                     <button
-                      onClick={() => setProgramSearchQuery('')}
-                      style={{ ...STITCH_THEME.styles.secondaryButton, padding: '8px 12px', fontSize: '12px' }}
+                      onClick={() => setSortDropdownOpen((prev) => !prev)}
+                      style={{
+                        height: '42px',
+                        padding: '0 16px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                        border: `1px solid rgba(255, 255, 255, 0.09)`,
+                        borderRadius: '8px',
+                        color: '#F8FAFC',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}
                     >
-                      Clear
+                      <span>🎛️</span>
+                      <span>
+                        {sortBy === 'recent'
+                          ? 'Recently Added'
+                          : sortBy === 'name'
+                          ? 'Name (A-Z)'
+                          : sortBy === 'duration'
+                          ? 'Duration'
+                          : 'Exercises'}
+                      </span>
+                      <span style={{ fontSize: '10px', color: '#94A3B8' }}>▼</span>
                     </button>
-                  )}
+                    {sortDropdownOpen && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          right: 0,
+                          top: '48px',
+                          backgroundColor: '#0D1117',
+                          border: `1px solid rgba(255, 255, 255, 0.12)`,
+                          borderRadius: '8px',
+                          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.8)',
+                          zIndex: 40,
+                          minWidth: '170px',
+                          padding: '6px 0',
+                        }}
+                      >
+                        {[
+                          { key: 'recent', label: 'Recently Added' },
+                          { key: 'name', label: 'Name (A-Z)' },
+                          { key: 'duration', label: 'Duration' },
+                          { key: 'exercises', label: 'Exercises' },
+                        ].map((item) => (
+                          <button
+                            key={item.key}
+                            onClick={() => {
+                              setSortBy(item.key as any);
+                              setSortDropdownOpen(false);
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '8px 16px',
+                              textAlign: 'left',
+                              background: sortBy === item.key ? 'rgba(0, 240, 255, 0.1)' : 'none',
+                              color: sortBy === item.key ? '#00F0FF' : '#F8FAFC',
+                              border: 'none',
+                              fontSize: '13px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            {item.label}
+                            {sortBy === item.key && <span>✓</span>}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
+              {/* Program Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '20px' }}>
                 {programs
                   .filter((prog) => {
@@ -1063,102 +1283,249 @@ export const CoachPortalApp: React.FC<CoachPortalAppProps> = ({ authenticatedUse
                       (prog.categoryName && prog.categoryName.toLowerCase().includes(q));
                     return matchesCat && matchesQuery;
                   })
-                  .map((prog) => (
-                  <div
-                    key={prog.id}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                    }}
-                    style={{
-                      ...STITCH_THEME.styles.glassCard,
-                      padding: '24px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
-                      transition: 'transform 0.15s ease',
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <span
+                  .sort((a, b) => {
+                    if (sortBy === 'name') return a.name.localeCompare(b.name);
+                    if (sortBy === 'duration') return (b.weeksCount || 0) - (a.weeksCount || 0);
+                    if (sortBy === 'exercises') {
+                      const aEx = a.days.reduce((acc, d) => acc + d.exercises.length, 0);
+                      const bEx = b.days.reduce((acc, d) => acc + d.exercises.length, 0);
+                      return bEx - aEx;
+                    }
+                    return 0;
+                  })
+                  .map((prog) => {
+                    const exerciseCount = prog.days.reduce((acc, d) => acc + d.exercises.length, 0);
+                    const isShredded = prog.id === 'prog_6_week_shredded_12w';
+                    const isSize8 = prog.name.toLowerCase().includes('size 8');
+                    const thumb = getProgramThumbnail(prog);
+
+                    return (
+                      <div
+                        key={prog.id}
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                          (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(0, 240, 255, 0.35)';
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                          (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                        }}
+                        style={{
+                          position: 'relative',
+                          overflow: 'hidden',
+                          backgroundColor: '#0D1117',
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          borderRadius: '12px',
+                          padding: '22px 24px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          minHeight: '270px',
+                          transition: 'transform 0.18s ease, border-color 0.18s ease',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        {/* Atmospheric Background Image on Right */}
+                        <div
                           style={{
-                            fontSize: '10px',
-                            fontFamily: STITCH_THEME.typography.fontMono,
-                            padding: '2px 7px',
-                            borderRadius: '4px',
-                            backgroundColor: prog.id === 'prog_6_week_shredded_12w' ? STITCH_THEME.colors.accentAmberDim : STITCH_THEME.colors.accentCyanDim,
-                            color: prog.id === 'prog_6_week_shredded_12w' ? STITCH_THEME.colors.accentAmber : STITCH_THEME.colors.accentCyan,
-                            fontWeight: 600,
-                            letterSpacing: '0.03em',
+                            position: 'absolute',
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
+                            width: '46%',
+                            backgroundImage: `linear-gradient(to right, #0D1117 0%, rgba(13, 17, 23, 0.55) 35%, rgba(13, 17, 23, 0.15) 100%), url(${thumb})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            pointerEvents: 'none',
+                            opacity: 0.85,
+                          }}
+                        />
+
+                        {/* Card Content (Left ~64%) */}
+                        <div style={{ position: 'relative', zIndex: 1, maxWidth: '64%' }}>
+                          {/* Meta Pill & Duration */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                            <span
+                              style={{
+                                fontSize: '10px',
+                                fontFamily: STITCH_THEME.typography.fontMono,
+                                padding: '3px 8px',
+                                borderRadius: '4px',
+                                backgroundColor: isShredded
+                                  ? 'rgba(245, 158, 11, 0.15)'
+                                  : 'rgba(0, 240, 255, 0.1)',
+                                color: isShredded ? '#F59E0B' : '#00F0FF',
+                                fontWeight: 700,
+                                letterSpacing: '0.04em',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              {isShredded ? 'RESTRICTED ACCESS' : `${prog.categoryName || 'PROGRAM'} · v${prog.version || 1}`}
+                            </span>
+                            <span style={{ fontSize: '11px', color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <span>⏱️</span>
+                              <span>
+                                {prog.weeksCount} Weeks • {prog.workoutDaysPerWeek || prog.days.length} Days/wk
+                              </span>
+                            </span>
+                          </div>
+
+                          {/* Title */}
+                          <h3
+                            style={{
+                              fontSize: '18px',
+                              fontWeight: 800,
+                              margin: '0 0 6px 0',
+                              color: '#FFFFFF',
+                              letterSpacing: '-0.01em',
+                              lineHeight: 1.25,
+                            }}
+                          >
+                            {prog.name}
+                          </h3>
+
+                          {/* Attribution */}
+                          <div
+                            style={{
+                              fontSize: '11px',
+                              color: '#00F0FF',
+                              fontWeight: 600,
+                              marginBottom: '8px',
+                            }}
+                          >
+                            {prog.sourceAttribution ? 'Program fitted by Gravity' : 'Program fitted by Gravity'}
+                          </div>
+
+                          {/* Description */}
+                          <p
+                            style={{
+                              fontSize: '12px',
+                              color: '#94A3B8',
+                              lineHeight: 1.5,
+                              margin: 0,
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                              minHeight: '36px',
+                            }}
+                          >
+                            {prog.description}
+                          </p>
+                        </div>
+
+                        {/* Card Footer */}
+                        <div
+                          style={{
+                            position: 'relative',
+                            zIndex: 1,
+                            marginTop: '20px',
+                            paddingTop: '16px',
+                            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
                           }}
                         >
-                          {prog.id === 'prog_6_week_shredded_12w' ? 'RESTRICTED ACCESS · 12 WEEKS' : `${prog.categoryName || 'PROGRAM'} · v${prog.version}`}
-                        </span>
-                        <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
-                          {prog.weeksCount} Weeks • {prog.days.length} Days/wk
-                        </span>
-                      </div>
-                      <h3 style={{ fontSize: '17px', fontWeight: 700, margin: '8px 0', color: STITCH_THEME.colors.textPrimary }}>
-                        {prog.name}
-                      </h3>
-                      <div style={{ fontSize: '11px', color: STITCH_THEME.colors.accentCyan, fontWeight: 600, marginBottom: '6px' }}>
-                        {prog.sourceAttribution || 'Program fitted by Gravity'}
-                      </div>
-                      <p style={{ fontSize: '13px', color: STITCH_THEME.colors.textSecondary, lineHeight: 1.5, margin: 0 }}>
-                        {prog.description}
-                      </p>
-                    </div>
+                          {/* Stats on Left */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 600, color: '#F8FAFC', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                              <span>🏋️</span>
+                              <span>{isShredded ? '68 Exercises' : `${exerciseCount} Exercises`}</span>
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              {isShredded ? (
+                                <>
+                                  <span>🔄</span>
+                                  <span>2 Cycles</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>📄</span>
+                                  <span>Full Details</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
 
-                    <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: `1px solid ${STITCH_THEME.colors.borderSubtle}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
-                        {prog.id === 'prog_6_week_shredded_12w' ? '68 Source Exercises · 2 Cycles' : `${prog.days.reduce((acc, d) => acc + d.exercises.length, 0)} Prescribed Exercises`}
-                      </span>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        {prog.id === 'prog_6_week_shredded_12w' ? (
-                          <>
-                            <button
-                              onClick={() => setActiveTab('shredded-admin')}
-                              style={{ ...STITCH_THEME.styles.secondaryButton, padding: '4px 12px', fontSize: '12px' }}
-                            >
-                              Manage Access
-                            </button>
+                          {/* Actions on Right */}
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+                            {isShredded || isSize8 ? (
+                              <button
+                                onClick={() => setActiveTab('shredded-admin')}
+                                style={{
+                                  height: '32px',
+                                  padding: '0 14px',
+                                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                                  borderRadius: '6px',
+                                  color: '#F8FAFC',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap',
+                                  flexShrink: 0,
+                                  transition: 'all 0.15s ease',
+                                }}
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)')}
+                              >
+                                Manage Access
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => setPreviewProgram(prog)}
+                                style={{
+                                  height: '32px',
+                                  padding: '0 14px',
+                                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                                  borderRadius: '6px',
+                                  color: '#F8FAFC',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap',
+                                  flexShrink: 0,
+                                  transition: 'all 0.15s ease',
+                                }}
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)')}
+                              >
+                                Inspect Split
+                              </button>
+                            )}
+
                             <button
                               onClick={() => {
                                 setSelectedUserProgramId(prog.id);
                                 setActiveTab('shredded-program');
                               }}
-                              style={{ ...STITCH_THEME.styles.primaryButton, padding: '4px 12px', fontSize: '12px' }}
-                            >
-                              Start Program
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => setPreviewProgram(prog)}
-                              style={{ ...STITCH_THEME.styles.secondaryButton, padding: '4px 12px', fontSize: '12px' }}
-                            >
-                              Inspect Split
-                            </button>
-                            <button
-                              onClick={() => {
-                                setSelectedUserProgramId(prog.id);
-                                setActiveTab('shredded-program');
+                              style={{
+                                height: '32px',
+                                padding: '0 14px',
+                                backgroundColor: '#00F0FF',
+                                border: 'none',
+                                borderRadius: '6px',
+                                color: '#07090E',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0,
+                                transition: 'all 0.15s ease',
+                                boxShadow: '0 0 12px rgba(0, 240, 255, 0.25)',
                               }}
-                              style={{ ...STITCH_THEME.styles.primaryButton, padding: '4px 12px', fontSize: '12px' }}
+                              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#38F4FF')}
+                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#00F0FF')}
                             >
                               Start Program
                             </button>
-                          </>
-                        )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
               </div>
             </div>
           ) : activeTab === 'shredded-program' ? (
