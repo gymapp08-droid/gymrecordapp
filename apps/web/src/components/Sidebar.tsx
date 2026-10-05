@@ -91,9 +91,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       groupName: 'SYSTEM',
       items: [
+        { id: 'admin', label: 'Admin Dashboard', icon: '🛡️', adminOnly: true },
         { id: 'shredded-admin', label: 'Shredded Access', icon: '🔒', adminOnly: true },
         { id: 'trainers', label: 'Team', icon: '◎' },
-        { id: 'admin', label: 'Roles & Permissions', icon: '◉', adminOnly: true },
         { id: 'settings', label: 'Settings & Audit Log', icon: '◈' },
       ],
     },
