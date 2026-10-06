@@ -18,7 +18,7 @@ interface RegisterScreenProps {
   onNavigateToLogin: () => void;
   onBack?: () => void;
   onSuccess?: () => void;
-  onRegistrationSuccess?: (payload?: { email: string; token?: string }) => void;
+  onRegistrationSuccess?: (payload?: { email: string }) => void;
   profile?: {
     heightCm?: number | null;
     weightKg?: number | null;
@@ -108,7 +108,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         if (onRegistrationSuccess) {
           onRegistrationSuccess({
             email: normalizedEmail,
-            token: res.data.verificationToken,
           });
         } else if (onSuccess) {
           onSuccess();
@@ -126,7 +125,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
       if (onRegistrationSuccess) {
         onRegistrationSuccess({
           email: normalizedEmail,
-          token: 'GRAVITY-' + Math.floor(100000 + Math.random() * 900000),
         });
       } else if (onSuccess) {
         onSuccess();
@@ -136,7 +134,6 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
       if (onRegistrationSuccess) {
         onRegistrationSuccess({
           email: normalizedEmail,
-          token: 'GRAVITY-' + Math.floor(100000 + Math.random() * 900000),
         });
       } else {
         setLocalError('Registration failed. Please check network connection.');

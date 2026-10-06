@@ -67,7 +67,10 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
 
   const canonicalDayPlan = React.useMemo(() => {
     if (is6WeekShredded || !catalogProgram) {
-      return CANONICAL_6_WEEK_SPLIT[selectedDay] || CANONICAL_6_WEEK_SPLIT[1]!;
+      return (
+        CANONICAL_6_WEEK_SPLIT.find((d) => d.dayOfWeek === selectedDay) ||
+        CANONICAL_6_WEEK_SPLIT[0]!
+      );
     }
     const day = (catalogProgram.days || []).find((d: any) => d.dayOfWeek === selectedDay);
     if (!day || !day.exercises || day.exercises.length === 0) {
@@ -253,7 +256,7 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
         {DAY_TAB_INFO.map((day) => {
           const isSelected = day.dayOfWeek === selectedDay;
           const isToday = day.dayOfWeek === todayDow;
-          const plan = CANONICAL_6_WEEK_SPLIT[day.dayOfWeek];
+          const plan = CANONICAL_6_WEEK_SPLIT.find((d) => d.dayOfWeek === day.dayOfWeek);
           const isRest = plan?.workoutType === 'RECOVERY';
 
           return (

@@ -260,7 +260,7 @@ const WEEK_WORKOUT_SCHEDULE: Record<
 };
 
 export function buildShreddedExercisesForDay(dayOfWeek: number): WorkoutExerciseSummary[] {
-  const plan = CANONICAL_6_WEEK_SPLIT[dayOfWeek];
+  const plan = CANONICAL_6_WEEK_SPLIT.find((d) => d.dayOfWeek === dayOfWeek);
   if (!plan) return [];
 
   const list: WorkoutExerciseSummary[] = [];
@@ -272,6 +272,9 @@ export function buildShreddedExercisesForDay(dayOfWeek: number): WorkoutExercise
       name: 'HIIC Treadmill Cardio (20 Min)',
       prescription: '5m warm-up (3.0mph) + 10x (30s sprint @ 9-11mph / 30s jump-off) + 5m cool-down',
       isCompleted: false,
+      setGroupType: 'STRAIGHT_SET',
+      groupNumber: 0,
+      restInstructions: 'Continuous high intensity protocol',
     });
   }
 
@@ -281,6 +284,10 @@ export function buildShreddedExercisesForDay(dayOfWeek: number): WorkoutExercise
       name: p.exerciseName,
       prescription: `${p.setGroupType} · ${p.prescribedReps}`,
       isCompleted: false,
+      setGroupType: p.setGroupType,
+      groupNumber: p.groupNumber,
+      restInstructions: p.restInstructions || (p.restSeconds > 0 ? `${p.restSeconds}s rest` : 'No rest between exercises'),
+      tempo: '1s concentric / 2s eccentric',
     });
   }
 

@@ -126,12 +126,18 @@ function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): Wor
     if (weightMatch && weightMatch[1]) weightKg = parseFloat(weightMatch[1]);
 
     const upperPresc = presc.toUpperCase();
-    let groupType: 'STRAIGHT_SET' | 'SUPERSET' | 'GIANT_SET' | 'DROP_SET' | string =
-      ex?.setGroupType || 'STRAIGHT_SET';
-    if (!ex?.setGroupType) {
-      if (upperPresc.includes('SUPERSET') || upperPresc.includes('SUPER SET')) groupType = 'SUPERSET';
-      else if (upperPresc.includes('GIANT SET') || upperPresc.includes('GIANTSET')) groupType = 'GIANT_SET';
-      else if (upperPresc.includes('DROP SET') || upperPresc.includes('DROPSET')) groupType = 'DROP_SET';
+    const rawGroup = (ex?.setGroupType || '').toUpperCase();
+    let groupType: 'STRAIGHT_SET' | 'SUPERSET' | 'GIANT_SET' | 'DROP_SET' | string = 'STRAIGHT_SET';
+    if (rawGroup.includes('SUPER') || upperPresc.includes('SUPER SET') || upperPresc.includes('SUPERSET')) {
+      groupType = 'SUPERSET';
+    } else if (rawGroup.includes('GIANT') || upperPresc.includes('GIANT SET') || upperPresc.includes('GIANTSET')) {
+      groupType = 'GIANT_SET';
+    } else if (rawGroup.includes('DROP') || upperPresc.includes('DROP SET') || upperPresc.includes('DROPSET')) {
+      groupType = 'DROP_SET';
+    } else if (rawGroup.includes('EXTENDED') || upperPresc.includes('EXTENDED SET')) {
+      groupType = 'EXTENDED_SET';
+    } else if (ex?.setGroupType) {
+      groupType = ex.setGroupType;
     }
 
     const sets: RecordedSet[] = Array.from({ length: Math.max(1, setCount) }, (_, sIdx) => ({

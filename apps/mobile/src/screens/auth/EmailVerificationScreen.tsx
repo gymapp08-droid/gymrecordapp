@@ -12,7 +12,6 @@ import { ApiClient } from '../../services/api';
 
 interface EmailVerificationScreenProps {
   email: string;
-  initialToken?: string;
   onBack?: () => void;
   onVerified: () => void;
   onNavigateToLogin: () => void;
@@ -20,24 +19,25 @@ interface EmailVerificationScreenProps {
 
 export const EmailVerificationScreen: React.FC<EmailVerificationScreenProps> = ({
   email,
-  initialToken,
   onBack,
   onVerified,
   onNavigateToLogin,
 }) => {
-  // If initial token exists, derive a 6-character code or use it
-  const defaultCode = initialToken
-    ? initialToken.substring(0, 6).toUpperCase()
-    : '748291';
-
-  const [code, setCode] = useState(defaultCode);
+  // Verification code entered by athlete (never prefilled or leaked)
+  const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleVerify = async () => {
-    if (!code.trim()) {
-      setError('Please enter the 6-digit verification code.');
+    const cleanCode = code.trim();
+    if (!cleanCode) {
+      setError('Please enter the 6-digit verification code sent to your email.');
+      return;
+    }
+
+    if (cleanCode.length < 6) {
+      setError('Verification code must be 6 digits.');
       return;
     }
 
@@ -46,9 +46,9 @@ export const EmailVerificationScreen: React.FC<EmailVerificationScreenProps> = (
 
     try {
       // Attempt verification against API endpoint
-      const tokenToVerify = initialToken || code.trim();
       const res = await ApiClient.post<{ success: boolean; message: string }>('/auth/verify-email', {
-        token: tokenToVerify,
+        token: cleanCode,
+        email: email ? email.toLowerCase().trim() : undefined,
       });
 
       if (res.success || res.data?.success) {
@@ -59,34 +59,26 @@ export const EmailVerificationScreen: React.FC<EmailVerificationScreenProps> = (
         return;
       }
 
-      // If backend reports token error, accept 6-digit dev verification fallback
-      if (code.trim().length === 6) {
-        setSuccessMessage('Account verified successfully! Redirecting to login...');
-        setTimeout(() => {
-          onVerified();
-        }, 1200);
-        return;
-      }
-
-      setError(res.error?.message || 'Invalid verification code. Please check and try again.');
+      setError(res.error?.message || 'Invalid or expired verification code. Please check your email.');
     } catch (_err) {
-      // Fallback for offline or local dev
-      if (code.trim().length >= 4) {
-        setSuccessMessage('Account verified successfully! Redirecting to login...');
-        setTimeout(() => {
-          onVerified();
-        }, 1200);
-      } else {
-        setError('Verification failed. Please check network connection.');
-      }
+      setError('Verification failed. Please check network connection.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     setError(null);
-    setSuccessMessage('New verification code sent to your email.');
+    try {
+      if (email) {
+        await ApiClient.post('/auth/resend-verification', {
+          email: email.toLowerCase().trim(),
+        });
+      }
+      setSuccessMessage('New verification code sent to your email.');
+    } catch {
+      setSuccessMessage('New verification code sent to your email.');
+    }
     setTimeout(() => setSuccessMessage(null), 3500);
   };
 

@@ -161,7 +161,6 @@ function MainNavigator() {
   const [onboardingProfile, setOnboardingProfile] = useState<UserProfileData | null>(null);
   const [onboardingPreferences, setOnboardingPreferences] = useState<TrainingPreferencesData | null>(null);
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string>('');
-  const [pendingVerificationToken, setPendingVerificationToken] = useState<string | undefined>(undefined);
 
   // Subview context states
   const [selectedExercise, setSelectedExercise] = useState<ExerciseDetailData | undefined>(undefined);
@@ -418,7 +417,6 @@ function MainNavigator() {
             selectedProgramId={activeProgramId}
             onRegistrationSuccess={(payload) => {
               if (payload?.email) setPendingVerificationEmail(payload.email);
-              if (payload?.token) setPendingVerificationToken(payload.token);
               setAuthRoute('VERIFY_EMAIL');
             }}
           />
@@ -427,7 +425,6 @@ function MainNavigator() {
         return (
           <EmailVerificationScreen
             email={pendingVerificationEmail}
-            initialToken={pendingVerificationToken}
             onBack={() => setAuthRoute('REGISTER')}
             onVerified={() => setAuthRoute('LOGIN')}
             onNavigateToLogin={() => setAuthRoute('LOGIN')}

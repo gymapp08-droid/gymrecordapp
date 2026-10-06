@@ -247,7 +247,7 @@ export class AuthService implements OnModuleInit {
     return {
       user: authUser,
       tokens,
-      verificationToken: rawVerificationToken,
+      ...(isTest ? { verificationToken: rawVerificationToken } : {}),
     };
   }
 
