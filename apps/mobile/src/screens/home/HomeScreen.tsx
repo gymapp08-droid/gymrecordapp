@@ -137,9 +137,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         <View style={styles.headerRight}>
           <View style={styles.streakPill}>
-            <FlameIcon size={14} color={streak.days > 0 ? '#F59E0B' : Theme.colors.textMuted} />
-            <Text style={[styles.streakPillText, streak.days === 0 && { color: Theme.colors.textMuted }]}>
-              {streak.label}
+            <FlameIcon size={16} color={streak.days > 0 ? '#F59E0B' : '#71717A'} />
+            <Text style={[styles.streakPillText, streak.days === 0 && { color: '#71717A' }]}>
+              {streak.days}
             </Text>
           </View>
 
@@ -949,7 +949,7 @@ const styles = StyleSheet.create({
   },
   athleteNameText: {
     fontFamily: Theme.typography.display.fontFamily,
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '900',
     color: Theme.colors.textPrimary,
     letterSpacing: 0.2,
@@ -962,7 +962,7 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   streakPill: {
     flexDirection: 'row',
@@ -971,16 +971,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(245, 158, 11, 0.12)',
     borderWidth: 1,
     borderColor: 'rgba(245, 158, 11, 0.35)',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: Theme.borderRadius.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: Theme.borderRadius.pill,
   },
   streakPillText: {
-    fontSize: 9,
+    fontSize: 13,
     fontFamily: Theme.typography.telemetry.fontFamily,
     color: '#F59E0B',
-    fontWeight: '800',
-    letterSpacing: 0.5,
+    fontWeight: '900',
   },
   bellBtn: {
     width: 38,

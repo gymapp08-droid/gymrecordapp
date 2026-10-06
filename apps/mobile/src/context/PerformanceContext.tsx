@@ -619,10 +619,10 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     isWearableConnected: false,
   });
 
-  // Section 20: Real streak (0 = "Start your streak")
+  // Section 20: Real streak (Snapchat style numeric badge)
   const [streak, setStreak] = useState<{ days: number; label: string }>({
     days: 0,
-    label: 'Start your streak',
+    label: '0',
   });
 
   const [weeklyMomentum, _setWeeklyMomentum] = useState<{
@@ -716,13 +716,29 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const loadPersistentData = async () => {
     try {
-      // 1. Restore completed streak count
+      // 1. Restore completed streak count & check if streak was broken
       const savedStreak = await SecureStorage.getItem('alpha_training_streak');
+      const lastWorkoutDate = await SecureStorage.getItem('gravity_last_workout_date');
+      const todayIso = new Date().toISOString().split('T')[0];
+
       if (savedStreak) {
-        const count = parseInt(savedStreak, 10) || 0;
+        let count = parseInt(savedStreak, 10) || 0;
+        if (lastWorkoutDate && count > 0) {
+          const lastDate = new Date(String(lastWorkoutDate));
+          const todayDate = new Date(String(todayIso));
+          const diffDays = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+
+          // If more than 1 day skipped (i.e. skipped yesterday and it wasn't today)
+          if (diffDays > 1) {
+            count = 0;
+            await SecureStorage.setItem('alpha_training_streak', '0');
+            await SecureStorage.setItem('gravity_streak_broken_notified', String(todayIso));
+          }
+        }
+
         setStreak({
           days: count,
-          label: count > 0 ? `${count} DAY STREAK` : 'Start your streak',
+          label: count > 0 ? `${count}` : '0',
         });
       }
 
@@ -913,10 +929,12 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const newStreakDays = streak.days + 1;
     const newStreak = {
       days: newStreakDays,
-      label: `${newStreakDays} DAY STREAK`,
+      label: `${newStreakDays}`,
     };
     setStreak(newStreak);
+    const todayIso = new Date().toISOString().split('T')[0];
     await SecureStorage.setItem('alpha_training_streak', String(newStreakDays));
+    await SecureStorage.setItem('gravity_last_workout_date', String(todayIso));
 
     // Update monthly metrics
     setMonthlyJourney((prev) => ({
