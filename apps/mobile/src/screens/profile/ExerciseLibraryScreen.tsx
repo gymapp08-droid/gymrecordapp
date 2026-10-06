@@ -11,7 +11,7 @@ interface ExerciseLibraryScreenProps {
   onSelectExercise: (exercise: ExerciseDetailData) => void;
 }
 
-// Convert canonical Guru Mann exercises to ExerciseDetailData
+// Convert canonical GRAVITY exercises to ExerciseDetailData
 const CANONICAL_EXERCISES: ExerciseDetailData[] = SIX_WEEK_SHREDDED_EXERCISES.map((ex) => {
   const instructions = ex.technique
     ? [ex.technique, ex.description || 'Perform with strict form and full range of motion.']

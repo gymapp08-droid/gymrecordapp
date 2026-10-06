@@ -184,7 +184,7 @@ function assignDocumentsToPrograms(textMap) {
       files: ['MUSCLE_SIZE_5x5_-_WORKOUT_PLAN.pdf', 'MUSCLE_SIZE_5x5_-_NUTRITION_PLAN.pdf']
     },
     {
-      name: 'Gains with Guru Mann',
+      name: 'Hypertrophy Muscle Gains',
       slug: 'gains-with-guru-mann',
       categoryId: 'cat-muscle-building',
       goal: 'Hypertrophy Mastery',

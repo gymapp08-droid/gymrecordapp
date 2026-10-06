@@ -1,0 +1,2233 @@
+[
+  {
+    "dayOfWeek": 1,
+    "dayName": "Monday",
+    "title": "Shoulders + Triceps & Upper Abs",
+    "muscleGroups": [
+      "Shoulders",
+      "Triceps",
+      "Upper Abs"
+    ],
+    "workoutType": "RESISTANCE",
+    "restInstructions": "There is no rest in between the exercises. Take 90sec rest after the giant set and 60sec rest after the super set. Rest about 60sec to 90sec between each giant set and superset. Rest 2 to 3 minutes between muscle groups. For Upper Abs take 30sec rest after the superset.",
+    "executionInstructions": "Perform Giant sets and Supersets, there will be no rest in between the set, do three back to back exercises in giant set. When I put this (15, 12, 10) I mean that in your first set you should pick a weight in which you fail in the 15 rep range, your second set pick a weight in which you fail in the 12 rep range and your third in the 10 rep range.",
+    "liftingSpeedInstructions": "Lift under control; don't just throw around the weights. Take one second to lift the weight and one to two seconds to lower it.",
+    "notes": "Nothing; and I mean nothing will raise your metabolism more effectively than the challenging workout that I have laid out above! These face-paced workouts are definitely meant to get you cut up and lean!",
+    "prescriptions": [
+      {
+        "exerciseId": "sws_db_shoulder_press",
+        "exerciseName": "DB Shoulder Press",
+        "primaryMuscle": "Shoulders",
+        "orderIndex": 0,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15, 12, 10",
+        "setReps": [
+          "15 reps",
+          "12 reps",
+          "10 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 1 - Super Set"
+      },
+      {
+        "exerciseId": "sws_rear_delt_cable_fly",
+        "exerciseName": "Rear Delt Cable Fly",
+        "primaryMuscle": "Shoulders",
+        "orderIndex": 1,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15, 12, 10",
+        "setReps": [
+          "15 reps",
+          "12 reps",
+          "10 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 1 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_db_side_raise",
+        "exerciseName": "DB Side Raise",
+        "primaryMuscle": "Shoulders",
+        "orderIndex": 2,
+        "groupNumber": 2,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 10",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 2 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_cable_front_raise",
+        "exerciseName": "Cable Front Raise",
+        "primaryMuscle": "Shoulders",
+        "orderIndex": 3,
+        "groupNumber": 2,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 10",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 2 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_single_hand_cable_rear_fly",
+        "exerciseName": "Single Hand Cable Rear Fly",
+        "primaryMuscle": "Shoulders",
+        "orderIndex": 4,
+        "groupNumber": 2,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 10",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 90,
+        "notes": "Exercise 2 - Giant Set. 90sec rest after giant set."
+      },
+      {
+        "exerciseId": "sws_db_front_raise",
+        "exerciseName": "DB Front Raise",
+        "primaryMuscle": "Shoulders",
+        "orderIndex": 5,
+        "groupNumber": 3,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10, 10, 10",
+        "setReps": [
+          "10 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 3 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_cable_side_raise",
+        "exerciseName": "Cable Side Raise",
+        "primaryMuscle": "Shoulders",
+        "orderIndex": 6,
+        "groupNumber": 3,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10, 10, 10",
+        "setReps": [
+          "10 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 3 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_db_arm_circles",
+        "exerciseName": "DB Arm Circles",
+        "primaryMuscle": "Shoulders",
+        "orderIndex": 7,
+        "groupNumber": 3,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10, 10, 10",
+        "setReps": [
+          "10 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 90,
+        "notes": "Exercise 3 - Giant Set. 90sec rest after giant set. 2 to 3 minutes rest before Triceps."
+      },
+      {
+        "exerciseId": "sws_db_skull_crusher",
+        "exerciseName": "DB Skull Crusher",
+        "primaryMuscle": "Triceps",
+        "orderIndex": 8,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 10",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_triceps_pushdown",
+        "exerciseName": "Triceps Pushdown",
+        "primaryMuscle": "Triceps",
+        "orderIndex": 9,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 10",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 4 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_rope_overhead_ext",
+        "exerciseName": "Rope Overhead Ext.",
+        "primaryMuscle": "Triceps",
+        "orderIndex": 10,
+        "groupNumber": 5,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 10",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 5 - Super Set"
+      },
+      {
+        "exerciseId": "sws_db_kick_back",
+        "exerciseName": "DB Kick Back",
+        "primaryMuscle": "Triceps",
+        "orderIndex": 11,
+        "groupNumber": 5,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 10",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 5 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_rope_overhead_ext_bench",
+        "exerciseName": "Rope overhead Ext (on bench)",
+        "primaryMuscle": "Triceps",
+        "orderIndex": 12,
+        "groupNumber": 6,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 8",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 6 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_close_hand_pushups",
+        "exerciseName": "Close Hand Pushups",
+        "primaryMuscle": "Triceps",
+        "orderIndex": 13,
+        "groupNumber": 6,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 8",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 6 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_bench_dips",
+        "exerciseName": "Bench Dips",
+        "primaryMuscle": "Triceps",
+        "orderIndex": 14,
+        "groupNumber": 6,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12, 10, 8",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 90,
+        "notes": "Exercise 6 - Giant Set. 90sec rest after giant set."
+      },
+      {
+        "exerciseId": "sws_incline_crunches",
+        "exerciseName": "Incline Crunches",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 15,
+        "groupNumber": 7,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 1 - Super Set"
+      },
+      {
+        "exerciseId": "sws_incline_twist",
+        "exerciseName": "Incline Twist",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 16,
+        "groupNumber": 7,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 1 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_standing_rope_crunches",
+        "exerciseName": "Standing Rope Crunches",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 17,
+        "groupNumber": 8,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 2 - Super Set"
+      },
+      {
+        "exerciseId": "sws_standing_rope_side_crunches",
+        "exerciseName": "Standing Rope Side Crunches",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 18,
+        "groupNumber": 8,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20, 15-20, 15-20",
+        "setReps": [
+          "15-20 reps",
+          "15-20 reps",
+          "15-20 reps"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 2 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_rope_crunches_on_knee",
+        "exerciseName": "Rope Crunches (on Knee)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 19,
+        "groupNumber": 9,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 3 - Super Set"
+      },
+      {
+        "exerciseId": "sws_rope_oblique_crunches_on_knee",
+        "exerciseName": "Rope Oblique Crunches (on Knee)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 20,
+        "groupNumber": 9,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 each side",
+        "setReps": [
+          "20 each side",
+          "20 each side",
+          "20 each side"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 3 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_crunches_on_lat_machine",
+        "exerciseName": "Crunches on Lat Machine",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 21,
+        "groupNumber": 10,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_dumbbell_side_bend_with_rotation",
+        "exerciseName": "Dumbbell Side Bend (with rotation)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 22,
+        "groupNumber": 10,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 each side",
+        "setReps": [
+          "20 each side",
+          "20 each side",
+          "20 each side"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 4 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_stomach_vacuum_5sec_hold",
+        "exerciseName": "Stomach Vacuum (5sec hold)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 23,
+        "groupNumber": 11,
+        "setGroupType": "Regular Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10times (5sec hold)",
+        "setReps": [
+          "10times",
+          "10times",
+          "10times"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 5 - Regular Set. 30sec rest."
+      }
+    ]
+  },
+  {
+    "dayOfWeek": 2,
+    "dayName": "Tuesday",
+    "title": "Chest + Upper Back & Lower Abs",
+    "muscleGroups": [
+      "Chest",
+      "Upper Back",
+      "Lower Abs"
+    ],
+    "workoutType": "RESISTANCE",
+    "restInstructions": "There is no rest in between the exercises. Take 90sec rest after the giant set, extended set and 60sec rest after super set and drop set. Rest about 60sec to 90sec between each giant set and superset. Rest 2 to 3 minutes between muscle groups. For Lower Abs take 30sec rest after the superset.",
+    "executionInstructions": "Perform Giant sets and Supersets, there will be no rest in between the set, do three back to back exercises in giant set. When I put this (12, 10, 8) I mean that in your first set you should pick a weight in which you fail in the 12 rep range, your second set pick a weight in which you fail in the 10 rep range and your third in the 8 rep range.",
+    "liftingSpeedInstructions": "Lift under control; don't just throw around the weights. Take one second to lift the weight and one to two seconds to lower it.",
+    "notes": "Nothing; and I mean nothing will raise your metabolism more effectively than the challenging workout that I have laid out above! These face-paced workouts are definitely meant to get you cut up and lean!",
+    "prescriptions": [
+      {
+        "exerciseId": "sws_db_inclined_press",
+        "exerciseName": "DB Inclined Press",
+        "primaryMuscle": "Chest",
+        "orderIndex": 0,
+        "groupNumber": 1,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 1 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_db_flat_bench_press",
+        "exerciseName": "DB Flat Bench Press",
+        "primaryMuscle": "Chest",
+        "orderIndex": 1,
+        "groupNumber": 1,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 1 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_db_decline_press",
+        "exerciseName": "DB Decline Press",
+        "primaryMuscle": "Chest",
+        "orderIndex": 2,
+        "groupNumber": 1,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 90,
+        "notes": "Exercise 1 - Giant Set. 90sec rest after giant set."
+      },
+      {
+        "exerciseId": "sws_cable_fly",
+        "exerciseName": "Cable Fly",
+        "primaryMuscle": "Chest",
+        "orderIndex": 3,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 2 - Super Set"
+      },
+      {
+        "exerciseId": "sws_decline_cable_fly",
+        "exerciseName": "Decline Cable Fly",
+        "primaryMuscle": "Chest",
+        "orderIndex": 4,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 2 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_incline_cable_fly_bench",
+        "exerciseName": "Incline Cable Fly (on bench)",
+        "primaryMuscle": "Chest",
+        "orderIndex": 5,
+        "groupNumber": 3,
+        "setGroupType": "Drop Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "6,8,10,12 reps",
+        "setReps": [
+          "6,8,10,12 reps",
+          "6,8,10,12 reps",
+          "6,8,10,12 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 3 - Drop Set. 60sec rest after drop set."
+      },
+      {
+        "exerciseId": "sws_decline_pushups",
+        "exerciseName": "Decline Pushups",
+        "primaryMuscle": "Chest",
+        "orderIndex": 6,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_regular_pushups",
+        "exerciseName": "Regular Pushups",
+        "primaryMuscle": "Chest",
+        "orderIndex": 7,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 4 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_rope_upright_row_angle_1",
+        "exerciseName": "Rope Upright Row (Angle 1)",
+        "primaryMuscle": "Upper Back",
+        "orderIndex": 8,
+        "groupNumber": 5,
+        "setGroupType": "Angle Drop Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10 / 10 / 10 reps",
+        "setReps": [
+          "10 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 5 - Angle Drop Set (Angle 1)"
+      },
+      {
+        "exerciseId": "sws_rope_upright_row_angle_2",
+        "exerciseName": "Rope Upright Row (Angle 2)",
+        "primaryMuscle": "Upper Back",
+        "orderIndex": 9,
+        "groupNumber": 5,
+        "setGroupType": "Angle Drop Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10 / 10 / 10 reps",
+        "setReps": [
+          "10 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 5 - Angle Drop Set (Angle 2)"
+      },
+      {
+        "exerciseId": "sws_rope_upright_row_angle_3",
+        "exerciseName": "Rope Upright Row (Angle 3)",
+        "primaryMuscle": "Upper Back",
+        "orderIndex": 10,
+        "groupNumber": 5,
+        "setGroupType": "Angle Drop Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10 / 10 / 10 reps",
+        "setReps": [
+          "10 reps",
+          "10 reps",
+          "10 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 5 - Angle Drop Set (Angle 3). 60sec rest."
+      },
+      {
+        "exerciseId": "sws_db_shrugs",
+        "exerciseName": "DB Shrugs",
+        "primaryMuscle": "Upper Back",
+        "orderIndex": 11,
+        "groupNumber": 6,
+        "setGroupType": "Extended Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15,12,10,8,10,12,15 reps",
+        "setReps": [
+          "15,12,10,8,10,12,15 reps",
+          "15,12,10,8,10,12,15 reps",
+          "15,12,10,8,10,12,15 reps"
+        ],
+        "restSeconds": 90,
+        "notes": "Exercise 6 - Extended Set. 90sec rest after extended set."
+      },
+      {
+        "exerciseId": "sws_laying_leg_pull_in",
+        "exerciseName": "Laying Leg Pull-in",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 12,
+        "groupNumber": 7,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 / 20 / 20 reps",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 1 - Super Set"
+      },
+      {
+        "exerciseId": "sws_mountain_climber_cross_body",
+        "exerciseName": "Mountain Climber Cross Body",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 13,
+        "groupNumber": 7,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20/side / 20/side / 20/side",
+        "setReps": [
+          "20/side",
+          "20/side",
+          "20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 1 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_hanging_knee_raise",
+        "exerciseName": "Hanging Knee Raise",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 14,
+        "groupNumber": 8,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 / 20 / 20 reps",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 2 - Super Set"
+      },
+      {
+        "exerciseId": "sws_side_bridges",
+        "exerciseName": "Side Bridges",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 15,
+        "groupNumber": 8,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20/side / 15-20/side / 15-20/side",
+        "setReps": [
+          "15-20/side",
+          "15-20/side",
+          "15-20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 2 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_v_crunch",
+        "exerciseName": "V - Crunch",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 16,
+        "groupNumber": 9,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 / 20 / 20 reps",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 3 - Super Set"
+      },
+      {
+        "exerciseId": "sws_hanging_side_raise",
+        "exerciseName": "Hanging side Raise",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 17,
+        "groupNumber": 9,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20/side / 15-20/side / 15-20/side",
+        "setReps": [
+          "15-20/side",
+          "15-20/side",
+          "15-20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 3 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_planks_on_the_bench",
+        "exerciseName": "Planks (on the Bench)",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 18,
+        "groupNumber": 10,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 1,
+        "prescribedReps": "90-120 sec",
+        "setReps": [
+          "90-120 sec",
+          "90-120 sec",
+          "90-120 sec"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_cricket_short_crunch",
+        "exerciseName": "Cricket Short Crunch",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 19,
+        "groupNumber": 10,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20/side",
+        "setReps": [
+          "15-20/side",
+          "15-20/side",
+          "15-20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 4 - Super Set. 30sec rest after superset."
+      }
+    ]
+  },
+  {
+    "dayOfWeek": 3,
+    "dayName": "Wednesday",
+    "title": "Cardio & Upper Abs",
+    "muscleGroups": [
+      "Cardio",
+      "Upper Abs"
+    ],
+    "workoutType": "CARDIO",
+    "cardioProtocol": {
+      "title": "HIIC TREADMILL: 20mins",
+      "totalDurationMinutes": 20,
+      "warmUpMinutes": 5,
+      "intervals": [
+        {
+          "timeRange": "0:01 – 5:00",
+          "speedMph": "2.8 – 3.0",
+          "duration": "5min",
+          "activity": "Warm up"
+        },
+        {
+          "timeRange": "5:01 – 5:30",
+          "speedMph": "6.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "5:31 – 6:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery (Jump Off the Treadmill)"
+        },
+        {
+          "timeRange": "6:01 – 6:30",
+          "speedMph": "6.5",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "6:31 – 7:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "7:01 – 7:30",
+          "speedMph": "7.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "7:31 – 8:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "8:01 – 8:30",
+          "speedMph": "7.5",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "8:31 – 9:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "9:01 – 9:30",
+          "speedMph": "8.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "9:31 – 10:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "10:01 – 10:30",
+          "speedMph": "8.5",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "10:31 – 11:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "11:01 – 11:30",
+          "speedMph": "9.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "11:31 – 12:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "12:01 – 12:30",
+          "speedMph": "9.5",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "12:31 – 13:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "13:01 – 13:30",
+          "speedMph": "10.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "13:31 – 14:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "14:01 – 14:30",
+          "speedMph": "10.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "14:31 – 15:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "15:01 – 20:00",
+          "speedMph": "3.0",
+          "duration": "5mins",
+          "activity": "Cool Down (Slow Walk)"
+        }
+      ],
+      "coolDownMinutes": 5,
+      "progressionNote": "Increase the speed and incline level every week to challenge you."
+    },
+    "restInstructions": "For cardio: follow prescribed 30sec intervals and 5min warm-up/cool-down. For Upper Abs take 30sec rest after each superset.",
+    "executionInstructions": "Treadmill interval training alternating between sprint and recovery. Increase speed and incline level every week.",
+    "notes": "Cardio is a very important aspect of your workout routine. As it burns fat at an extremely high level, It is vital to always keep your body on its toes as it responds at a higher rate this way.",
+    "prescriptions": [
+      {
+        "exerciseId": "sws_incline_crunches",
+        "exerciseName": "Incline Crunches",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 0,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 1 - Super Set"
+      },
+      {
+        "exerciseId": "sws_incline_twist",
+        "exerciseName": "Incline Twist",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 1,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 1 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_standing_rope_crunches",
+        "exerciseName": "Standing Rope Crunches",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 2,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 2 - Super Set"
+      },
+      {
+        "exerciseId": "sws_standing_rope_side_crunches",
+        "exerciseName": "Standing Rope Side Crunches",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 3,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20, 15-20, 15-20",
+        "setReps": [
+          "15-20 reps",
+          "15-20 reps",
+          "15-20 reps"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 2 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_rope_crunches_on_knee",
+        "exerciseName": "Rope Crunches (on Knee)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 4,
+        "groupNumber": 3,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 3 - Super Set"
+      },
+      {
+        "exerciseId": "sws_rope_oblique_crunches_on_knee",
+        "exerciseName": "Rope Oblique Crunches (on Knee)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 5,
+        "groupNumber": 3,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 each side",
+        "setReps": [
+          "20 each side",
+          "20 each side",
+          "20 each side"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 3 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_crunches_on_lat_machine",
+        "exerciseName": "Crunches on Lat Machine",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 6,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_dumbbell_side_bend_with_rotation",
+        "exerciseName": "Dumbbell Side Bend (with rotation)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 7,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 each side",
+        "setReps": [
+          "20 each side",
+          "20 each side",
+          "20 each side"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 4 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_stomach_vacuum_5sec_hold",
+        "exerciseName": "Stomach Vacuum (5sec hold)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 8,
+        "groupNumber": 5,
+        "setGroupType": "Regular Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10times (5sec hold)",
+        "setReps": [
+          "10times",
+          "10times",
+          "10times"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 5 - Regular Set. 30sec rest."
+      }
+    ]
+  },
+  {
+    "dayOfWeek": 4,
+    "dayName": "Thursday",
+    "title": "Lat, Mid Back + Biceps & Lower Abs",
+    "muscleGroups": [
+      "Lat",
+      "Mid Back",
+      "Biceps",
+      "Lower Abs"
+    ],
+    "workoutType": "RESISTANCE",
+    "restInstructions": "There is no rest in between the exercises. Take 90sec rest after giant set and 60sec rest after the super set. Rest about 60sec to 90sec between each giant set and superset. Rest 2 to 3 minutes between muscle groups. For Lower Abs take 30sec rest after the superset.",
+    "executionInstructions": "Perform Giant sets and Supersets, there will be no rest in between the set, do three back to back exercises in giant set. When I put this (12, 10, 8) I mean that in your first set you should pick a weight in which you fail in the 12 rep range, your second set pick a weight in which you fail in the 10 rep range and your third in the 8 rep range.",
+    "liftingSpeedInstructions": "Lift under control; don't just throw around the weights. Take one second to lift the weight and one to two seconds to lower it.",
+    "notes": "Again great workout for conditioning and strengthening your back and biceps. Will probably burn more calories than any workout you performed all week.",
+    "prescriptions": [
+      {
+        "exerciseId": "sws_close_grip_lat_pull_down",
+        "exerciseName": "Close Grip Lat Pull down",
+        "primaryMuscle": "Back",
+        "orderIndex": 0,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 1 - Super Set"
+      },
+      {
+        "exerciseId": "sws_machine_rows",
+        "exerciseName": "Machine Rows",
+        "primaryMuscle": "Back",
+        "orderIndex": 1,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 1 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_db_rows",
+        "exerciseName": "DB Rows",
+        "primaryMuscle": "Back",
+        "orderIndex": 2,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 2 - Super Set"
+      },
+      {
+        "exerciseId": "sws_single_hand_cable_lat_pulldown",
+        "exerciseName": "Single Hand Cable Lat Pulldown",
+        "primaryMuscle": "Back",
+        "orderIndex": 3,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 2 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_straight_bar_pull_down",
+        "exerciseName": "Straight Bar Pull down",
+        "primaryMuscle": "Back",
+        "orderIndex": 4,
+        "groupNumber": 3,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 3 - Super Set"
+      },
+      {
+        "exerciseId": "sws_rope_rows",
+        "exerciseName": "Rope Rows",
+        "primaryMuscle": "Back",
+        "orderIndex": 5,
+        "groupNumber": 3,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 3 - Super Set. 60sec rest after superset. 2 to 3 minutes rest before Biceps."
+      },
+      {
+        "exerciseId": "sws_machine_preacher_curl_long_head",
+        "exerciseName": "Machine Preacher Curl (Long Head)",
+        "primaryMuscle": "Biceps",
+        "orderIndex": 6,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_machine_preacher_curl_shot_head",
+        "exerciseName": "Machine Preacher Curl (Shot Head)",
+        "primaryMuscle": "Biceps",
+        "orderIndex": 7,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 4 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_db_hammer_curl",
+        "exerciseName": "DB Hammer Curl",
+        "primaryMuscle": "Biceps",
+        "orderIndex": 8,
+        "groupNumber": 5,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 5 - Super Set"
+      },
+      {
+        "exerciseId": "sws_cable_overhead_biceps_curl",
+        "exerciseName": "Cable Overhead Biceps Curl",
+        "primaryMuscle": "Biceps",
+        "orderIndex": 9,
+        "groupNumber": 5,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 5 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_cable_conc_curl_mid_lower",
+        "exerciseName": "Cable Conc. Curl (Mid-Lower Angle)",
+        "primaryMuscle": "Biceps",
+        "orderIndex": 10,
+        "groupNumber": 6,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 6 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_cable_curl_45",
+        "exerciseName": "Cable Curl 45*",
+        "primaryMuscle": "Biceps",
+        "orderIndex": 11,
+        "groupNumber": 6,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 6 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_laying_biceps_curl",
+        "exerciseName": "Laying Biceps Curl",
+        "primaryMuscle": "Biceps",
+        "orderIndex": 12,
+        "groupNumber": 6,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 90,
+        "notes": "Exercise 6 - Giant Set. 90sec rest after giant set."
+      },
+      {
+        "exerciseId": "sws_laying_leg_pull_in",
+        "exerciseName": "Laying Leg Pull-in",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 13,
+        "groupNumber": 7,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 / 20 / 20 reps",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 1 - Super Set"
+      },
+      {
+        "exerciseId": "sws_mountain_climber_cross_body",
+        "exerciseName": "Mountain Climber Cross Body",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 14,
+        "groupNumber": 7,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20/side / 20/side / 20/side",
+        "setReps": [
+          "20/side",
+          "20/side",
+          "20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 1 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_hanging_knee_raise",
+        "exerciseName": "Hanging Knee Raise",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 15,
+        "groupNumber": 8,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 / 20 / 20 reps",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 2 - Super Set"
+      },
+      {
+        "exerciseId": "sws_side_bridges",
+        "exerciseName": "Side Bridges",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 16,
+        "groupNumber": 8,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20/side / 15-20/side / 15-20/side",
+        "setReps": [
+          "15-20/side",
+          "15-20/side",
+          "15-20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 2 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_v_crunch",
+        "exerciseName": "V - Crunch",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 17,
+        "groupNumber": 9,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 / 20 / 20 reps",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 3 - Super Set"
+      },
+      {
+        "exerciseId": "sws_hanging_side_raise",
+        "exerciseName": "Hanging side Raise",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 18,
+        "groupNumber": 9,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20/side / 15-20/side / 15-20/side",
+        "setReps": [
+          "15-20/side",
+          "15-20/side",
+          "15-20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 3 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_planks_on_the_bench",
+        "exerciseName": "Planks (on the Bench)",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 19,
+        "groupNumber": 10,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 1,
+        "prescribedReps": "90-120 sec",
+        "setReps": [
+          "90-120 sec",
+          "90-120 sec",
+          "90-120 sec"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_cricket_short_crunch",
+        "exerciseName": "Cricket Short Crunch",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 20,
+        "groupNumber": 10,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20/side",
+        "setReps": [
+          "15-20/side",
+          "15-20/side",
+          "15-20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 4 - Super Set. 30sec rest after superset."
+      }
+    ]
+  },
+  {
+    "dayOfWeek": 5,
+    "dayName": "Friday",
+    "title": "Quads, Ham & Calves & Upper Abs",
+    "muscleGroups": [
+      "Quads",
+      "Hamstrings",
+      "Calves",
+      "Upper Abs"
+    ],
+    "workoutType": "RESISTANCE",
+    "restInstructions": "There is no rest in between the exercises. During workout take 90sec rest after giant set. Take 60sec rest after superset. Rest about 60sec to 90sec between each giant set and superset. Rest 2 to 3 minutes between muscle groups. For Upper Abs take 30sec rest after each superset.",
+    "executionInstructions": "Perform Giant sets and Supersets, there will be no rest in between the set, do three back to back exercises in giant set. When I put this (12, 10, 8) I mean that in your first set you should pick a weight in which you fail in the 12 rep range, your second set pick a weight in which you fail in the 10 rep range and your third in the 8 rep range.",
+    "liftingSpeedInstructions": "Lift under control; don't just throw around the weights. Take one second to lift the weight and one to two seconds to lower it.",
+    "notes": "Great workout, your legs will look fantastic for the wintertime.",
+    "prescriptions": [
+      {
+        "exerciseId": "sws_db_squat",
+        "exerciseName": "DB Squat",
+        "primaryMuscle": "Legs",
+        "orderIndex": 0,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 1 - Super Set"
+      },
+      {
+        "exerciseId": "sws_db_step_up",
+        "exerciseName": "DB Step Up",
+        "primaryMuscle": "Legs",
+        "orderIndex": 1,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 1 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_db_lunges",
+        "exerciseName": "DB Lunges",
+        "primaryMuscle": "Legs",
+        "orderIndex": 2,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 2 - Super Set"
+      },
+      {
+        "exerciseId": "sws_db_sumo_squat",
+        "exerciseName": "DB Sumo Squat",
+        "primaryMuscle": "Legs",
+        "orderIndex": 3,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 2 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_leg_extension",
+        "exerciseName": "Leg Extension",
+        "primaryMuscle": "Legs",
+        "orderIndex": 4,
+        "groupNumber": 3,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 3 - Super Set"
+      },
+      {
+        "exerciseId": "sws_laying_leg_curl",
+        "exerciseName": "Laying Leg Curl",
+        "primaryMuscle": "Legs",
+        "orderIndex": 5,
+        "groupNumber": 3,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 15,
+        "prescribedReps": "15 / 10 / 8 reps",
+        "setReps": [
+          "15 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 3 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_rope_side_lunges",
+        "exerciseName": "Rope Side Lunges",
+        "primaryMuscle": "Legs",
+        "orderIndex": 6,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10 / 10 / 8 reps",
+        "setReps": [
+          "10 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_rope_cross_lunges",
+        "exerciseName": "Rope Cross Lunges",
+        "primaryMuscle": "Legs",
+        "orderIndex": 7,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10 / 10 / 8 reps",
+        "setReps": [
+          "10 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 60,
+        "notes": "Exercise 4 - Super Set. 60sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_calf_raise_toe_inward",
+        "exerciseName": "Calf Raise (Toe Inward)",
+        "primaryMuscle": "Calves",
+        "orderIndex": 8,
+        "groupNumber": 5,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 5 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_calf_raise_toe_outward",
+        "exerciseName": "Calf Raise (Toe Outward)",
+        "primaryMuscle": "Calves",
+        "orderIndex": 9,
+        "groupNumber": 5,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Exercise 5 - Giant Set"
+      },
+      {
+        "exerciseId": "sws_seated_calf_raise_with_db",
+        "exerciseName": "Seated Calf Raise (with DB)",
+        "primaryMuscle": "Calves",
+        "orderIndex": 10,
+        "groupNumber": 5,
+        "setGroupType": "Giant Set",
+        "targetSets": 3,
+        "targetReps": 12,
+        "prescribedReps": "12 / 10 / 8 reps",
+        "setReps": [
+          "12 reps",
+          "10 reps",
+          "8 reps"
+        ],
+        "restSeconds": 90,
+        "notes": "Exercise 5 - Giant Set. 90sec rest after giant set."
+      },
+      {
+        "exerciseId": "sws_incline_crunches",
+        "exerciseName": "Incline Crunches",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 11,
+        "groupNumber": 6,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 1 - Super Set"
+      },
+      {
+        "exerciseId": "sws_incline_twist",
+        "exerciseName": "Incline Twist",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 12,
+        "groupNumber": 6,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 1 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_standing_rope_crunches",
+        "exerciseName": "Standing Rope Crunches",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 13,
+        "groupNumber": 7,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 2 - Super Set"
+      },
+      {
+        "exerciseId": "sws_standing_rope_side_crunches",
+        "exerciseName": "Standing Rope Side Crunches",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 14,
+        "groupNumber": 7,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20, 15-20, 15-20",
+        "setReps": [
+          "15-20 reps",
+          "15-20 reps",
+          "15-20 reps"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 2 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_rope_crunches_on_knee",
+        "exerciseName": "Rope Crunches (on Knee)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 15,
+        "groupNumber": 8,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 3 - Super Set"
+      },
+      {
+        "exerciseId": "sws_rope_oblique_crunches_on_knee",
+        "exerciseName": "Rope Oblique Crunches (on Knee)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 16,
+        "groupNumber": 8,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 each side",
+        "setReps": [
+          "20 each side",
+          "20 each side",
+          "20 each side"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 3 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_crunches_on_lat_machine",
+        "exerciseName": "Crunches on Lat Machine",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 17,
+        "groupNumber": 9,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20, 20, 20",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Upper Abs Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_dumbbell_side_bend_with_rotation",
+        "exerciseName": "Dumbbell Side Bend (with rotation)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 18,
+        "groupNumber": 9,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 each side",
+        "setReps": [
+          "20 each side",
+          "20 each side",
+          "20 each side"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 4 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_stomach_vacuum_5sec_hold",
+        "exerciseName": "Stomach Vacuum (5sec hold)",
+        "primaryMuscle": "Upper Abs",
+        "orderIndex": 19,
+        "groupNumber": 10,
+        "setGroupType": "Regular Set",
+        "targetSets": 3,
+        "targetReps": 10,
+        "prescribedReps": "10times (5sec hold)",
+        "setReps": [
+          "10times",
+          "10times",
+          "10times"
+        ],
+        "restSeconds": 30,
+        "notes": "Upper Abs Exercise 5 - Regular Set. 30sec rest."
+      }
+    ]
+  },
+  {
+    "dayOfWeek": 6,
+    "dayName": "Saturday",
+    "title": "Cardio & Lower Abs",
+    "muscleGroups": [
+      "Cardio",
+      "Lower Abs"
+    ],
+    "workoutType": "CARDIO",
+    "cardioProtocol": {
+      "title": "HIIC TREADMILL: 20mins",
+      "totalDurationMinutes": 20,
+      "warmUpMinutes": 5,
+      "intervals": [
+        {
+          "timeRange": "0:01 – 5:00",
+          "speedMph": "2.8 – 3.0",
+          "duration": "5min",
+          "activity": "Warm up"
+        },
+        {
+          "timeRange": "5:01 – 5:30",
+          "speedMph": "6.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "5:31 – 6:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery (Jump Off the Treadmill)"
+        },
+        {
+          "timeRange": "6:01 – 6:30",
+          "speedMph": "6.5",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "6:31 – 7:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "7:01 – 7:30",
+          "speedMph": "7.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "7:31 – 8:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "8:01 – 8:30",
+          "speedMph": "7.5",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "8:31 – 9:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "9:01 – 9:30",
+          "speedMph": "8.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "9:31 – 10:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "10:01 – 10:30",
+          "speedMph": "8.5",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "10:31 – 11:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "11:01 – 11:30",
+          "speedMph": "9.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "11:31 – 12:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "12:01 – 12:30",
+          "speedMph": "9.5",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "12:31 – 13:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "13:01 – 13:30",
+          "speedMph": "10.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "13:31 – 14:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "14:01 – 14:30",
+          "speedMph": "10.0",
+          "duration": "30sec",
+          "activity": "Sprint"
+        },
+        {
+          "timeRange": "14:31 – 15:00",
+          "speedMph": "-------",
+          "duration": "30sec",
+          "activity": "Recovery"
+        },
+        {
+          "timeRange": "15:01 – 20:00",
+          "speedMph": "3.0",
+          "duration": "5mins",
+          "activity": "Cool Down (Slow Walk)"
+        }
+      ],
+      "coolDownMinutes": 5,
+      "progressionNote": "Increase the speed and incline level every week to challenge you."
+    },
+    "restInstructions": "For cardio: follow prescribed 30sec intervals and 5min warm-up/cool-down. For Lower Abs take 30sec rest after each superset.",
+    "executionInstructions": "Treadmill interval training alternating between sprint and recovery. Increase speed and incline level every week.",
+    "notes": "Cardio is a very important aspect of your workout routine. As it burns fat at an extremely high level, It is vital to always keep your body on its toes as it responds at a higher rate this way.",
+    "prescriptions": [
+      {
+        "exerciseId": "sws_laying_leg_pull_in",
+        "exerciseName": "Laying Leg Pull-in",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 0,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 / 20 / 20 reps",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 1 - Super Set"
+      },
+      {
+        "exerciseId": "sws_mountain_climber_cross_body",
+        "exerciseName": "Mountain Climber Cross Body",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 1,
+        "groupNumber": 1,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20/side / 20/side / 20/side",
+        "setReps": [
+          "20/side",
+          "20/side",
+          "20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 1 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_hanging_knee_raise",
+        "exerciseName": "Hanging Knee Raise",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 2,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 / 20 / 20 reps",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 2 - Super Set"
+      },
+      {
+        "exerciseId": "sws_side_bridges",
+        "exerciseName": "Side Bridges",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 3,
+        "groupNumber": 2,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20/side / 15-20/side / 15-20/side",
+        "setReps": [
+          "15-20/side",
+          "15-20/side",
+          "15-20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 2 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_v_crunch",
+        "exerciseName": "V - Crunch",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 4,
+        "groupNumber": 3,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "20 / 20 / 20 reps",
+        "setReps": [
+          "20 reps",
+          "20 reps",
+          "20 reps"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 3 - Super Set"
+      },
+      {
+        "exerciseId": "sws_hanging_side_raise",
+        "exerciseName": "Hanging side Raise",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 5,
+        "groupNumber": 3,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20/side / 15-20/side / 15-20/side",
+        "setReps": [
+          "15-20/side",
+          "15-20/side",
+          "15-20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 3 - Super Set. 30sec rest after superset."
+      },
+      {
+        "exerciseId": "sws_planks_on_the_bench",
+        "exerciseName": "Planks (on the Bench)",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 6,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 1,
+        "prescribedReps": "90-120 sec",
+        "setReps": [
+          "90-120 sec",
+          "90-120 sec",
+          "90-120 sec"
+        ],
+        "restSeconds": 0,
+        "notes": "Lower Abs Exercise 4 - Super Set"
+      },
+      {
+        "exerciseId": "sws_cricket_short_crunch",
+        "exerciseName": "Cricket Short Crunch",
+        "primaryMuscle": "Lower Abs",
+        "orderIndex": 7,
+        "groupNumber": 4,
+        "setGroupType": "Super Set",
+        "targetSets": 3,
+        "targetReps": 20,
+        "prescribedReps": "15-20/side",
+        "setReps": [
+          "15-20/side",
+          "15-20/side",
+          "15-20/side"
+        ],
+        "restSeconds": 30,
+        "notes": "Lower Abs Exercise 4 - Super Set. 30sec rest after superset."
+      }
+    ]
+  },
+  {
+    "dayOfWeek": 7,
+    "dayName": "Sunday",
+    "title": "Recovery",
+    "muscleGroups": [
+      "Recovery"
+    ],
+    "workoutType": "RECOVERY",
+    "restInstructions": "Full non-training rest day. Refill muscle glycogen depleted during low carb training days.",
+    "executionInstructions": "Non-training recovery day. Focus on hydration, mobility, and scheduled carbohydrate refeed.",
+    "notes": "Sunday is your recovery day means non-training day. A purpose of adding carbs on Sunday is to refill your muscle glycogen, which you depleted during low carbs day.",
+    "prescriptions": []
+  }
+]

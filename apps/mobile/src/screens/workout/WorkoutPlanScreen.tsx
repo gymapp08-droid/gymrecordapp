@@ -164,7 +164,7 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
           </View>
           <Text style={styles.headerTitle}>{activeProgramTitle || '6 WEEK SHREDDED'}</Text>
           <Text style={styles.authorText}>
-            {is6WeekShredded ? 'Author: Guru Mann, USA · Certified Strength Coach' : 'Program fitted by Gravity'}
+            {is6WeekShredded ? 'GRAVITY Elite Protocol · Engineered Performance' : 'Program fitted by GRAVITY Performance OS'}
           </Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -376,7 +376,7 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
                 <Text style={styles.cardioTitle}>HIGH INTENSITY INTERVAL CARDIO</Text>
                 <StatusBadge label="20 MIN TOTAL" status="info" />
               </View>
-              <Text style={styles.cardioSubtitle}>Preserved verbatim from Guru Mann USA source PDF</Text>
+              <Text style={styles.cardioSubtitle}>Official GRAVITY High Intensity Interval Cardio Protocol</Text>
 
               {/* Protocol Table */}
               <View style={styles.cardioTable}>

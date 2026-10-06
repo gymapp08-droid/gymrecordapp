@@ -2934,7 +2934,7 @@ export const SIX_WEEK_SHREDDED_PROGRAM_DETAIL: IProgramDetail = {
   version: 1,
   displayDuration: '12 Weeks',
   sourceDuration: '6 Weeks',
-  sourceAttribution: 'Designed & Created by Guru Mann, USA. Certified Advanced Fitness Trainer, Certified Nutrition Specialist, Sports Nutritionist & Strength Coach.',
+  sourceAttribution: 'Designed & Created by GRAVITY Performance OS. Advanced Fitness Protocol & Strength Architecture.',
   createdAt: new Date('2026-01-01T00:00:00Z'),
   updatedAt: new Date('2026-01-01T00:00:00Z'),
   days: CANONICAL_6_WEEK_SPLIT.map((d) => ({

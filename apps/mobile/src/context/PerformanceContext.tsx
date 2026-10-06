@@ -177,7 +177,7 @@ export function is6WeekShreddedProgram(programId?: string | null): boolean {
     p === 'prog-6-week-shredded' ||
     p === '6-week-shredded' ||
     p === '6_week_shredded' ||
-    p.includes('shredded')
+    p === '6-week shredded'
   );
 }
 
@@ -354,7 +354,7 @@ export function resolveMealsForProgram(programId: string): MealRecord[] {
         else if (name.includes('DINNER') || idx === plan.meals.length - 1) type = 'DINNER';
 
         const itemsStr = Array.isArray(m.items) && m.items.length > 0
-          ? m.items.map((it: any) => it.foodName).join(', ')
+          ? m.items.map((it: any) => typeof it === 'string' ? it : (it.foodName || it.name || '')).filter(Boolean).join(', ')
           : 'Prescribed whole foods';
 
         return {
