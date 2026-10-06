@@ -623,49 +623,66 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
     <AlphaScreen>
       {/* Top Header Bar */}
       <View style={styles.topHeader}>
-        <TouchableOpacity
-          style={styles.exitBtn}
-          onPress={() => {
-            Alert.alert(
-              'Exit Workout Session',
-              'Do you want to abandon or save partial progress?',
-              [
-                { text: 'Keep Training', style: 'cancel' },
-                {
-                  text: 'Save & Exit Partial',
-                  style: 'default',
-                  onPress: handleFinishWorkout,
-                },
-                {
-                  text: 'Discard Workout',
-                  style: 'destructive',
-                  onPress: () => {
-                    SecureStorage.removeItem('active_workout_draft').catch(() => {});
-                    onBack?.();
+        {/* Row 1: Actions & Top Label */}
+        <View style={styles.headerActionRow}>
+          <TouchableOpacity
+            style={styles.exitBtn}
+            onPress={() => {
+              Alert.alert(
+                'Exit Workout Session',
+                'Do you want to abandon or save partial progress?',
+                [
+                  { text: 'Keep Training', style: 'cancel' },
+                  {
+                    text: 'Save & Exit Partial',
+                    style: 'default',
+                    onPress: handleFinishWorkout,
                   },
-                },
-              ]
-            );
-          }}
-        >
-          <Text style={styles.exitIcon}>✕</Text>
-        </TouchableOpacity>
+                  {
+                    text: 'Discard Workout',
+                    style: 'destructive',
+                    onPress: () => {
+                      SecureStorage.removeItem('active_workout_draft').catch(() => {});
+                      onBack?.();
+                    },
+                  },
+                ]
+              );
+            }}
+          >
+            <Text style={styles.exitIcon}>✕</Text>
+          </TouchableOpacity>
 
-        <View style={styles.headerCenter}>
-          <Text style={styles.sessionCategory} numberOfLines={1} ellipsizeMode="tail">
-            {(workout?.name || 'WORKOUT').toUpperCase()} · SESSION
-          </Text>
-          <Text style={styles.elapsedTimer}>{formatTimer(elapsedSeconds)}</Text>
+          <View style={styles.headerCategoryPill}>
+            <Text style={styles.sessionProtocolBadge}>GRAVITY PERFORMANCE PROTOCOL</Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.finishTopBtn}
+            onPress={handleFinishWorkout}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.finishTopText}>FINISH</Text>
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={styles.finishTopBtn}
-          onPress={handleFinishWorkout}
-          activeOpacity={0.7}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Text style={styles.finishTopText}>FINISH</Text>
-        </TouchableOpacity>
+        {/* Row 2: Full Workout Name + Day Tag + Countdown / Elapsed Timer */}
+        <View style={styles.headerDetailRow}>
+          <View style={styles.headerTitleCol}>
+            <Text style={styles.fullWorkoutTitle}>
+              {(workout?.name || 'Workout Session').toUpperCase()}
+            </Text>
+            <Text style={styles.workoutDaySubtitle}>
+              {workout?.dayName ? `${workout.dayName.toUpperCase()} WORKOUT` : 'DAILY PROTOCOL'}
+            </Text>
+          </View>
+
+          <View style={styles.timerBadgeBox}>
+            <Text style={styles.timerBadgeLabel}>SESSION TIME</Text>
+            <Text style={styles.elapsedTimer}>{formatTimer(elapsedSeconds)}</Text>
+          </View>
+        </View>
       </View>
 
       {/* Exercise Progress Indicator (1 of 6 ... 6 of 6) */}
@@ -747,11 +764,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                       {groupExercises.length} Movements In Rotation
                     </Text>
                   </View>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.groupExercisesSequence}
-                  >
+                  <View style={styles.groupExercisesGrid}>
                     {groupExercises.map((ge, gIdx) => {
                       const isCurrentInGroup = ge.id === currentExercise.id;
                       const hasCompletedCurrentRound = ge.sets[currentRound - 1]?.isCompleted;
@@ -775,7 +788,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                         </TouchableOpacity>
                       );
                     })}
-                  </ScrollView>
+                  </View>
                 </View>
               )}
 
@@ -1123,14 +1136,81 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
 
 const styles = StyleSheet.create({
   topHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.06)',
     marginBottom: 8,
+    gap: 10,
+  },
+  headerActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     gap: 8,
+  },
+  headerCategoryPill: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  sessionProtocolBadge: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    textAlign: 'center',
+  },
+  headerDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: Theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 12,
+  },
+  headerTitleCol: {
+    flex: 1,
+    gap: 3,
+  },
+  fullWorkoutTitle: {
+    fontSize: 14,
+    fontFamily: Theme.typography.display.fontFamily,
+    color: Theme.colors.textPrimary,
+    fontWeight: '900',
+    letterSpacing: 0.3,
+    lineHeight: 18,
+  },
+  workoutDaySubtitle: {
+    fontSize: 10,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  timerBadgeBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#05070B',
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.3)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    flexShrink: 0,
+  },
+  timerBadgeLabel: {
+    fontSize: 8,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+    marginBottom: 1,
   },
   exitBtn: {
     width: 36,
@@ -1148,33 +1228,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
-    overflow: 'hidden',
-  },
-  sessionCategory: {
-    fontSize: 9,
-    fontFamily: Theme.typography.telemetry.fontFamily,
-    color: Theme.colors.cyanGlow,
-    fontWeight: '800',
-    letterSpacing: 1,
-    textAlign: 'center',
-    maxWidth: '100%',
-  },
   elapsedTimer: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: Theme.typography.telemetry.fontFamily,
     fontWeight: '900',
     color: Theme.colors.textPrimary,
-    marginTop: 2,
     textAlign: 'center',
   },
   finishTopBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
     borderWidth: 1,
     borderColor: Theme.colors.emeraldSuccess,
@@ -1185,7 +1248,7 @@ const styles = StyleSheet.create({
     color: Theme.colors.emeraldSuccess,
     fontSize: 11,
     fontWeight: '800',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   progressContainer: {
     paddingVertical: 6,
@@ -1836,16 +1899,16 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
   },
-  groupExercisesSequence: {
+  groupExercisesGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 2,
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
   },
   seqPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 6,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1,
     borderColor: Theme.colors.border,
@@ -1859,8 +1922,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(16, 185, 129, 0.12)',
   },
   seqPillText: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: Theme.colors.textSecondary,
   },
   seqPillTextActive: {
