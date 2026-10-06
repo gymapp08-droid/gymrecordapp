@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { AlphaScreen, AlphaHeader, PrimaryButton, StatusBadge } from '../../components';
 import { Theme } from '../../theme/tokens';
-import { usePerformance } from '../../context/PerformanceContext';
+import { usePerformance, is6WeekShreddedProgram } from '../../context/PerformanceContext';
 import programCatalogData from '../../data/program-catalog.json';
 import { UserProfileData } from './ProfileOnboardingScreen';
 import { TrainingPreferencesData } from './TrainingPreferencesScreen';
@@ -49,10 +49,28 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
   onBack,
   onSelectProgram,
 }) => {
-  const { setActiveProgramId } = usePerformance();
+  const { activeProgramId, setActiveProgramId } = usePerformance();
+
+  const allPrograms = useMemo(() => (programCatalogData.programs || []) as any[], []);
+
+  // Determine current active program in catalog
+  const activeCatalogProgram = useMemo(() => {
+    if (!activeProgramId) return allPrograms[0];
+    return (
+      allPrograms.find(
+        (p) =>
+          p.id === activeProgramId ||
+          p.slug === activeProgramId ||
+          (is6WeekShreddedProgram(activeProgramId) && p.id === 'prog-6-week-shredded')
+      ) || allPrograms[0]
+    );
+  }, [activeProgramId, allPrograms]);
 
   // Selected Category filter
   const initialCategory = useMemo(() => {
+    if (activeCatalogProgram && activeCatalogProgram.categoryId) {
+      return activeCatalogProgram.categoryId;
+    }
     const g = (goalId || goal || '').toLowerCase();
     if (g.includes('muscle') || g.includes('hypertrophy')) return 'cat-muscle-building';
     if (g.includes('single') || g.includes('arms') || g.includes('chest')) return 'cat-single-muscle';
@@ -61,7 +79,7 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
     if (g.includes('family') || g.includes('kids')) return 'cat-family';
     if (g.includes('specialized') || g.includes('nutrition') || g.includes('keto')) return 'cat-specialized-nutrition';
     return 'cat-fat-loss';
-  }, [goalId, goal]);
+  }, [goalId, goal, activeCatalogProgram]);
 
   const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
 
@@ -73,28 +91,33 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
   }, []);
 
   const catalogPrograms = useMemo(() => {
-    const list = (programCatalogData.programs || []) as any[];
-    return list.filter((p) => p.categoryId === activeCategory);
-  }, [activeCategory]);
+    return allPrograms.filter((p) => p.categoryId === activeCategory);
+  }, [activeCategory, allPrograms]);
 
   const [selectedProgramId, setSelectedProgramId] = useState<string>(() => {
-    if (activeCategory === 'cat-fat-loss') return 'prog_6_week_shredded_12w';
-    return catalogPrograms[0]?.id || 'prog_6_week_shredded_12w';
+    if (activeCatalogProgram && activeCatalogProgram.categoryId === initialCategory) {
+      return activeCatalogProgram.id;
+    }
+    return catalogPrograms[0]?.id || 'prog-6-week-shredded';
   });
 
-  // When switching category, pick first program
+  // When switching category, pick active program if in category, else first program
   const handleSelectCategory = (catId: string) => {
     setActiveCategory(catId);
-    const inCat = (programCatalogData.programs || []).filter((p: any) => p.categoryId === catId);
+    if (activeCatalogProgram && activeCatalogProgram.categoryId === catId) {
+      setSelectedProgramId(activeCatalogProgram.id);
+      return;
+    }
+    const inCat = allPrograms.filter((p: any) => p.categoryId === catId);
     if (inCat.length > 0 && inCat[0]) {
       setSelectedProgramId(inCat[0].id);
     }
   };
 
   const selectedProgram = useMemo(() => {
-    const prog = (programCatalogData.programs || []).find((p: any) => p.id === selectedProgramId);
-    return prog || catalogPrograms[0] || (programCatalogData.programs || [])[0];
-  }, [selectedProgramId, catalogPrograms]);
+    const prog = allPrograms.find((p: any) => p.id === selectedProgramId);
+    return prog || catalogPrograms[0] || allPrograms[0];
+  }, [selectedProgramId, catalogPrograms, allPrograms]);
 
   const handleConfirmSelection = () => {
     if (selectedProgram) {
@@ -165,7 +188,11 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
                       <View style={styles.fittedBadge}>
                         <Text style={styles.fittedBadgeText}>Program fitted by Gravity</Text>
                       </View>
-                      {isFirst && <StatusBadge label="POPULAR" status="success" />}
+                      {prog.id === activeCatalogProgram.id ? (
+                        <StatusBadge label="ACTIVE PROGRAM" status="info" />
+                      ) : (
+                        isFirst && <StatusBadge label="POPULAR" status="success" />
+                      )}
                     </View>
                     <Text style={[styles.programTitle, isSelected && styles.programTitleActive]}>
                       {prog.name}

@@ -166,102 +166,20 @@ interface PerformanceContextType {
   setActiveProgramId: (programId: string) => void;
   setCurrentProgramWeek: (week: number) => void;
   selectWorkoutDay: (dayOfWeek: number) => void;
+  resetToTodayWorkout: () => void;
 }
 
-// Section 17 & 21: Weekday Schedule Mapping (1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun)
-const WEEK_WORKOUT_SCHEDULE: Record<
-  number,
-  {
-    name: string;
-    category: string;
-    estimatedMinutes: number;
-    isRest: boolean;
-    exercises: WorkoutExerciseSummary[];
-  }
-> = {
-  1: {
-    name: 'Chest + Triceps',
-    category: 'Hypertrophy',
-    estimatedMinutes: 55,
-    isRest: false,
-    exercises: [
-      { number: '01', name: 'Barbell Bench Press', prescription: '4 sets · 8–12 reps', isCompleted: false },
-      { number: '02', name: 'Incline DB Press', prescription: '3 sets · 10–12 reps', isCompleted: false },
-      { number: '03', name: 'Cable Chest Flyes', prescription: '3 sets · 12–15 reps', isCompleted: false },
-      { number: '04', name: 'Cable Tricep Pushdown', prescription: '4 sets · 10–12 reps', isCompleted: false },
-      { number: '05', name: 'Overhead Tricep Extension', prescription: '3 sets · 12–15 reps', isCompleted: false },
-    ],
-  },
-  2: {
-    name: 'Back + Biceps',
-    category: 'Hypertrophy',
-    estimatedMinutes: 55,
-    isRest: false,
-    exercises: [
-      { number: '01', name: 'Weighted / Bodyweight Pull-up', prescription: '4 sets · 8–10 reps', isCompleted: false },
-      { number: '02', name: 'Barbell Bent-Over Row', prescription: '4 sets · 8–12 reps', isCompleted: false },
-      { number: '03', name: 'Seated Cable Row', prescription: '3 sets · 10–12 reps', isCompleted: false },
-      { number: '04', name: 'Barbell Bicep Curl', prescription: '4 sets · 10–12 reps', isCompleted: false },
-      { number: '05', name: 'Incline Dumbbell Curl', prescription: '3 sets · 12–15 reps', isCompleted: false },
-    ],
-  },
-  3: {
-    name: 'Shoulders + Abs',
-    category: 'Delts & Core',
-    estimatedMinutes: 50,
-    isRest: false,
-    exercises: [
-      { number: '01', name: 'Standing Overhead Press', prescription: '4 sets · 8–10 reps', isCompleted: false },
-      { number: '02', name: 'Dumbbell Lateral Raise', prescription: '4 sets · 12–15 reps', isCompleted: false },
-      { number: '03', name: 'Face Pull (Rear Delts)', prescription: '3 sets · 15 reps', isCompleted: false },
-      { number: '04', name: 'Hanging Leg Raise', prescription: '3 sets · 15 reps', isCompleted: false },
-      { number: '05', name: 'Cable Woodchopper', prescription: '3 sets · 12 reps/side', isCompleted: false },
-    ],
-  },
-  4: {
-    name: 'Legs & Calves',
-    category: 'Lower Body Strength',
-    estimatedMinutes: 60,
-    isRest: false,
-    exercises: [
-      { number: '01', name: 'Barbell Back Squat', prescription: '4 sets · 6–10 reps', isCompleted: false },
-      { number: '02', name: 'Romanian Deadlift (RDL)', prescription: '4 sets · 8–12 reps', isCompleted: false },
-      { number: '03', name: 'Leg Press', prescription: '3 sets · 10–12 reps', isCompleted: false },
-      { number: '04', name: 'Seated Leg Curl', prescription: '3 sets · 12–15 reps', isCompleted: false },
-      { number: '05', name: 'Standing Calf Raise', prescription: '4 sets · 15 reps', isCompleted: false },
-    ],
-  },
-  5: {
-    name: 'Upper Body Power',
-    category: 'Volume & Symmetry',
-    estimatedMinutes: 55,
-    isRest: false,
-    exercises: [
-      { number: '01', name: 'Flat Dumbbell Press', prescription: '4 sets · 8–10 reps', isCompleted: false },
-      { number: '02', name: 'Chest-Supported Row', prescription: '4 sets · 10–12 reps', isCompleted: false },
-      { number: '03', name: 'Dips / Machine Dip', prescription: '3 sets · 10–12 reps', isCompleted: false },
-      { number: '04', name: 'Hammer Curls', prescription: '3 sets · 12 reps', isCompleted: false },
-      { number: '05', name: 'Cable Lateral Raise', prescription: '4 sets · 15 reps', isCompleted: false },
-    ],
-  },
-  6: {
-    name: 'Active Recovery & Cardio',
-    category: 'Conditioning & Mobility',
-    estimatedMinutes: 40,
-    isRest: false,
-    exercises: [
-      { number: '01', name: 'Zone 2 Incline Walk / Jog', prescription: '30 mins steady-state', isCompleted: false },
-      { number: '02', name: 'Thoracic & Hip Mobility Flow', prescription: '10 mins stretching', isCompleted: false },
-    ],
-  },
-  7: {
-    name: 'Rest & Recovery',
-    category: 'Complete Rest',
-    estimatedMinutes: 0,
-    isRest: true,
-    exercises: [],
-  },
-};
+export function is6WeekShreddedProgram(programId?: string | null): boolean {
+  if (!programId) return true;
+  const p = programId.toLowerCase();
+  return (
+    p === 'prog_6_week_shredded_12w' ||
+    p === 'prog-6-week-shredded' ||
+    p === '6-week-shredded' ||
+    p === '6_week_shredded' ||
+    p.includes('shredded')
+  );
+}
 
 export function buildShreddedExercisesForDay(dayOfWeek: number): WorkoutExerciseSummary[] {
   const plan = CANONICAL_6_WEEK_SPLIT.find((d) => d.dayOfWeek === dayOfWeek);
@@ -301,6 +219,7 @@ export function buildShreddedExercisesForDay(dayOfWeek: number): WorkoutExercise
   return list;
 }
 
+// Canonical 6-Week Shredded Schedule (1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun)
 export const SHREDDED_WEEK_WORKOUT_SCHEDULE: Record<
   number,
   {
@@ -362,13 +281,10 @@ export const SHREDDED_WEEK_WORKOUT_SCHEDULE: Record<
   },
 };
 
+const WEEK_WORKOUT_SCHEDULE = SHREDDED_WEEK_WORKOUT_SCHEDULE;
+
 export function resolveScheduleForProgram(programId: string, dayOfWeek: number) {
-  if (
-    programId === 'prog_6_week_shredded_12w' ||
-    programId === '6-week-shredded' ||
-    programId === '6_WEEK_SHREDDED' ||
-    programId === 'prog-6-week-shredded'
-  ) {
+  if (is6WeekShreddedProgram(programId)) {
     return SHREDDED_WEEK_WORKOUT_SCHEDULE[dayOfWeek] || SHREDDED_WEEK_WORKOUT_SCHEDULE[1]!;
   }
 
@@ -414,12 +330,7 @@ export function resolveScheduleForProgram(programId: string, dayOfWeek: number) 
 }
 
 export function resolveMealsForProgram(programId: string): MealRecord[] {
-  if (
-    programId === 'prog_6_week_shredded_12w' ||
-    programId === '6-week-shredded' ||
-    programId === '6_WEEK_SHREDDED' ||
-    programId === 'prog-6-week-shredded'
-  ) {
+  if (is6WeekShreddedProgram(programId)) {
     return DEFAULT_5_MEALS;
   }
 
@@ -762,7 +673,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const prog = (catalog.programs || []).find(
           (p: any) => p.id === savedProgId || p.slug === savedProgId || (p.name && p.name.toLowerCase() === savedProgId.toLowerCase())
         );
-        if (savedProgId === 'prog_6_week_shredded_12w' || savedProgId === '6-week-shredded') {
+        if (is6WeekShreddedProgram(savedProgId)) {
           setActiveProgramTitle('6 WEEK SHREDDED (12 WEEKS)');
         } else if (prog && prog.name) {
           setActiveProgramTitle(prog.name);
@@ -849,13 +760,32 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     [getActiveSchedule, dayNames]
   );
 
+  const resetToTodayWorkout = useCallback(() => {
+    const curDay = getTodayDayOfWeek(DEFAULT_TIMEZONE);
+    const sched = getActiveSchedule(curDay);
+    setWorkout((prev) => ({
+      ...prev,
+      id: `wo-day-${curDay}`,
+      dayOfWeek: curDay,
+      dayName: dayNames[curDay] || 'Today',
+      name: sched.name,
+      category: sched.category,
+      isRestDay: sched.isRest,
+      estimatedMinutes: sched.estimatedMinutes,
+      totalExercises: sched.exercises.length,
+      totalSets: sched.exercises.length * 3,
+      status: sched.isRest ? 'REST_DAY' : prev.status === 'COMPLETED' ? 'COMPLETED' : 'NOT_STARTED',
+      exercises: sched.exercises,
+    }));
+  }, [getActiveSchedule, dayNames]);
+
   const setActiveProgramId = (programId: string) => {
     setActiveProgramIdState(programId);
     const catalog: any = programCatalogData;
     const prog = (catalog.programs || []).find(
       (p: any) => p.id === programId || p.slug === programId || (p.name && p.name.toLowerCase() === programId.toLowerCase())
     );
-    if (programId === 'prog_6_week_shredded_12w' || programId === '6-week-shredded') {
+    if (is6WeekShreddedProgram(programId)) {
       setActiveProgramTitle('6 WEEK SHREDDED (12 WEEKS)');
     } else if (prog && prog.name) {
       setActiveProgramTitle(prog.name);
@@ -1073,6 +1003,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setActiveProgramId,
         setCurrentProgramWeek,
         selectWorkoutDay,
+        resetToTodayWorkout,
       }}
     >
       {children}

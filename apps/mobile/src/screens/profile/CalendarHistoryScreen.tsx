@@ -196,7 +196,7 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
 
       if (isToday) {
         const isComp = workout.status === 'COMPLETED';
-        const todayStatus: DayProtocolStatus = isComp ? 'WORKOUT_COMPLETED' : 'REST_DAY';
+        const todayStatus: DayProtocolStatus = isComp ? 'WORKOUT_COMPLETED' : isRest ? 'REST_DAY' : 'WORKOUT_PARTIAL';
         return {
           dayNumber: day,
           weekday,
@@ -441,13 +441,15 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
           </View>
         </View>
 
-        {/* Program Switch Clean Slate Notice */}
+        {/* Reassuring Read-Only Audit Viewport Notice */}
         <View style={styles.programSwitchBanner}>
-          <Text style={styles.programSwitchIcon}>ℹ️</Text>
+          <Text style={styles.programSwitchIcon}>🛡️</Text>
           <View style={{ flex: 1 }}>
-            <Text style={styles.programSwitchTitle}>ACTIVE PROGRAM: {activeProgramTitle.toUpperCase()}</Text>
+            <Text style={styles.programSwitchTitle}>
+              PERFORMANCE AUDIT MODE · {activeProgramTitle.toUpperCase()}
+            </Text>
             <Text style={styles.programSwitchText}>
-              You have changed program, that's why recent data is on your load list but you can't change it right now.
+              Historical audit viewport. Inspecting past dates is strictly read-only and will never alter your active program or current workout session.
             </Text>
           </View>
         </View>

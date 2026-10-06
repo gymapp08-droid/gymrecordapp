@@ -13,7 +13,7 @@ import { GlassCard } from '../../components/GlassCard';
 import { NeonButton } from '../../components/NeonButton';
 import { StatusBadge } from '../../components/StatusBadge';
 import { getTodayDayOfWeek } from '../../utils/timezone';
-import { usePerformance } from '../../context/PerformanceContext';
+import { usePerformance, is6WeekShreddedProgram } from '../../context/PerformanceContext';
 import {
   CANONICAL_6_WEEK_SPLIT,
   HIIC_TREADMILL_PROTOCOL,
@@ -53,12 +53,7 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
 
   const isCycle1 = selectedWeek <= 6;
 
-  const is6WeekShredded =
-    !activeProgramId ||
-    activeProgramId === 'prog_6_week_shredded_12w' ||
-    activeProgramId === 'prog-6-week-shredded' ||
-    activeProgramId === '6-week-shredded' ||
-    activeProgramId === '6_WEEK_SHREDDED';
+  const is6WeekShredded = is6WeekShreddedProgram(activeProgramId);
 
   const catalogProgram = React.useMemo(() => {
     if (is6WeekShredded) return null;
@@ -114,11 +109,12 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
   }, [is6WeekShredded, catalogProgram, selectedDay]);
 
   const handleSelectDay = (dow: number) => {
+    // Pure inspection/preview — do NOT mutate active workout on Home!
     setSelectedDay(dow);
-    selectWorkoutDay(dow);
   };
 
   const handleStartWorkout = () => {
+    // User explicitly initiates session for this day
     selectWorkoutDay(selectedDay);
     if (onStartWorkout) {
       onStartWorkout(canonicalDayPlan.title);
@@ -283,6 +279,22 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
           );
         })}
       </View>
+
+      {/* Non-destructive preview notice when inspecting other days */}
+      {selectedDay !== todayDow && (
+        <View style={styles.previewNoticeBanner}>
+          <Text style={styles.previewNoticeText}>
+            👁️ Viewing {canonicalDayPlan.dayName} Plan (Audit/Preview Only)
+          </Text>
+          <TouchableOpacity
+            style={styles.jumpTodayBtn}
+            onPress={() => setSelectedDay(todayDow)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.jumpTodayText}>Jump to Today</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Selected Day Workout Details */}
       <ScrollView
@@ -669,6 +681,37 @@ const styles = StyleSheet.create({
     borderRadius: Theme.borderRadius.md,
     borderWidth: 1,
     borderColor: Theme.colors.border,
+  },
+  previewNoticeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(56, 130, 246, 0.12)',
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(56, 130, 246, 0.3)',
+  },
+  previewNoticeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Theme.colors.cyanGlow,
+    flex: 1,
+  },
+  jumpTodayBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: Theme.colors.primaryBlue,
+    borderRadius: 4,
+    marginLeft: 8,
+  },
+  jumpTodayText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
   dayTab: {
     flex: 1,
