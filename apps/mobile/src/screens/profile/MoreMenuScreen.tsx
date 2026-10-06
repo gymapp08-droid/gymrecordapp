@@ -213,31 +213,36 @@ const styles = StyleSheet.create({
   },
   menuRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    gap: 12,
   },
   menuLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     flex: 1,
+    minWidth: 0,
   },
   menuIcon: {
     fontSize: 18,
+    flexShrink: 0,
   },
   menuLabel: {
     fontSize: 13,
     fontWeight: '600',
     color: Theme.colors.textPrimary,
+    flex: 1,
+    flexShrink: 1,
   },
   menuRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flexShrink: 0,
   },
   menuChevron: {
     fontSize: 18,

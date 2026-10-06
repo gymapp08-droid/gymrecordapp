@@ -1578,17 +1578,19 @@ const styles = StyleSheet.create({
   },
   exerciseNavRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     gap: 8,
   },
   navExBtn: {
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     backgroundColor: Theme.colors.surfaceElevated,
     borderRadius: Theme.borderRadius.md,
     borderWidth: 1,
     borderColor: Theme.colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 1,
   },
   navExBtnDisabled: {
     opacity: 0.35,
@@ -1600,7 +1602,10 @@ const styles = StyleSheet.create({
   },
   skipExBtn: {
     paddingVertical: 10,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
   skipExBtnText: {
     fontSize: 11,
@@ -1609,11 +1614,15 @@ const styles = StyleSheet.create({
   },
   navExBtnNext: {
     paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     backgroundColor: 'rgba(0, 240, 255, 0.12)',
     borderRadius: Theme.borderRadius.md,
     borderWidth: 1,
     borderColor: Theme.colors.cyanGlow,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    minWidth: 0,
   },
   navExBtnNextText: {
     fontSize: 11,
@@ -1622,11 +1631,15 @@ const styles = StyleSheet.create({
   },
   navExBtnComplete: {
     paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
     borderRadius: Theme.borderRadius.md,
     borderWidth: 1,
     borderColor: Theme.colors.emeraldSuccess,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    minWidth: 0,
   },
   navExBtnCompleteText: {
     fontSize: 11,
@@ -1806,6 +1819,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   roundTrackerTitle: {
     fontSize: 11,
@@ -1813,16 +1827,20 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: Theme.colors.cyanGlow,
     letterSpacing: 1,
+    flexShrink: 0,
   },
   roundTrackerSub: {
     fontSize: 10,
     color: Theme.colors.textMuted,
     fontFamily: Theme.typography.telemetry.fontFamily,
+    flex: 1,
+    textAlign: 'right',
   },
   groupExercisesSequence: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
     gap: 6,
+    paddingVertical: 2,
   },
   seqPill: {
     paddingHorizontal: 8,

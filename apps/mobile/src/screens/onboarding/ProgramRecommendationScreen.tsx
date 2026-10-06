@@ -106,12 +106,14 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
   const dayNames = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   return (
-    <AlphaScreen>
-      <AlphaHeader
-        title="GRAVITY Catalog"
-        subtitle="Step 2 of 4 · Choose Program"
-        onBack={onBack}
-      />
+    <AlphaScreen noPadding>
+      <View style={styles.headerContainer}>
+        <AlphaHeader
+          title="GRAVITY Catalog"
+          subtitle="Step 2 of 4 · Choose Program"
+          onBack={onBack}
+        />
+      </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.leadText}>
@@ -253,9 +255,12 @@ export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenPr
 };
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    paddingHorizontal: 16,
+  },
   content: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingHorizontal: 16,
+    paddingBottom: 48,
     gap: 16,
   },
   leadText: {
@@ -275,6 +280,7 @@ const styles = StyleSheet.create({
   categoryScroll: {
     gap: 8,
     paddingVertical: 4,
+    paddingRight: 16,
   },
   categoryPill: {
     backgroundColor: Theme.colors.surfaceElevated,
@@ -283,6 +289,7 @@ const styles = StyleSheet.create({
     borderColor: Theme.colors.border,
     paddingHorizontal: 14,
     paddingVertical: 8,
+    flexShrink: 0,
   },
   categoryPillActive: {
     backgroundColor: 'rgba(0, 240, 255, 0.12)',

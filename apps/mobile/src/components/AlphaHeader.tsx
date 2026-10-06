@@ -48,17 +48,20 @@ export const AlphaHeader: React.FC<AlphaHeaderProps> = ({
 
 const styles = StyleSheet.create({
   headerContainer: {
-    height: 56,
+    minHeight: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 4,
+    paddingVertical: 6,
     marginBottom: 12,
+    gap: 8,
   },
   leftContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    minWidth: 0,
   },
   backButton: {
     width: 40,
