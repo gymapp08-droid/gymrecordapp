@@ -11,6 +11,7 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
   const [state, setState] = useState<DailySupplementsState>({
     multivitamin: false,
     calcium: false,
+    fishOil: false,
   });
 
   useEffect(() => {
@@ -27,8 +28,13 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
     setState(updated);
   };
 
-  const completedCount = (state.multivitamin ? 1 : 0) + (state.calcium ? 1 : 0);
-  const isAllCompleted = completedCount === 2;
+  const handleToggleFishOil = async () => {
+    const updated = await SupplementService.toggleFishOil();
+    setState(updated);
+  };
+
+  const completedCount = (state.multivitamin ? 1 : 0) + (state.calcium ? 1 : 0) + (state.fishOil ? 1 : 0);
+  const isAllCompleted = completedCount === 3;
 
   return (
     <View style={[styles.card, compact && styles.cardCompact]}>
@@ -54,7 +60,7 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
             ]}
             numberOfLines={1}
           >
-            {completedCount}/2 TAKEN
+            {completedCount}/3 TAKEN
           </Text>
         </View>
       </View>
@@ -114,6 +120,34 @@ export const DailySupplementsCard: React.FC<DailySupplementsCardProps> = ({ comp
             style={[styles.statusText, state.calcium ? styles.statusTextActive : styles.statusTextPending]}
           >
             {state.calcium ? `✓ Taken ${state.calciumTime || 'Today'}` : '○ Tap to log'}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Fish Oil */}
+        <TouchableOpacity
+          style={[styles.itemCard, state.fishOil && styles.itemCardActive]}
+          activeOpacity={0.8}
+          onPress={handleToggleFishOil}
+        >
+          <View style={styles.itemHeader}>
+            <View style={styles.itemInfo}>
+              <Text style={styles.itemEmoji}>🐟</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.itemName} numberOfLines={1}>Fish Oil</Text>
+                <Text style={styles.itemTiming} numberOfLines={1}>1000mg · Post-Meal</Text>
+              </View>
+            </View>
+            <View style={[styles.checkCircle, state.fishOil && styles.checkCircleActive]}>
+              <Text style={[styles.checkCheckmark, state.fishOil && styles.checkCheckmarkActive]}>
+                {state.fishOil ? '✓' : ''}
+              </Text>
+            </View>
+          </View>
+          <Text
+            numberOfLines={1}
+            style={[styles.statusText, state.fishOil ? styles.statusTextActive : styles.statusTextPending]}
+          >
+            {state.fishOil ? `✓ Taken ${state.fishOilTime || 'Today'}` : '○ Tap to log'}
           </Text>
         </TouchableOpacity>
       </View>

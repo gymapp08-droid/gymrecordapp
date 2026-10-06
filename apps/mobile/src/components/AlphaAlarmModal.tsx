@@ -19,6 +19,7 @@ interface AlphaAlarmModalProps {
   onDismiss: () => void;
   onStartWorkout?: () => void;
   onLogMeal?: (mealType: string) => void;
+  onMarkMealStarted?: (mealType: string) => void;
   onSnooze?: (minutes: number) => void;
 }
 
@@ -29,6 +30,7 @@ export const AlphaAlarmModal: React.FC<AlphaAlarmModalProps> = ({
   onDismiss,
   onStartWorkout,
   onLogMeal,
+  onMarkMealStarted,
   onSnooze,
 }) => {
   const [countdown, setCountdown] = useState<number>(10);
@@ -247,18 +249,41 @@ export const AlphaAlarmModal: React.FC<AlphaAlarmModalProps> = ({
                 <Text style={styles.primaryActionText}>{content.actionText}</Text>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity
-                style={[styles.primaryActionBtn, { backgroundColor: content.actionColor }]}
-                activeOpacity={0.8}
-                onPress={() => {
-                  handleStopAlarm();
-                  if (onLogMeal && (content as any).mealKey) {
-                    onLogMeal((content as any).mealKey);
-                  }
-                }}
-              >
-                <Text style={styles.primaryActionText}>{content.actionText}</Text>
-              </TouchableOpacity>
+              <View style={{ gap: 8, width: '100%' }}>
+                <TouchableOpacity
+                  style={[styles.primaryActionBtn, { backgroundColor: '#10B981' }]}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    handleStopAlarm();
+                    const mk = (content as any).mealKey || 'BREAKFAST';
+                    if (onMarkMealStarted) {
+                      onMarkMealStarted(mk);
+                    } else if (onLogMeal) {
+                      onLogMeal(mk);
+                    }
+                  }}
+                >
+                  <Text style={styles.primaryActionText}>✓ MEAL STARTED / TAKEN</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.primaryActionBtn,
+                    { backgroundColor: 'rgba(255, 255, 255, 0.08)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.15)' },
+                  ]}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    handleStopAlarm();
+                    if (onLogMeal && (content as any).mealKey) {
+                      onLogMeal((content as any).mealKey);
+                    }
+                  }}
+                >
+                  <Text style={[styles.primaryActionText, { color: Theme.colors.textPrimary }]}>
+                    CUSTOMIZE PORTIONS / LOG →
+                  </Text>
+                </TouchableOpacity>
+              </View>
             )}
 
             <View style={styles.subActionRow}>
@@ -267,7 +292,7 @@ export const AlphaAlarmModal: React.FC<AlphaAlarmModalProps> = ({
                 activeOpacity={0.7}
                 onPress={handleStopAlarm}
               >
-                <Text style={styles.stopAlarmText}>Dismiss</Text>
+                <Text style={styles.stopAlarmText}>{content.isWorkout ? 'Dismiss' : 'Not Yet'}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

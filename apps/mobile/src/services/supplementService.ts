@@ -4,13 +4,16 @@ import { getTodayDateString } from '../utils/timezone';
 export interface DailySupplementsState {
   multivitamin: boolean;
   calcium: boolean;
+  fishOil: boolean;
   multivitaminTime?: string;
   calciumTime?: string;
+  fishOilTime?: string;
 }
 
 const DEFAULT_STATE: DailySupplementsState = {
   multivitamin: false,
   calcium: false,
+  fishOil: false,
 };
 
 export const SupplementService = {
@@ -52,4 +55,16 @@ export const SupplementService = {
     await SecureStorage.setItem(this.getStorageKey(), JSON.stringify(updated));
     return updated;
   },
+
+  async toggleFishOil(): Promise<DailySupplementsState> {
+    const current = await this.loadTodaySupplements();
+    const updated: DailySupplementsState = {
+      ...current,
+      fishOil: !current.fishOil,
+      fishOilTime: !current.fishOil ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined,
+    };
+    await SecureStorage.setItem(this.getStorageKey(), JSON.stringify(updated));
+    return updated;
+  },
 };
+

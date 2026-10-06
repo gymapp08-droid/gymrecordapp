@@ -137,7 +137,7 @@ type SubView =
 
 function MainNavigator() {
   const { status } = useAuth();
-  const { recordWorkoutCompletion, setActiveProgramId, activeProgramId } = usePerformance();
+  const { recordWorkoutCompletion, setActiveProgramId, activeProgramId, toggleMealCompletion } = usePerformance();
   const [authRoute, setAuthRoute] = useState<AuthRoute>('SPLASH');
   const [activeTab, setActiveTab] = useState<MainTab>('HOME');
   const [activeSubView, setActiveSubView] = useState<SubView>(null);
@@ -822,6 +822,10 @@ function MainNavigator() {
         onStartWorkout={() => {
           setAlarmVisible(false);
           setActiveSubView('ACTIVE_WORKOUT');
+        }}
+        onMarkMealStarted={(mealType) => {
+          setAlarmVisible(false);
+          toggleMealCompletion(mealType);
         }}
         onLogMeal={(mealType) => {
           setAlarmVisible(false);

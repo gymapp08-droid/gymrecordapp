@@ -158,6 +158,7 @@ interface PerformanceContextType {
     status: 'COMPLETED_PLANNED' | 'COMPLETED_MODIFIED' | 'PARTIAL' | 'SKIPPED' | 'UPCOMING',
     statusLabel?: string
   ) => void;
+  toggleMealCompletion: (mealType: string) => void;
   refreshDayState: () => void;
   activeProgramId: string;
   activeProgramTitle: string;
@@ -1031,6 +1032,19 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     });
   };
 
+  const toggleMealCompletion = (mealType: string) => {
+    const existing = nutrition.meals.find(
+      (m) => m.type.toUpperCase() === mealType.toUpperCase() || m.title.toLowerCase().includes(mealType.toLowerCase())
+    );
+    if (!existing) return;
+    const isCompleted = existing.status.startsWith('COMPLETED');
+    if (isCompleted) {
+      updateMealStatus(existing.type, 0, 'UPCOMING', 'Planned');
+    } else {
+      updateMealStatus(existing.type, existing.plannedCals, 'COMPLETED_PLANNED', 'Completed as planned');
+    }
+  };
+
   return (
     <PerformanceContext.Provider
       value={{
@@ -1051,6 +1065,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         saveDailyNote,
         connectHealth,
         updateMealStatus,
+        toggleMealCompletion,
         refreshDayState,
         activeProgramId,
         activeProgramTitle,

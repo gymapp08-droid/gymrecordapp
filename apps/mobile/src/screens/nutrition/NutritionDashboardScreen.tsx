@@ -22,7 +22,7 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
   onOpenMealDetail,
   onOpenHydration,
 }) => {
-  const { nutrition, activity, addWater } = usePerformance();
+  const { nutrition, activity, addWater, toggleMealCompletion } = usePerformance();
 
   const caloriesConsumed = nutrition.caloriesConsumed;
   const caloriesTarget = nutrition.caloriesTarget;
@@ -46,6 +46,7 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
       protein: m.proteinGrams,
       status: m.statusLabel,
       statusType,
+      isCompleted: m.status.startsWith('COMPLETED'),
       items: m.itemsSummary,
     };
   });
@@ -216,11 +217,23 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
           {meals.map((meal) => (
             <TouchableOpacity
               key={meal.id}
-              style={styles.mealCard}
+              style={[styles.mealCard, meal.isCompleted && styles.mealCardCompleted]}
               onPress={() => onOpenMealDetail(meal.type)}
               activeOpacity={0.8}
             >
               <View style={styles.mealCardTop}>
+                {/* Quick Check-Off Circle Button */}
+                <TouchableOpacity
+                  style={[styles.quickCheckCircle, meal.isCompleted && styles.quickCheckCircleActive]}
+                  activeOpacity={0.7}
+                  onPress={() => toggleMealCompletion(meal.type)}
+                  accessibilityLabel={`Toggle completion for ${meal.title}`}
+                >
+                  <Text style={[styles.quickCheckmark, meal.isCompleted && styles.quickCheckmarkActive]}>
+                    {meal.isCompleted ? '✓' : ''}
+                  </Text>
+                </TouchableOpacity>
+
                 <View style={{ flex: 1 }}>
                   <View style={styles.mealTitleRow}>
                     <Text style={styles.mealTypeTag}>{meal.type}</Text>
@@ -244,7 +257,16 @@ export const NutritionDashboardScreen: React.FC<NutritionDashboardScreenProps> =
               </Text>
 
               <View style={styles.mealActions}>
-                <Text style={styles.mealTapHint}>Tap to view/modify portions →</Text>
+                <TouchableOpacity
+                  style={styles.quickToggleBtn}
+                  onPress={() => toggleMealCompletion(meal.type)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.quickToggleText, meal.isCompleted && { color: Theme.colors.emeraldSuccess }]}>
+                    {meal.isCompleted ? '✓ Meal Logged (Tap to Undo)' : '○ Tap to Check-off Meal'}
+                  </Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity
                   style={styles.addFoodMiniBtn}
                   onPress={() => onOpenAddFood(meal.type)}
@@ -506,10 +528,38 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 10,
   },
+  mealCardCompleted: {
+    borderColor: 'rgba(16, 185, 129, 0.4)',
+    backgroundColor: 'rgba(16, 185, 129, 0.05)',
+  },
   mealCardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    gap: 12,
+  },
+  quickCheckCircle: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    marginTop: 2,
+  },
+  quickCheckCircleActive: {
+    backgroundColor: Theme.colors.emeraldSuccess,
+    borderColor: Theme.colors.emeraldSuccess,
+  },
+  quickCheckmark: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#05070B',
+  },
+  quickCheckmarkActive: {
+    color: '#05070B',
   },
   mealTitleRow: {
     flexDirection: 'row',
@@ -555,6 +605,15 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.05)',
     paddingTop: 8,
+  },
+  quickToggleBtn: {
+    paddingVertical: 4,
+  },
+  quickToggleText: {
+    fontSize: 11,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+    fontWeight: '700',
   },
   mealTapHint: {
     fontSize: 10,

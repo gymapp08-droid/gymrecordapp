@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Theme } from '../theme/tokens';
+import { usePerformance, resolveScheduleForProgram } from '../context/PerformanceContext';
 
 export interface ExerciseSetRecord {
   setNum: number;
@@ -35,126 +36,102 @@ const formatDatePill = (d: Date) => {
   return `${day}.${month}.${year}`;
 };
 
-const buildHistoricalSessions = (): DayHistorySession[] => {
+const getTargetAreaForExercise = (name: string): string => {
+  const lower = name.toLowerCase();
+  if (lower.includes('chest') || lower.includes('press') || lower.includes('bench') || lower.includes('fly')) return 'Pectoralis Major & Delts';
+  if (lower.includes('back') || lower.includes('row') || lower.includes('pull') || lower.includes('lat')) return 'Latissimus & Rhomboids';
+  if (lower.includes('squat') || lower.includes('leg') || lower.includes('quad') || lower.includes('lunge')) return 'Quadriceps & Gluteal Max';
+  if (lower.includes('deadlift') || lower.includes('rdl') || lower.includes('ham')) return 'Hamstrings & Posterior Chain';
+  if (lower.includes('shoulder') || lower.includes('lateral') || lower.includes('raise')) return 'Deltoids & Trapezius';
+  if (lower.includes('bicep') || lower.includes('curl')) return 'Biceps Brachii';
+  if (lower.includes('tricep') || lower.includes('pushdown') || lower.includes('dip')) return 'Triceps Brachii';
+  if (lower.includes('abs') || lower.includes('core') || lower.includes('crunch')) return 'Core & Rectus Abdominis';
+  return 'Primary Muscle Group';
+};
+
+const buildHistoricalSessions = (activeProgramId: string): DayHistorySession[] => {
   const now = new Date();
+  const dayOffsets = [1, 2, 7];
 
-  const dYesterday = new Date(now);
-  dYesterday.setDate(now.getDate() - 1);
+  return dayOffsets.map((offset, idx) => {
+    const targetDate = new Date(now);
+    targetDate.setDate(now.getDate() - offset);
 
-  const dTwoDaysAgo = new Date(now);
-  dTwoDaysAgo.setDate(now.getDate() - 2);
+    const dow = targetDate.getDay() === 0 ? 7 : targetDate.getDay();
+    const sched = resolveScheduleForProgram(activeProgramId, dow);
 
-  const dLastWeek = new Date(now);
-  dLastWeek.setDate(now.getDate() - 8);
+    let dayLabel = '';
+    if (offset === 1) {
+      dayLabel = 'YESTERDAY';
+    } else {
+      dayLabel = formatDatePill(targetDate);
+    }
 
-  return [
-    {
-      dayLabel: 'YESTERDAY',
-      dateStr: dYesterday.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
-      workoutTitle: 'Legs & Core Density (Day 4)',
-      totalVolumeKg: 18450,
-      totalSets: 14,
-      totalReps: 126,
-      overloadGainKg: 650,
-      exercises: [
-        {
-          id: 'ex-sq',
-          name: 'Barbell Back Squat',
-          targetArea: 'Quadriceps & Gluteal Max',
-          sets: [
-            { setNum: 1, weightKg: 100, reps: 10, prevWeightKg: 95, prevReps: 10 },
-            { setNum: 2, weightKg: 105, reps: 8, prevWeightKg: 100, prevReps: 8 },
-            { setNum: 3, weightKg: 110, reps: 8, prevWeightKg: 105, prevReps: 8 },
-            { setNum: 4, weightKg: 115, reps: 6, prevWeightKg: 110, prevReps: 6 },
-          ],
-        },
-        {
-          id: 'ex-rdl',
-          name: 'Romanian Deadlift (RDL)',
-          targetArea: 'Hamstrings & Posterior Chain',
-          sets: [
-            { setNum: 1, weightKg: 80, reps: 10, prevWeightKg: 75, prevReps: 10 },
-            { setNum: 2, weightKg: 85, reps: 10, prevWeightKg: 80, prevReps: 10 },
-            { setNum: 3, weightKg: 90, reps: 8, prevWeightKg: 85, prevReps: 8 },
-          ],
-        },
-        {
-          id: 'ex-lp',
-          name: '45° Leg Press',
-          targetArea: 'Quadriceps Mass',
-          sets: [
-            { setNum: 1, weightKg: 180, reps: 12, prevWeightKg: 170, prevReps: 12 },
-            { setNum: 2, weightKg: 200, reps: 10, prevWeightKg: 190, prevReps: 10 },
-            { setNum: 3, weightKg: 220, reps: 10, prevWeightKg: 200, prevReps: 10 },
-          ],
-        },
-      ],
-    },
-    {
-      dayLabel: formatDatePill(dTwoDaysAgo), // e.g. "23.09.26"
-      dateStr: dTwoDaysAgo.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
-      workoutTitle: 'Upper Body Hypertrophy (Day 3)',
-      totalVolumeKg: 16200,
-      totalSets: 15,
-      totalReps: 142,
-      overloadGainKg: 520,
-      exercises: [
-        {
-          id: 'ex-bp',
-          name: 'Barbell Bench Press',
-          targetArea: 'Pectoralis Major',
-          sets: [
-            { setNum: 1, weightKg: 75, reps: 10, prevWeightKg: 70, prevReps: 10 },
-            { setNum: 2, weightKg: 80, reps: 8, prevWeightKg: 75, prevReps: 8 },
-            { setNum: 3, weightKg: 82.5, reps: 8, prevWeightKg: 80, prevReps: 7 },
-            { setNum: 4, weightKg: 85, reps: 6, prevWeightKg: 80, prevReps: 6 },
-          ],
-        },
-        {
-          id: 'ex-inc',
-          name: 'Incline Dumbbell Press',
-          targetArea: 'Clavicular Pec Fibers',
-          sets: [
-            { setNum: 1, weightKg: 26, reps: 10, prevWeightKg: 24, prevReps: 10 },
-            { setNum: 2, weightKg: 28, reps: 10, prevWeightKg: 26, prevReps: 10 },
-            { setNum: 3, weightKg: 30, reps: 8, prevWeightKg: 28, prevReps: 8 },
-          ],
-        },
-        {
-          id: 'ex-row',
-          name: 'Barbell Bent-Over Row',
-          targetArea: 'Latissimus Dorsi & Rhomboids',
-          sets: [
-            { setNum: 1, weightKg: 65, reps: 10, prevWeightKg: 60, prevReps: 10 },
-            { setNum: 2, weightKg: 70, reps: 8, prevWeightKg: 65, prevReps: 8 },
-            { setNum: 3, weightKg: 70, reps: 8, prevWeightKg: 65, prevReps: 8 },
-          ],
-        },
-      ],
-    },
-    {
-      dayLabel: formatDatePill(dLastWeek), // e.g. "17.09.26"
-      dateStr: dLastWeek.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
-      workoutTitle: 'Legs & Core Baseline',
-      totalVolumeKg: 17800,
-      totalSets: 14,
-      totalReps: 124,
-      overloadGainKg: 380,
-      exercises: [
-        {
-          id: 'ex-sq-lw',
-          name: 'Barbell Back Squat',
-          targetArea: 'Quadriceps',
-          sets: [
-            { setNum: 1, weightKg: 95, reps: 10, prevWeightKg: 90, prevReps: 10 },
-            { setNum: 2, weightKg: 100, reps: 8, prevWeightKg: 95, prevReps: 8 },
-            { setNum: 3, weightKg: 105, reps: 8, prevWeightKg: 100, prevReps: 8 },
-            { setNum: 4, weightKg: 110, reps: 6, prevWeightKg: 105, prevReps: 6 },
-          ],
-        },
-      ],
-    },
-  ];
+    const dateStr = targetDate.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+    });
+
+    const isRest = sched.isRest || !sched.exercises || sched.exercises.length === 0;
+    const title = sched.name;
+
+    const exercises: DayExerciseHistory[] = isRest
+      ? [
+          {
+            id: 'ex-rest',
+            name: 'Active Rest & Recovery Flow',
+            targetArea: 'Systemic Nervous System Recovery',
+            sets: [
+              { setNum: 1, weightKg: 0, reps: 20, prevWeightKg: 0, prevReps: 20 },
+              { setNum: 2, weightKg: 0, reps: 20, prevWeightKg: 0, prevReps: 20 },
+            ],
+          },
+        ]
+      : sched.exercises.slice(0, 4).map((ex: any, eIdx: number) => {
+          const baseWeight = 40 + ((eIdx * 15 + offset * 5) % 65);
+          return {
+            id: `hist-ex-${eIdx}-${offset}`,
+            name: ex.name,
+            targetArea: getTargetAreaForExercise(ex.name),
+            sets: [
+              { setNum: 1, weightKg: baseWeight, reps: 10, prevWeightKg: Math.max(0, baseWeight - 5), prevReps: 10 },
+              { setNum: 2, weightKg: baseWeight + 2.5, reps: 10, prevWeightKg: Math.max(0, baseWeight - 2.5), prevReps: 10 },
+              { setNum: 3, weightKg: baseWeight + 5, reps: 8, prevWeightKg: baseWeight, prevReps: 8 },
+            ],
+          };
+        });
+
+    let totalVolume = 0;
+    let totalSets = 0;
+    let totalReps = 0;
+    exercises.forEach((ex) => {
+      ex.sets.forEach((s) => {
+        totalVolume += s.weightKg * s.reps;
+        totalSets += 1;
+        totalReps += s.reps;
+      });
+    });
+
+    if (totalVolume === 0 && !isRest) {
+      totalVolume = 6200;
+      totalSets = 12;
+      totalReps = 120;
+    }
+
+    const overloadGainKg = isRest ? 0 : 350 + (idx === 0 ? 300 : idx === 1 ? 170 : 80);
+
+    return {
+      dayLabel,
+      dateStr,
+      workoutTitle: title,
+      totalVolumeKg: totalVolume,
+      totalSets,
+      totalReps,
+      overloadGainKg,
+      exercises,
+    };
+  });
 };
 
 interface Props {
@@ -168,9 +145,10 @@ export const DayByDayProgressionCard: React.FC<Props> = ({
   isCollapsible = false,
   initialExpanded = true,
 }) => {
+  const { activeProgramId } = usePerformance();
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
   const [isExpanded, setIsExpanded] = useState<boolean>(initialExpanded);
-  const sessions = React.useMemo(() => buildHistoricalSessions(), []);
+  const sessions = React.useMemo(() => buildHistoricalSessions(activeProgramId), [activeProgramId]);
   const session = sessions[selectedIdx] || sessions[0]!;
 
   return (

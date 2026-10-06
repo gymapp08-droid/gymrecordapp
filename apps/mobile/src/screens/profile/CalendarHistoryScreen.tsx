@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { AlphaScreen, AlphaHeader, PrimaryButton, SecondaryButton, StatusBadge } from '../../components';
 import { Theme } from '../../theme/tokens';
-import { usePerformance } from '../../context/PerformanceContext';
+import { usePerformance, resolveScheduleForProgram } from '../../context/PerformanceContext';
 
 export type DayProtocolStatus =
   | 'WORKOUT_COMPLETED'
@@ -65,188 +65,44 @@ export interface CalendarDayRecord {
   meals?: HistoryMealItem[];
 }
 
-function getSampleDayExercises(dow: number): HistoryExerciseItem[] {
-  switch (dow) {
-    case 1: // Mon
-      return [
-        {
-          id: 'ex-1',
-          name: 'Barbell Bench Press',
-          muscle: 'Chest',
-          sets: [
-            { setNumber: 1, weightKg: 60, reps: 10, isCompleted: true },
-            { setNumber: 2, weightKg: 65, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 70, reps: 8, isCompleted: true },
-            { setNumber: 4, weightKg: 70, reps: 8, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-2',
-          name: 'Incline Dumbbell Press',
-          muscle: 'Upper Chest',
-          sets: [
-            { setNumber: 1, weightKg: 24, reps: 12, isCompleted: true },
-            { setNumber: 2, weightKg: 26, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 26, reps: 10, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-3',
-          name: 'Cable Chest Flyes',
-          muscle: 'Pectoralis Major',
-          sets: [
-            { setNumber: 1, weightKg: 15, reps: 15, isCompleted: true },
-            { setNumber: 2, weightKg: 17.5, reps: 12, isCompleted: true },
-            { setNumber: 3, weightKg: 17.5, reps: 12, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-4',
-          name: 'Cable Tricep Pushdown',
-          muscle: 'Triceps Lateral Head',
-          sets: [
-            { setNumber: 1, weightKg: 25, reps: 12, isCompleted: true },
-            { setNumber: 2, weightKg: 30, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 30, reps: 10, isCompleted: true },
-          ],
-        },
-      ];
-    case 2: // Tue
-      return [
-        {
-          id: 'ex-1',
-          name: 'Barbell Bent-Over Row',
-          muscle: 'Lats & Rhomboids',
-          sets: [
-            { setNumber: 1, weightKg: 60, reps: 10, isCompleted: true },
-            { setNumber: 2, weightKg: 65, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 70, reps: 8, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-2',
-          name: 'Lat Pulldown',
-          muscle: 'Latissimus Dorsi',
-          sets: [
-            { setNumber: 1, weightKg: 55, reps: 12, isCompleted: true },
-            { setNumber: 2, weightKg: 60, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 65, reps: 8, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-3',
-          name: 'Barbell Bicep Curl',
-          muscle: 'Biceps Brachii',
-          sets: [
-            { setNumber: 1, weightKg: 25, reps: 12, isCompleted: true },
-            { setNumber: 2, weightKg: 30, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 30, reps: 10, isCompleted: true },
-          ],
-        },
-      ];
-    case 3: // Wed
-      return [
-        {
-          id: 'ex-1',
-          name: 'Standing Overhead Press',
-          muscle: 'Anterior & Medial Delts',
-          sets: [
-            { setNumber: 1, weightKg: 40, reps: 8, isCompleted: true },
-            { setNumber: 2, weightKg: 45, reps: 8, isCompleted: true },
-            { setNumber: 3, weightKg: 47.5, reps: 6, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-2',
-          name: 'Cable Lateral Raise',
-          muscle: 'Lateral Deltoids',
-          sets: [
-            { setNumber: 1, weightKg: 7.5, reps: 15, isCompleted: true },
-            { setNumber: 2, weightKg: 10, reps: 12, isCompleted: true },
-            { setNumber: 3, weightKg: 10, reps: 12, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-3',
-          name: 'Hanging Leg Raise',
-          muscle: 'Rectus Abdominis',
-          sets: [
-            { setNumber: 1, weightKg: 0, reps: 15, isCompleted: true },
-            { setNumber: 2, weightKg: 0, reps: 15, isCompleted: true },
-            { setNumber: 3, weightKg: 0, reps: 12, isCompleted: true },
-          ],
-        },
-      ];
-    case 4: // Thu
-      return [
-        {
-          id: 'ex-1',
-          name: 'Barbell Back Squat',
-          muscle: 'Quadriceps & Glutes',
-          sets: [
-            { setNumber: 1, weightKg: 90, reps: 8, isCompleted: true },
-            { setNumber: 2, weightKg: 100, reps: 8, isCompleted: true },
-            { setNumber: 3, weightKg: 105, reps: 6, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-2',
-          name: 'Romanian Deadlift (RDL)',
-          muscle: 'Hamstrings & Gluteus Max',
-          sets: [
-            { setNumber: 1, weightKg: 80, reps: 10, isCompleted: true },
-            { setNumber: 2, weightKg: 90, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 95, reps: 8, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-3',
-          name: 'Leg Press',
-          muscle: 'Quadriceps',
-          sets: [
-            { setNumber: 1, weightKg: 160, reps: 12, isCompleted: true },
-            { setNumber: 2, weightKg: 180, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 200, reps: 10, isCompleted: true },
-          ],
-        },
-      ];
-    case 5: // Fri
-      return [
-        {
-          id: 'ex-1',
-          name: 'Incline Barbell Bench Press',
-          muscle: 'Clavicular Pectoralis',
-          sets: [
-            { setNumber: 1, weightKg: 55, reps: 10, isCompleted: true },
-            { setNumber: 2, weightKg: 60, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 65, reps: 8, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-2',
-          name: 'Seated Cable Row',
-          muscle: 'Mid-Back & Lats',
-          sets: [
-            { setNumber: 1, weightKg: 50, reps: 12, isCompleted: true },
-            { setNumber: 2, weightKg: 55, reps: 10, isCompleted: true },
-            { setNumber: 3, weightKg: 60, reps: 10, isCompleted: true },
-          ],
-        },
-        {
-          id: 'ex-3',
-          name: 'Dumbbell Lateral Raise',
-          muscle: 'Lateral Deltoids',
-          sets: [
-            { setNumber: 1, weightKg: 10, reps: 15, isCompleted: true },
-            { setNumber: 2, weightKg: 12, reps: 12, isCompleted: true },
-            { setNumber: 3, weightKg: 12, reps: 12, isCompleted: true },
-          ],
-        },
-      ];
-    default:
-      return [];
-  }
+function getMuscleGroupForName(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.includes('chest') || lower.includes('bench') || lower.includes('fly')) return 'Chest / Pectorals';
+  if (lower.includes('back') || lower.includes('row') || lower.includes('lat') || lower.includes('pull')) return 'Back & Lats';
+  if (lower.includes('shoulder') || lower.includes('overhead') || lower.includes('raise') || lower.includes('delt')) return 'Shoulders & Delts';
+  if (lower.includes('squat') || lower.includes('leg') || lower.includes('quad')) return 'Quads & Lower Body';
+  if (lower.includes('deadlift') || lower.includes('rdl') || lower.includes('ham') || lower.includes('curl') && lower.includes('leg')) return 'Hamstrings & Posterior';
+  if (lower.includes('tricep') || lower.includes('pushdown') || lower.includes('dip')) return 'Triceps';
+  if (lower.includes('bicep') || lower.includes('curl')) return 'Biceps';
+  if (lower.includes('abs') || lower.includes('core') || lower.includes('crunch')) return 'Core & Abs';
+  if (lower.includes('calf') || lower.includes('calves')) return 'Calves';
+  if (lower.includes('cardio') || lower.includes('treadmill') || lower.includes('hiic')) return 'Cardiovascular Engine';
+  return 'Full Body Conditioning';
 }
+
+function getExercisesForProgramDay(activeProgramId: string, dow: number, dayNumber: number): HistoryExerciseItem[] {
+  const sched = resolveScheduleForProgram(activeProgramId, dow);
+  if (sched.isRest || !sched.exercises || sched.exercises.length === 0) {
+    return [];
+  }
+
+  return sched.exercises.map((ex: any, exIdx: number) => {
+    const baseWeight = 30 + ((exIdx * 12 + dayNumber * 3) % 60);
+    const sets: HistoryExerciseSet[] = [
+      { setNumber: 1, weightKg: baseWeight, reps: 10, isCompleted: true },
+      { setNumber: 2, weightKg: baseWeight + 2.5, reps: 10, isCompleted: true },
+      { setNumber: 3, weightKg: baseWeight + 5, reps: 8, isCompleted: true },
+    ];
+
+    return {
+      id: `cal-ex-${dow}-${exIdx}`,
+      name: ex.name,
+      muscle: getMuscleGroupForName(ex.name),
+      sets,
+    };
+  });
+}
+
 
 function getSampleDayMeals(isCompleted: boolean): HistoryMealItem[] {
   return [
@@ -310,7 +166,7 @@ interface CalendarHistoryScreenProps {
 type TimeHorizon = '3M' | '6M' | '1Y' | 'ALL_TIME';
 
 export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ onBack }) => {
-  const { workout, monthlyJourney } = usePerformance();
+  const { workout, monthlyJourney, activeProgramId, activeProgramTitle } = usePerformance();
   const [selectedHorizon, setSelectedHorizon] = useState<TimeHorizon>('3M');
 
   const now = new Date();
@@ -325,8 +181,8 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
   const [journalReasonInput, setJournalReasonInput] = useState<string>('');
   const [journalStatusInput, setJournalStatusInput] = useState<DayProtocolStatus>('MISSED');
 
-  // Real dynamic days based on current calendar month
-  const [days, setDays] = useState<CalendarDayRecord[]>(() => {
+  // Real dynamic days based on current calendar month and active program
+  const initialDays: CalendarDayRecord[] = React.useMemo(() => {
     return Array.from({ length: daysInMonth }, (_, i) => {
       const day = i + 1;
       const dateObj = new Date(year, month, day);
@@ -335,46 +191,52 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
       const isPast = day < todayDate;
       const isToday = day === todayDate;
 
+      const programSched = resolveScheduleForProgram(activeProgramId, dow);
+      const isRest = programSched.isRest;
+
       if (isToday) {
         const isComp = workout.status === 'COMPLETED';
-        const isRest = workout.isRestDay || dow === 7;
+        const todayStatus: DayProtocolStatus = isComp ? 'WORKOUT_COMPLETED' : 'REST_DAY';
         return {
           dayNumber: day,
           weekday,
-          status: isComp ? 'WORKOUT_COMPLETED' : isRest ? 'REST_DAY' : 'REST_DAY',
-          workoutTitle: isRest ? 'Rest & Recovery' : workout.name,
+          status: todayStatus,
+          workoutTitle: isRest ? 'Rest & Recovery' : workout.name || programSched.name,
           volumeKg: workout.completedVolumeKg > 0 ? workout.completedVolumeKg : isRest ? 0 : 5480,
           setsCount: workout.completedSetsCount > 0 ? workout.completedSetsCount : isRest ? 0 : 13,
           repsCount: workout.completedSetsCount > 0 ? workout.completedSetsCount * 10 : isRest ? 0 : 124,
-          durationMinutes: workout.estimatedMinutes || 55,
+          durationMinutes: workout.estimatedMinutes || programSched.estimatedMinutes || 55,
           nutritionAdherence: 96,
-          exercises: getSampleDayExercises(dow),
+          exercises: getExercisesForProgramDay(activeProgramId, dow, day),
           meals: getSampleDayMeals(true),
         };
       }
 
-      const isRest = dow === 7;
-      const isCardioDay = dow === 6;
       const status: DayProtocolStatus = isRest ? 'REST_DAY' : isPast ? 'WORKOUT_COMPLETED' : 'REST_DAY';
-      const titles = ['', 'Chest + Triceps', 'Back + Biceps', 'Shoulders + Abs', 'Legs & Calves', 'Upper Body Hypertrophy', 'Cardio & Mobility', 'Rest & Recovery'];
-      const volumes = [0, 5640, 5820, 4200, 7850, 6100, 0, 0];
-      const sets = [0, 14, 13, 11, 15, 13, 0, 0];
+      const setsCount = isRest ? 0 : (programSched.exercises?.length || 4) * 3;
+      const volumeKg = isPast && !isRest ? 4800 + ((dow * 650) % 2500) : 0;
 
       return {
         dayNumber: day,
         weekday,
         status,
-        workoutTitle: titles[dow] || 'Scheduled Protocol',
-        volumeKg: isPast && !isRest ? volumes[dow] : 0,
-        setsCount: isPast && !isRest ? sets[dow] : 0,
-        repsCount: isPast && !isRest ? (sets[dow] || 0) * 10 : 0,
-        durationMinutes: isPast && !isRest ? 55 : isCardioDay ? 35 : 0,
+        workoutTitle: programSched.name,
+        volumeKg,
+        setsCount: isPast ? setsCount : 0,
+        repsCount: isPast ? setsCount * 10 : 0,
+        durationMinutes: isPast && !isRest ? programSched.estimatedMinutes || 55 : 0,
         nutritionAdherence: isPast ? 95 : 0,
-        exercises: !isRest ? getSampleDayExercises(dow) : [],
+        exercises: !isRest ? getExercisesForProgramDay(activeProgramId, dow, day) : [],
         meals: isPast ? getSampleDayMeals(true) : [],
       };
     });
-  });
+  }, [activeProgramId, daysInMonth, year, month, todayDate, workout]);
+
+  const [days, setDays] = useState<CalendarDayRecord[]>(initialDays);
+
+  React.useEffect(() => {
+    setDays(initialDays);
+  }, [initialDays]);
 
   const selectedData = days.find((d) => d.dayNumber === selectedDay) || days[0]!;
 
@@ -511,7 +373,7 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
         {/* Heatmap & Calendar Matrix */}
         <View style={styles.calendarCard}>
           <View style={styles.calHeader}>
-            <Text style={styles.sectionLabel}>SEPTEMBER 2026 CALENDAR HEATMAP</Text>
+            <Text style={styles.sectionLabel}>{currentMonthLabel} CALENDAR HEATMAP</Text>
             <Text style={styles.calLegend}>Tap day to inspect/journal</Text>
           </View>
 
@@ -579,11 +441,24 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
           </View>
         </View>
 
+        {/* Program Switch Clean Slate Notice */}
+        <View style={styles.programSwitchBanner}>
+          <Text style={styles.programSwitchIcon}>ℹ️</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.programSwitchTitle}>ACTIVE PROGRAM: {activeProgramTitle.toUpperCase()}</Text>
+            <Text style={styles.programSwitchText}>
+              You have changed program, that's why recent data is on your load list but you can't change it right now.
+            </Text>
+          </View>
+        </View>
+
         {/* Selected Date Detailed Record & Missed Day Journaling */}
         <View style={styles.detailCard}>
           <View style={styles.detailTop}>
-            <View>
-              <Text style={styles.detailDate}>SEPTEMBER {selectedData.dayNumber}, 2026 · {selectedData.weekday.toUpperCase()}</Text>
+            <View style={{ flex: 1, marginRight: 8 }}>
+              <Text style={styles.detailDate}>
+                {new Date(year, month, selectedData.dayNumber).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()} · {selectedData.weekday.toUpperCase()}
+              </Text>
               <Text style={styles.detailTitle}>{selectedData.workoutTitle || 'Scheduled Rest'}</Text>
             </View>
             <StatusBadge
@@ -1083,6 +958,32 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontFamily: Theme.typography.telemetry.fontFamily,
     color: Theme.colors.textMuted,
+  },
+  programSwitchBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.3)',
+    borderRadius: Theme.borderRadius.md,
+    padding: 14,
+  },
+  programSwitchIcon: {
+    fontSize: 20,
+  },
+  programSwitchTitle: {
+    fontSize: 10,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    marginBottom: 2,
+  },
+  programSwitchText: {
+    fontSize: 11,
+    color: Theme.colors.textSecondary,
+    lineHeight: 16,
   },
   detailCard: {
     backgroundColor: Theme.colors.surfaceElevated,
