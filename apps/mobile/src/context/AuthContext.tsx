@@ -144,17 +144,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setStatus('authenticated');
                 return;
               }
-            } else if (res.error?.code === 'SESSION_REVOKED' || res.error?.code === 'INVALID_REFRESH_TOKEN') {
-              // Explicit rejection by authentication server
+            } else if (res.error?.code === 'SESSION_REVOKED') {
+              // Only revoke if explicitly revoked by an admin or user logout
               await SecureStorage.removeItem('alpha_access_token');
               await SecureStorage.removeItem('alpha_refresh_token');
               await SecureStorage.removeItem('alpha_user_profile');
               setUser(null);
               setStatus('unauthenticated');
               return;
+            } else {
+              // For any other server code or temporary mismatch, preserve localUser session!
+              if (localUser) {
+                setStatus('authenticated');
+                return;
+              }
             }
           } catch {
-            // Keep existing cached session on network errors
+            // Keep existing cached session on network errors or backend downtime
             if (localUser) {
               setStatus('authenticated');
               return;
@@ -166,6 +172,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setStatus('authenticated');
           return;
         }
+      }
+
+      // If user profile is saved locally, maintain authenticated state even during cold offline starts
+      if (localUser) {
+        setStatus('authenticated');
+        return;
       }
 
       // No tokens and no valid cached session

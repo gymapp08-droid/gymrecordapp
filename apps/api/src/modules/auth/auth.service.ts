@@ -862,14 +862,14 @@ export class AuthService implements OnModuleInit {
         { ...payload, jti: HashUtil.generateUuid() },
         {
           secret: accessSecret,
-          expiresIn: '15m',
+          expiresIn: '30d',
         },
       ),
       this.jwtService.signAsync(
         { ...payload, jti: HashUtil.generateUuid() },
         {
           secret: refreshSecret,
-          expiresIn: '7d',
+          expiresIn: '180d',
         },
       ),
     ]);
@@ -877,7 +877,7 @@ export class AuthService implements OnModuleInit {
     return {
       accessToken,
       refreshToken,
-      expiresIn: 900,
+      expiresIn: 30 * 24 * 3600, // 30 days in seconds
       tokenType: 'Bearer',
     };
   }
