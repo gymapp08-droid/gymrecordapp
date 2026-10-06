@@ -187,6 +187,24 @@ export const WorkoutPlanScreen: React.FC<WorkoutPlanScreenProps> = ({ onStartWor
         </View>
       </View>
 
+      {/* Prominent Browse & Switch Program Banner */}
+      {onBrowsePrograms && (
+        <TouchableOpacity
+          style={styles.browseBanner}
+          onPress={onBrowsePrograms}
+          activeOpacity={0.8}
+        >
+          <View style={styles.browseBannerLeft}>
+            <Text style={styles.browseBannerIcon}>⚡</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.browseBannerTitle}>BROWSE 52 PROTOCOLS & GOALS</Text>
+              <Text style={styles.browseBannerSub}>Fat Loss, Muscle Gain, Single Muscle & Bodyweight</Text>
+            </View>
+          </View>
+          <Text style={styles.browseBannerArrow}>→</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Program Info Drawer (Toggleable) */}
       {showProgramInfo && (
         <View style={styles.programInfoDrawer}>
@@ -549,6 +567,46 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: Theme.borderRadius.md,
+  },
+  browseBanner: {
+    marginHorizontal: 16,
+    marginTop: 10,
+    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.35)',
+    borderRadius: Theme.borderRadius.md,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  browseBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+  },
+  browseBannerIcon: {
+    fontSize: 18,
+  },
+  browseBannerTitle: {
+    fontSize: 11,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    fontWeight: '800',
+    color: Theme.colors.cyanGlow,
+    letterSpacing: 0.8,
+  },
+  browseBannerSub: {
+    fontSize: 10,
+    color: Theme.colors.textSecondary,
+    marginTop: 1,
+  },
+  browseBannerArrow: {
+    fontSize: 16,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '700',
   },
   catalogButtonText: {
     color: Theme.colors.cyanGlow,

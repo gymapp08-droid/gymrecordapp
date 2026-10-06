@@ -22,18 +22,23 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({ onNavigate, onBa
 
   const sections = [
     {
+      title: 'TRAINING GOALS & PROTOCOLS',
+      items: [
+        { id: 'PROGRAM_CATALOG', label: 'Choose Goal & Programs (Fat Loss, Muscle, etc.)', icon: '⚡', badge: '52 PROTOCOLS' },
+        { id: 'GOALS', label: 'Protocol Objectives & Benchmarks', icon: '🎯' },
+        { id: 'MILESTONES', label: 'Achievements & Protocol Medals', icon: '🏆', badge: '3 UNLOCKED' },
+      ],
+    },
+    {
       title: 'BIOMETRICS & TELEMETRY',
       items: [
         { id: 'PROFILE', label: 'Athlete Identity & Tier', icon: '👤', badge: 'PRO' },
         { id: 'BODY_METRICS', label: 'Body Mass & Circumferences', icon: '⚖️' },
-        { id: 'GOALS', label: 'Protocol Objectives & Deadlines', icon: '🎯' },
-        { id: 'MILESTONES', label: 'Achievements & Protocol Medals', icon: '🏆', badge: '3 UNLOCKED' },
       ],
     },
     {
       title: 'KNOWLEDGE & LIBRARIES',
       items: [
-        { id: 'PROGRAM_CATALOG', label: 'GRAVITY Program Catalog', icon: '⚡', badge: '52 PROGRAMS' },
         { id: 'EXERCISE_LIBRARY', label: 'Exercise Biomechanics & Cues', icon: '📖' },
         { id: 'FOOD_LIBRARY', label: 'Nutritional Food Database', icon: '🥗' },
         { id: 'CALENDAR', label: 'Training History & Consistency', icon: '📅' },
@@ -104,6 +109,14 @@ export const MoreMenuScreen: React.FC<MoreMenuScreenProps> = ({ onNavigate, onBa
               <Text style={styles.statValue}>{streak.days}D</Text>
             </View>
           </View>
+
+          <TouchableOpacity
+            style={styles.switchGoalBtn}
+            onPress={() => onNavigate('PROGRAM_CATALOG')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.switchGoalBtnText}>⚡ SWITCH GOAL / BROWSE 52 PROGRAMS →</Text>
+          </TouchableOpacity>
         </View>
 
         {sections.map((sec, sIdx) => (
@@ -248,5 +261,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: Theme.colors.textMuted,
     fontWeight: '600',
+  },
+  switchGoalBtn: {
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    borderWidth: 1,
+    borderColor: Theme.colors.cyanGlow,
+    borderRadius: Theme.borderRadius.sm,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  switchGoalBtnText: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 11,
+    fontWeight: '800',
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    letterSpacing: 0.8,
   },
 });

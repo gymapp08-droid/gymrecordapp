@@ -482,6 +482,7 @@ function MainNavigator() {
               setActiveAlarmType(type);
               setAlarmVisible(true);
             }}
+            onOpenProgramCatalog={() => setActiveSubView('PROGRAM_CATALOG')}
           />
         )}
 
@@ -729,7 +730,10 @@ function MainNavigator() {
           )}
 
           {activeSubView === 'GOALS' && (
-            <GoalsScreen onBack={navigateBackSubView} />
+            <GoalsScreen
+              onBack={navigateBackSubView}
+              onOpenProgramCatalog={() => navigateToSubView('PROGRAM_CATALOG')}
+            />
           )}
 
           {activeSubView === 'MILESTONES' && (

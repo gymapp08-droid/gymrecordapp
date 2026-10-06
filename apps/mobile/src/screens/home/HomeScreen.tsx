@@ -36,6 +36,7 @@ interface HomeScreenProps {
   onOpenWeeklyCheckIn?: () => void;
   onOpenReminderSettings?: () => void;
   onTriggerAlarmModal?: (type: AlarmType) => void;
+  onOpenProgramCatalog?: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -51,6 +52,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenWeeklyCheckIn,
   onOpenReminderSettings,
   onTriggerAlarmModal,
+  onOpenProgramCatalog,
 }) => {
   const { user } = useAuth();
   const {
@@ -196,6 +198,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <Text style={styles.fullPlanText}>View Weekly Plan →</Text>
               </TouchableOpacity>
             </View>
+
+            {onOpenProgramCatalog && (
+              <TouchableOpacity
+                style={styles.switchProgramLink}
+                onPress={onOpenProgramCatalog}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.switchProgramLinkText}>⚡ Switch Goal / Browse 52 Protocols →</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : (
           <View style={styles.workoutHeroCard}>
@@ -297,6 +309,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <Text style={styles.fullPlanText} numberOfLines={1}>View Full Plan →</Text>
               </TouchableOpacity>
             </View>
+
+            {onOpenProgramCatalog && (
+              <TouchableOpacity
+                style={styles.switchProgramLink}
+                onPress={onOpenProgramCatalog}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.switchProgramLinkText}>⚡ Switch Goal / Browse 52 Protocols →</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
 
@@ -1983,6 +2005,24 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#00F0FF',
     fontFamily: Theme.typography.telemetry.fontFamily,
+  },
+  switchProgramLink: {
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.3)',
+    borderRadius: Theme.borderRadius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  switchProgramLinkText: {
+    color: Theme.colors.cyanGlow,
+    fontSize: 11,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    fontWeight: '800',
+    letterSpacing: 0.8,
   },
 });
 
