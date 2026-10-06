@@ -4,117 +4,45 @@ import { AlphaScreen, AlphaHeader, StatusBadge } from '../../components';
 import { Theme } from '../../theme/tokens';
 import { ExerciseDetailData } from '../workout/ExerciseDetailScreen';
 
+import { SIX_WEEK_SHREDDED_EXERCISES } from '../../data/sixWeekShredded';
+
 interface ExerciseLibraryScreenProps {
   onBack: () => void;
   onSelectExercise: (exercise: ExerciseDetailData) => void;
 }
 
-export const LIBRARY_EXERCISES: ExerciseDetailData[] = [
-  {
-    id: 'ex-incline-db',
-    name: 'Incline Dumbbell Press',
-    muscleGroup: 'Chest',
-    secondaryMuscles: ['Anterior Deltoids', 'Triceps'],
-    equipment: 'Incline Bench, Dumbbells',
-    tempo: '3-1-1-0',
-    instructions: [
-      'Angle bench to 30 degrees.',
-      'Retract scapula and drive through feet.',
-      'Lower dumbbells under control to upper chest.',
-      'Press upward in converging path.',
-    ],
-    cues: ['Keep elbows tucked at 45 degrees', 'Maintain arch in upper back'],
-    prWeightKg: 42.5,
-    prReps: 8,
-  },
-  {
-    id: 'ex-barbell-squat',
-    name: 'Barbell Back Squat',
-    muscleGroup: 'Legs',
-    secondaryMuscles: ['Glutes', 'Lower Back', 'Core'],
-    equipment: 'Barbell, Power Rack',
-    tempo: '3-1-1-0',
-    instructions: [
-      'Set bar on upper trapezius shelf.',
-      'Brace core using Valsalva maneuver.',
-      'Descend below parallel with knees tracking over toes.',
-      'Drive hips up forcefully out of the hole.',
-    ],
-    cues: ['Root feet firmly into the platform', 'Maintain neutral cervical spine'],
-    prWeightKg: 160.0,
-    prReps: 5,
-  },
-  {
-    id: 'ex-weighted-pullup',
-    name: 'Weighted Pull-Up',
-    muscleGroup: 'Back',
-    secondaryMuscles: ['Biceps', 'Brachialis', 'Rear Delts'],
-    equipment: 'Pull-Up Bar, Dip Belt',
-    tempo: '2-1-1-1',
-    instructions: [
-      'Grip bar slightly wider than shoulder-width with overhand grip.',
-      'Initiate pull by depressing scapulae down and back.',
-      'Drive elbows down towards hips until chin clears bar.',
-      'Lower under 2s eccentric control to full dead hang.',
-    ],
-    cues: ['Chest to bar, avoid swinging or kipping', 'Engage core to stabilize hips'],
-    prWeightKg: 32.5,
-    prReps: 6,
-  },
-  {
-    id: 'ex-overhead-press',
-    name: 'Standing Overhead Barbell Press',
-    muscleGroup: 'Shoulders',
-    secondaryMuscles: ['Triceps', 'Upper Trapezius', 'Core'],
-    equipment: 'Barbell',
-    tempo: '2-0-1-0',
-    instructions: [
-      'Clean or rack bar at anterior clavicle.',
-      'Tighten glutes, quads, and abdominal wall.',
-      'Press bar vertically overhead in straight bar path.',
-      'Lock out with head pushing slightly forward through window.',
-    ],
-    cues: ['Squeeze glutes to prevent lumbar extension', 'Keep wrists stacked above forearms'],
-    prWeightKg: 75.0,
-    prReps: 5,
-  },
-  {
-    id: 'ex-romanian-deadlift',
-    name: 'Romanian Deadlift (RDL)',
-    muscleGroup: 'Legs',
-    secondaryMuscles: ['Hamstrings', 'Glutes', 'Erectors'],
-    equipment: 'Barbell / Dumbbells',
-    tempo: '3-1-1-0',
-    instructions: [
-      'Hold bar at hip height with slight knee flexion.',
-      'Hinge hips backward while keeping bar against thighs.',
-      'Lower until maximum hamstring stretch before lower back rounds.',
-      'Drive hips forward to return to standing lockout.',
-    ],
-    cues: ['Push hips back to wall behind you', 'Keep lats engaged and bar touching legs'],
-    prWeightKg: 140.0,
-    prReps: 8,
-  },
-  {
-    id: 'ex-cable-lateral-raise',
-    name: 'Cable Lateral Raise',
-    muscleGroup: 'Shoulders',
-    secondaryMuscles: ['Lateral Deltoids', 'Supraspinatus'],
-    equipment: 'Cable Tower',
-    tempo: '2-1-1-1',
-    instructions: [
-      'Set pulley to hip or ankle height.',
-      'Hold cable cross-body with slight forward torso lean.',
-      'Raise arm out in scapular plane (~30° forward) to shoulder height.',
-      'Hold 1s contraction at top and lower slowly.',
-    ],
-    cues: ['Lead with elbow, not hands', 'Keep shoulder depressed'],
-    prWeightKg: 15.0,
-    prReps: 14,
-  },
-];
+// Convert canonical Guru Mann exercises to ExerciseDetailData
+const CANONICAL_EXERCISES: ExerciseDetailData[] = SIX_WEEK_SHREDDED_EXERCISES.map((ex) => {
+  const instructions = ex.technique
+    ? [ex.technique, ex.description || 'Perform with strict form and full range of motion.']
+    : [ex.description || 'Perform with controlled eccentric and concentric tempo.'];
 
-const MUSCLE_FILTERS = ['ALL', 'CHEST', 'BACK', 'LEGS', 'SHOULDERS'];
+  const cues = ex.targetArea
+    ? [`Target Area: ${ex.targetArea}`, `Tempo: ${ex.tempo || '2-0-1-0'}`]
+    : [`Maintain steady cadence throughout set.`];
+
+  return {
+    id: ex.id,
+    name: ex.name,
+    muscleGroup: ex.primaryMuscle,
+    secondaryMuscles: ex.secondaryMuscles || [],
+    targetArea: ex.targetArea,
+    movementPattern: ex.movementPattern,
+    exerciseType: (ex.category?.toUpperCase() === 'COMPOUND' ? 'COMPOUND' : 'ISOLATION') as 'COMPOUND' | 'ISOLATION',
+    equipment: ex.equipment,
+    difficulty: (ex.difficulty?.toUpperCase() === 'ADVANCED' ? 'ADVANCED' : ex.difficulty?.toUpperCase() === 'BEGINNER' ? 'BEGINNER' : 'INTERMEDIATE') as any,
+    tempo: ex.tempo || '2-0-1-0',
+    instructions,
+    cues,
+    commonMistakes: ex.commonMistakes || ['Swinging the weights', 'Incomplete lockout / range of motion'],
+    prWeightKg: 0,
+    prReps: 10,
+  };
+});
+
+export const LIBRARY_EXERCISES: ExerciseDetailData[] = CANONICAL_EXERCISES;
+
+const MUSCLE_FILTERS = ['ALL', 'CHEST', 'BACK', 'LEGS', 'SHOULDERS', 'TRICEPS', 'BICEPS', 'ABS', 'CARDIO'];
 
 export const ExerciseLibraryScreen: React.FC<ExerciseLibraryScreenProps> = ({
   onBack,
@@ -178,7 +106,10 @@ export const ExerciseLibraryScreen: React.FC<ExerciseLibraryScreenProps> = ({
                   <Text style={styles.muscleTag}>{item.muscleGroup.toUpperCase()}</Text>
                   <Text style={styles.cardTitle}>{item.name}</Text>
                 </View>
-                <StatusBadge label={`${item.prWeightKg}kg PR`} status="success" />
+                <StatusBadge
+                  label={item.prWeightKg > 0 ? `${item.prWeightKg}kg PR` : (item.difficulty || item.movementPattern || 'CANONICAL')}
+                  status={item.prWeightKg > 0 ? 'success' : 'info'}
+                />
               </View>
 
               <Text style={styles.equipText}>Equipment: {item.equipment}</Text>

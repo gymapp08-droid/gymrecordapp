@@ -14,6 +14,9 @@ export interface WorkoutExerciseSummary {
   groupNumber?: number;
   restInstructions?: string;
   tempo?: string;
+  targetSets?: number;
+  targetReps?: number;
+  setReps?: string[];
 }
 
 export interface TodayWorkoutState {
@@ -288,6 +291,9 @@ export function buildShreddedExercisesForDay(dayOfWeek: number): WorkoutExercise
       groupNumber: p.groupNumber,
       restInstructions: p.restInstructions || (p.restSeconds > 0 ? `${p.restSeconds}s rest` : 'No rest between exercises'),
       tempo: '1s concentric / 2s eccentric',
+      targetSets: p.targetSets,
+      targetReps: p.targetReps,
+      setReps: p.setReps,
     });
   }
 

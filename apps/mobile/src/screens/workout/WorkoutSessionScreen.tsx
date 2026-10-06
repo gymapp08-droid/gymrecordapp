@@ -111,16 +111,16 @@ function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): Wor
   }
 
   return workoutExercises.map((ex, idx) => {
-    let setCount = 3;
-    let repCount = 10;
+    let setCount = ex?.targetSets || 3;
+    let repCount = ex?.targetReps || 10;
     let weightKg = 40;
 
     const presc = ex?.prescription || '';
     const setMatch = presc.match(/(\d+)\s*sets?/i);
-    if (setMatch && setMatch[1]) setCount = parseInt(setMatch[1], 10);
+    if (!ex?.targetSets && setMatch && setMatch[1]) setCount = parseInt(setMatch[1], 10);
 
     const repMatch = presc.match(/(\d+)\s*reps?/i);
-    if (repMatch && repMatch[1]) repCount = parseInt(repMatch[1], 10);
+    if (!ex?.targetReps && repMatch && repMatch[1]) repCount = parseInt(repMatch[1], 10);
 
     const weightMatch = presc.match(/@\s*(\d+(\.\d+)?)\s*kg/i);
     if (weightMatch && weightMatch[1]) weightKg = parseFloat(weightMatch[1]);
@@ -134,22 +134,46 @@ function buildSessionExercises(workoutExercises?: WorkoutExerciseSummary[]): Wor
       groupType = 'GIANT_SET';
     } else if (rawGroup.includes('DROP') || upperPresc.includes('DROP SET') || upperPresc.includes('DROPSET')) {
       groupType = 'DROP_SET';
+    } else if (rawGroup.includes('ANGLE') || upperPresc.includes('ANGLE DROP SET')) {
+      groupType = 'ANGLE_DROP_SET';
     } else if (rawGroup.includes('EXTENDED') || upperPresc.includes('EXTENDED SET')) {
       groupType = 'EXTENDED_SET';
     } else if (ex?.setGroupType) {
       groupType = ex.setGroupType;
     }
 
-    const sets: RecordedSet[] = Array.from({ length: Math.max(1, setCount) }, (_, sIdx) => ({
-      id: `s-${idx + 1}-${sIdx + 1}`,
-      setNumber: sIdx + 1,
-      setType: groupType === 'DROP_SET' ? 'DROP_SET' : 'WORKING',
-      targetWeightKg: weightKg,
-      targetReps: repCount,
-      actualWeightKg: weightKg,
-      actualReps: 0,
-      isCompleted: false,
-    }));
+    // Parse set reps sequence if available (e.g. ['12 reps', '10 reps', '8 reps'] or '12 / 10 / 8')
+    let parsedRepsList: number[] = [];
+    if (Array.isArray(ex?.setReps) && ex.setReps.length > 0) {
+      parsedRepsList = ex.setReps.map((sr) => {
+        const m = sr.match(/\d+/);
+        return m ? parseInt(m[0], 10) : repCount;
+      });
+      setCount = Math.max(setCount, parsedRepsList.length);
+    } else {
+      const seqMatches = presc.match(/\b(\d+)\s*[\/,]\s*(\d+)(?:\s*[\/,]\s*(\d+))?/);
+      if (seqMatches && seqMatches[1] && seqMatches[2]) {
+        parsedRepsList = [
+          parseInt(seqMatches[1], 10),
+          parseInt(seqMatches[2], 10),
+          seqMatches[3] ? parseInt(seqMatches[3], 10) : 10,
+        ];
+      }
+    }
+
+    const sets: RecordedSet[] = Array.from({ length: Math.max(1, setCount) }, (_, sIdx) => {
+      const targetRepForSet = parsedRepsList[sIdx] ?? repCount;
+      return {
+        id: `s-${idx + 1}-${sIdx + 1}`,
+        setNumber: sIdx + 1,
+        setType: groupType === 'DROP_SET' ? 'DROP_SET' : 'WORKING',
+        targetWeightKg: weightKg,
+        targetReps: targetRepForSet,
+        actualWeightKg: weightKg,
+        actualReps: 0,
+        isCompleted: false,
+      };
+    });
 
     const exName = ex?.name || `Exercise ${idx + 1}`;
 
@@ -314,6 +338,18 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
     0
   );
 
+  // Group and Round calculations for In-Gym Group Execution Flow
+  const groupExercises = safeExercises.filter(
+    (e) => (currentExercise?.groupNumber ? e.groupNumber === currentExercise.groupNumber : e.id === currentExercise.id)
+  );
+  const totalGroups = Array.from(new Set(safeExercises.map((e) => e.groupNumber || 1))).length;
+  const isMultiExerciseGroup = groupExercises.length > 1;
+
+  // Current Round in active group: derived from the completed sets of the current exercise
+  const currentExCompletedSets = currentExercise?.sets?.filter((s) => s.isCompleted).length || 0;
+  const totalRounds = currentExercise?.sets?.length || 3;
+  const currentRound = Math.min(currentExCompletedSets + 1, totalRounds);
+
   // Set toggle handler with true workout engine transitions (Supersets, Giant Sets, Drop Sets)
   const handleToggleSet = (setId: string) => {
     let targetSet: RecordedSet | undefined;
@@ -346,51 +382,69 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
     }
 
     const curEx = safeExercises[currentIndex] || safeExercises[0]!;
-    const groupType = curEx.setGroupType || 'STRAIGHT_SET';
+    const groupType = (curEx.setGroupType || 'STRAIGHT_SET').toUpperCase();
+    const isGroupedRoundProtocol =
+      groupType.includes('SUPER') ||
+      groupType.includes('GIANT') ||
+      groupType.includes('ANGLE');
 
-    if (groupType === 'SUPERSET' || groupType === 'GIANT_SET') {
+    if (isGroupedRoundProtocol) {
       const curGroup = curEx.groupNumber;
       const groupIndices = safeExercises
         .map((e, i) => ({ e, i }))
-        .filter(({ e }) => (curGroup ? e.groupNumber === curGroup : e.setGroupType === groupType))
+        .filter(({ e }) => (curGroup ? e.groupNumber === curGroup : e.setGroupType === curEx.setGroupType))
         .map(({ i }) => i);
 
       const isLastInGroup =
         groupIndices.length === 0 || groupIndices[groupIndices.length - 1] === currentIndex;
 
       if (!isLastInGroup) {
-        // Zero rest between grouped exercises! Transition immediately.
+        // Zero rest between grouped exercises in the same round! Transition immediately.
         const nextGroupIdx = groupIndices.find((i) => i > currentIndex) ?? currentIndex + 1;
         setTimerState('TRANSITION');
         setIsRestActive(false);
         setRestSeconds(0);
         setGuidanceMessage(
-          `TRANSITION (0s REST): Move immediately to ${safeExercises[nextGroupIdx]?.name || 'next exercise'}!`
+          `TRANSITION (0s REST): Move immediately to ${safeExercises[nextGroupIdx]?.name || 'next exercise'} without rest!`
         );
         setCurrentIndex(nextGroupIdx);
       } else {
-        // Last exercise in group round -> Prescribed group rest!
-        const restSec = parseRestSeconds(curEx.restInstructions, 90);
+        // Last exercise in group round -> Prescribed group round rest!
+        const defaultRest = groupType.includes('GIANT') ? 90 : 60;
+        const restSec = parseRestSeconds(curEx.restInstructions, defaultRest);
         setTimerState('REST');
         setRestSeconds(restSec);
         setIsRestActive(true);
 
-        const groupRemaining = groupIndices.some((gi) =>
+        // Check if any exercise in this group still has incomplete sets
+        const groupHasMoreRounds = groupIndices.some((gi) =>
           nextExercises[gi]?.sets.some((s) => !s.isCompleted)
         );
-        if (groupRemaining) {
+        if (groupHasMoreRounds) {
           const firstIdx = groupIndices[0]!;
           setGuidanceMessage(
             `Round completed! Prescribed rest ${restSec}s. Next round begins on ${safeExercises[firstIdx]?.name}.`
           );
           setCurrentIndex(firstIdx);
         } else {
-          setGuidanceMessage(
-            `All rounds complete for this ${groupType === 'SUPERSET' ? 'Superset' : 'Giant Set'}! Prescribed rest ${restSec}s.`
+          // All rounds complete for this group! Advance to next group if available
+          const nextGroupExerciseIdx = safeExercises.findIndex(
+            (e, i) => i > currentIndex && (curGroup ? e.groupNumber !== curGroup : true)
           );
+          if (nextGroupExerciseIdx !== -1) {
+            setGuidanceMessage(
+              `Group ${curGroup || ''} complete! Prescribed rest ${restSec}s. Next up: ${safeExercises[nextGroupExerciseIdx]?.name}.`
+            );
+            setCurrentIndex(nextGroupExerciseIdx);
+          } else {
+            setGuidanceMessage(
+              `All rounds completed for this group! Take ${restSec}s rest before moving forward.`
+            );
+          }
         }
       }
-    } else if (groupType === 'DROP_SET') {
+    } else if (groupType.includes('DROP')) {
+      // DROP_SET: In-place drop sets with immediate drops
       setTimerState('WORKING');
       setGuidanceMessage(
         'DROP SET: Immediately drop load 20–30% and continue repetitions to failure with zero rest!'
@@ -669,11 +723,51 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                   <View style={styles.groupBadge}>
                     <Text style={styles.groupBadgeText}>
                       {currentExercise.setGroupType.replace('_', ' ')}
-                      {currentExercise.groupNumber ? ` · G${currentExercise.groupNumber}` : ''}
+                      {currentExercise.groupNumber ? ` · GROUP ${currentExercise.groupNumber}/${totalGroups}` : ''}
                     </Text>
                   </View>
                 )}
               </View>
+
+              {/* In-Gym Grouped Round Tracker */}
+              {isMultiExerciseGroup && (
+                <View style={styles.groupRoundTracker}>
+                  <View style={styles.roundTrackerHeader}>
+                    <Text style={styles.roundTrackerTitle}>
+                      ROUND {currentRound} OF {totalRounds}
+                    </Text>
+                    <Text style={styles.roundTrackerSub}>
+                      {groupExercises.length} Movements In Rotation
+                    </Text>
+                  </View>
+                  <View style={styles.groupExercisesSequence}>
+                    {groupExercises.map((ge, gIdx) => {
+                      const isCurrentInGroup = ge.id === currentExercise.id;
+                      const hasCompletedCurrentRound = ge.sets[currentRound - 1]?.isCompleted;
+                      return (
+                        <TouchableOpacity
+                          key={ge.id}
+                          style={[
+                            styles.seqPill,
+                            isCurrentInGroup && styles.seqPillActive,
+                            hasCompletedCurrentRound && styles.seqPillDone,
+                          ]}
+                          onPress={() => {
+                            const foundIdx = safeExercises.findIndex((e) => e.id === ge.id);
+                            if (foundIdx !== -1) setCurrentIndex(foundIdx);
+                          }}
+                        >
+                          <Text style={[styles.seqPillText, isCurrentInGroup && styles.seqPillTextActive]}>
+                            {hasCompletedCurrentRound ? '✓ ' : `${gIdx + 1}. `}
+                            {ge.name}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              )}
+
               <Text style={styles.currentExerciseName}>{currentExercise?.name || 'Exercise'}</Text>
               <Text style={styles.equipmentText}>Equipment: {currentExercise?.equipment || 'Gym Equipment'}</Text>
             </View>
@@ -1674,5 +1768,62 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: Theme.colors.cyanGlow,
     fontFamily: Theme.typography.telemetry.fontFamily,
+  },
+  groupRoundTracker: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: Theme.borderRadius.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.25)',
+    padding: 10,
+    marginTop: 8,
+    marginBottom: 6,
+    gap: 8,
+  },
+  roundTrackerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  roundTrackerTitle: {
+    fontSize: 11,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    fontWeight: '900',
+    color: Theme.colors.cyanGlow,
+    letterSpacing: 1,
+  },
+  roundTrackerSub: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+  },
+  groupExercisesSequence: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  seqPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
+  },
+  seqPillActive: {
+    backgroundColor: 'rgba(0, 240, 255, 0.15)',
+    borderColor: Theme.colors.cyanGlow,
+  },
+  seqPillDone: {
+    borderColor: Theme.colors.emeraldSuccess,
+    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+  },
+  seqPillText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Theme.colors.textSecondary,
+  },
+  seqPillTextActive: {
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
   },
 });
