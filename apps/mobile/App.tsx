@@ -679,7 +679,7 @@ function MainNavigator() {
           {activeSubView === 'EXERCISE_DETAIL' && (
             <ExerciseDetailScreen
               exercise={selectedExercise}
-              onBack={() => setActiveSubView(null)}
+              onBack={navigateBackSubView}
             />
           )}
 
@@ -726,42 +726,42 @@ function MainNavigator() {
 
           {activeSubView === 'BODY_METRICS' && (
             <BodyMetricsScreen
-              onBack={() => setActiveSubView(null)}
+              onBack={navigateBackSubView}
               onOpenLogModal={() => setLogMetricModalVisible(true)}
             />
           )}
 
           {activeSubView === 'GOALS' && (
-            <GoalsScreen onBack={() => setActiveSubView(null)} />
+            <GoalsScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'MILESTONES' && (
-            <MilestonesScreen onBack={() => setActiveSubView(null)} />
+            <MilestonesScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'EXERCISE_LIBRARY' && (
             <ExerciseLibraryScreen
-              onBack={() => setActiveSubView(null)}
+              onBack={navigateBackSubView}
               onSelectExercise={(ex) => {
                 setSelectedExercise(ex);
-                setActiveSubView('EXERCISE_DETAIL');
+                navigateToSubView('EXERCISE_DETAIL');
               }}
             />
           )}
 
           {activeSubView === 'FOOD_LIBRARY' && (
-            <FoodLibraryScreen onBack={() => setActiveSubView(null)} />
+            <FoodLibraryScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'CALENDAR' && (
-            <CalendarHistoryScreen onBack={() => setActiveSubView(null)} />
+            <CalendarHistoryScreen onBack={navigateBackSubView} />
           )}
 
           {activeSubView === 'PROFILE_VIEW' && (
             <ProfileScreen
-              onBack={() => setActiveSubView(null)}
-              onNavigateToSettings={() => setActiveSubView('SETTINGS')}
-              onNavigateToIntegrations={() => setActiveSubView('INTEGRATIONS')}
+              onBack={navigateBackSubView}
+              onNavigateToSettings={() => navigateToSubView('SETTINGS')}
+              onNavigateToIntegrations={() => navigateToSubView('INTEGRATIONS')}
             />
           )}
 

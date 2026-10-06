@@ -195,7 +195,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack }) => {
         {/* App Version Build Footer */}
         <View style={styles.versionFooter}>
           <Text style={styles.versionTitle}>GRAVITY PERFORMANCE OS</Text>
-          <Text style={styles.versionSub}>Client v2.4.0 · Native Kernel Build 4208</Text>
+          <Text style={styles.versionSub}>
+            Client v{updateInfo.runtimeVersion || '1.0.0'} · Release Channel {updateInfo.channel || 'Production'}
+          </Text>
           <Text style={styles.versionSub}>Stitch Architecture Release</Text>
         </View>
       </ScrollView>

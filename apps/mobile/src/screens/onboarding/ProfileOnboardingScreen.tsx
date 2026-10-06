@@ -110,7 +110,12 @@ export const ProfileOnboardingScreen: React.FC<ProfileOnboardingScreenProps> = (
         onBack={onBack}
       />
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
         <Text style={styles.leadText}>
           Your biometric baseline calibrates accurate progressive overload, caloric maintenance, and training volume.
         </Text>

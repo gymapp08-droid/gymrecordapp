@@ -652,11 +652,18 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
-          <Text style={styles.sessionCategory}>{(workout?.name || 'WORKOUT').toUpperCase()} · SESSION</Text>
+          <Text style={styles.sessionCategory} numberOfLines={1} ellipsizeMode="tail">
+            {(workout?.name || 'WORKOUT').toUpperCase()} · SESSION
+          </Text>
           <Text style={styles.elapsedTimer}>{formatTimer(elapsedSeconds)}</Text>
         </View>
 
-        <TouchableOpacity style={styles.finishTopBtn} onPress={handleFinishWorkout}>
+        <TouchableOpacity
+          style={styles.finishTopBtn}
+          onPress={handleFinishWorkout}
+          activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Text style={styles.finishTopText}>FINISH</Text>
         </TouchableOpacity>
       </View>
@@ -740,7 +747,11 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                       {groupExercises.length} Movements In Rotation
                     </Text>
                   </View>
-                  <View style={styles.groupExercisesSequence}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.groupExercisesSequence}
+                  >
                     {groupExercises.map((ge, gIdx) => {
                       const isCurrentInGroup = ge.id === currentExercise.id;
                       const hasCompletedCurrentRound = ge.sets[currentRound - 1]?.isCompleted;
@@ -764,7 +775,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                         </TouchableOpacity>
                       );
                     })}
-                  </View>
+                  </ScrollView>
                 </View>
               )}
 
@@ -866,7 +877,6 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                     keyboardType="decimal-pad"
                     value={set.actualWeightKg.toString()}
                     onChangeText={(t) => handleUpdateWeight(set.id, t)}
-                    selectTextOnFocus
                   />
                 </View>
 
@@ -879,7 +889,6 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                     placeholder="0"
                     placeholderTextColor="#64748B"
                     onChangeText={(t) => handleUpdateReps(set.id, t)}
-                    selectTextOnFocus
                   />
                 </View>
 
@@ -939,6 +948,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
             <TouchableOpacity
               style={styles.restMiniBtn}
               onPress={() => setRestSeconds((prev) => prev + 30)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Text style={styles.restMiniBtnText}>+30s</Text>
             </TouchableOpacity>
@@ -946,6 +956,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
             <TouchableOpacity
               style={[styles.restMiniBtn, isRestActive && styles.restMiniBtnActive]}
               onPress={() => setIsRestActive((prev) => !prev)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Text style={[styles.restMiniBtnText, isRestActive && styles.restMiniBtnTextActive]}>
                 {isRestActive ? 'PAUSE' : 'START'}
@@ -959,6 +970,7 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
                 setRestSeconds(0);
                 setTimerState('WORKING');
               }}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Text style={styles.restMiniBtnText}>SKIP</Text>
             </TouchableOpacity>
@@ -1118,6 +1130,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.06)',
     marginBottom: 8,
+    gap: 8,
   },
   exitBtn: {
     width: 36,
@@ -1128,6 +1141,7 @@ const styles = StyleSheet.create({
     borderColor: Theme.colors.border,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   exitIcon: {
     color: Theme.colors.textMuted,
@@ -1135,7 +1149,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   headerCenter: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+    overflow: 'hidden',
   },
   sessionCategory: {
     fontSize: 9,
@@ -1143,6 +1161,8 @@ const styles = StyleSheet.create({
     color: Theme.colors.cyanGlow,
     fontWeight: '800',
     letterSpacing: 1,
+    textAlign: 'center',
+    maxWidth: '100%',
   },
   elapsedTimer: {
     fontSize: 18,
@@ -1150,6 +1170,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: Theme.colors.textPrimary,
     marginTop: 2,
+    textAlign: 'center',
   },
   finishTopBtn: {
     paddingHorizontal: 12,
@@ -1158,6 +1179,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Theme.colors.emeraldSuccess,
     borderRadius: Theme.borderRadius.sm,
+    flexShrink: 0,
   },
   finishTopText: {
     color: Theme.colors.emeraldSuccess,
@@ -1250,7 +1272,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingVertical: 8,
-    paddingBottom: 36,
+    paddingBottom: 64,
     gap: 14,
   },
   exerciseHeroCard: {
@@ -1422,6 +1444,7 @@ const styles = StyleSheet.create({
     borderColor: Theme.colors.border,
     marginHorizontal: 4,
     paddingHorizontal: 4,
+    minWidth: 68,
   },
   numericInput: {
     fontSize: 14,

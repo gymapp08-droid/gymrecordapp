@@ -83,7 +83,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onBa
               }}
               autoCapitalize="none"
               keyboardType="email-address"
-              placeholder="athlete@alpha.os"
+              placeholder="athlete@gravity.os"
             />
 
             <View style={styles.actions}>

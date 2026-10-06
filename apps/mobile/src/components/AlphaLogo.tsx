@@ -68,9 +68,9 @@ export const AlphaLogo: React.FC<AlphaLogoProps> = ({ size = 68, glow = true }) 
         />
 
         <G>
-          {/* Athletic Apex Alpha A - Left Wing */}
+          {/* Gravity Performance G Power Glyph */}
           <Path
-            d="M 50 20 L 26 76 L 35 76 L 43 57 L 50 39 L 57 57 L 65 76 L 74 76 Z"
+            d="M 68 32 L 38 32 C 30 32, 24 38, 24 46 L 24 64 C 24 72, 30 78, 38 78 L 64 78 C 72 78, 76 72, 76 64 L 76 52 L 48 52 L 48 58 L 68 58 L 68 64 C 68 68, 66 70, 62 70 L 40 70 C 35 70, 32 67, 32 62 L 32 48 C 32 43, 35 40, 40 40 L 68 40 Z"
             fill="url(#alphaNeonGrad)"
           />
 
@@ -79,8 +79,8 @@ export const AlphaLogo: React.FC<AlphaLogoProps> = ({ size = 68, glow = true }) 
             x="20"
             y="54"
             width="60"
-            height="5"
-            rx="2.5"
+            height="4"
+            rx="2"
             fill="url(#alphaBarGrad)"
           />
 
@@ -89,7 +89,7 @@ export const AlphaLogo: React.FC<AlphaLogoProps> = ({ size = 68, glow = true }) 
             x="17"
             y="49"
             width="4"
-            height="15"
+            height="14"
             rx="1.5"
             fill="#00F0FF"
           />
@@ -99,21 +99,21 @@ export const AlphaLogo: React.FC<AlphaLogoProps> = ({ size = 68, glow = true }) 
             x="79"
             y="49"
             width="4"
-            height="15"
+            height="14"
             rx="1.5"
             fill="#00F0FF"
           />
 
           {/* Center Precision Power Diamond */}
           <Polygon
-            points="50,49 54,56.5 50,64 46,56.5"
+            points="50,49 54,56 50,63 46,56"
             fill="#050811"
             stroke="#00F0FF"
             strokeWidth="1.5"
           />
 
           {/* Diamond Power Core Light */}
-          <Circle cx="50" cy="56.5" r="1.8" fill="#00F0FF" />
+          <Circle cx="50" cy="56" r="1.8" fill="#00F0FF" />
         </G>
       </Svg>
     </View>

@@ -82,7 +82,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     user?.email?.split('@')[0]?.replace(/^\w/, (c: string) => c.toUpperCase()) ||
     'Athlete';
 
-  const currentDateFormatted = new Date().toLocaleDateString('en-US', {
+  const currentDateFormatted = new Date().toLocaleDateString(undefined, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -116,10 +116,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </Text>
             <View style={styles.onlineDot} />
           </TouchableOpacity>
-          <View>
+          <View style={styles.headerInfoCol}>
             <Text style={styles.greetingLabel}>{timeGreeting}</Text>
-            <Text style={styles.athleteNameText}>{athleteName}</Text>
-            <Text style={styles.dateText}>{currentDateFormatted}</Text>
+            <Text
+              style={styles.athleteNameText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {athleteName}
+            </Text>
+            <Text
+              style={styles.dateText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {currentDateFormatted}
+            </Text>
           </View>
         </View>
 
@@ -893,6 +905,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     flex: 1,
+    marginRight: 8,
+  },
+  headerInfoCol: {
+    flex: 1,
+    flexShrink: 1,
+    justifyContent: 'center',
   },
   avatarBtn: {
     width: 44,
