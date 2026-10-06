@@ -17,6 +17,8 @@ import { AlphaUpdateModal } from './src/components/AlphaUpdateModal';
 import { AlphaErrorBoundary } from './src/components/AlphaErrorBoundary';
 import { AlphaAlarmModal, AlarmType } from './src/components/AlphaAlarmModal';
 import { NotificationService } from './src/services/notificationService';
+import { NativeAlarmScheduler } from './src/services/nativeAlarmScheduler';
+import * as Notifications from 'expo-notifications';
 import {
   HomeIcon,
   WorkoutIcon,
@@ -194,76 +196,71 @@ function MainNavigator() {
     }
   }, [status, authRoute]);
 
-  // Active Real-Time Alarm & Notification Engine for Asia/Kolkata (IST)
+  // True Mobile Native Alarm Engine & Hardware Alarm Synchronization
   useEffect(() => {
     if (status !== 'authenticated') return;
 
-    const firedKeys = new Set<string>();
-
-    const checkAlarms = async () => {
+    // 1. Initialize native alarm channel, check permissions, and sync schedule from dashboard
+    const setupNativeAlarms = async () => {
       try {
-        const config = await NotificationService.loadConfig();
-        if (!config) return;
-
-        // Current time in Asia/Kolkata (IST)
-        const formatter = new Intl.DateTimeFormat('en-US', {
-          timeZone: 'Asia/Kolkata',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        });
-        const currentTime = formatter.format(new Date()); // e.g. "18:00"
-        const todayDateStr = new Date().toISOString().split('T')[0];
-
-        // 1. Check Workout Alarm
-        if (config.workoutReminderEnabled && config.workoutReminderTime) {
-          const workoutAlarmKey = `alarm_workout_${todayDateStr}_${config.workoutReminderTime}`;
-          if (currentTime === config.workoutReminderTime && !firedKeys.has(workoutAlarmKey)) {
-            firedKeys.add(workoutAlarmKey);
-            setActiveAlarmType('WORKOUT');
-            setAlarmVisible(true);
-            try {
-              Vibration.vibrate([0, 1000, 500, 1000, 500, 1000]);
-            } catch {}
-            return;
-          }
-        }
-
-        // 2. Check 5-Meal Alarms
-        if (config.mealRemindersEnabled && config.mealReminderTimes) {
-          const mealSlots: { key: keyof typeof config.mealReminderTimes; type: AlarmType }[] = [
-            { key: 'breakfast', type: 'MEAL_1' },
-            { key: 'midMorning', type: 'MEAL_2' },
-            { key: 'lunch', type: 'MEAL_3' },
-            { key: 'snack', type: 'MEAL_4' },
-            { key: 'dinner', type: 'MEAL_5' },
-          ];
-
-          for (const slot of mealSlots) {
-            const slotTime = config.mealReminderTimes[slot.key];
-            if (slotTime && currentTime === slotTime) {
-              const mealAlarmKey = `alarm_meal_${slot.key}_${todayDateStr}_${slotTime}`;
-              if (!firedKeys.has(mealAlarmKey)) {
-                firedKeys.add(mealAlarmKey);
-                setActiveAlarmType(slot.type);
-                setAlarmVisible(true);
-                try {
-                  Vibration.vibrate([0, 1000, 500, 1000, 500, 1000]);
-                } catch {}
-                return;
-              }
-            }
-          }
-        }
+        await NativeAlarmScheduler.initialize();
+        await NativeAlarmScheduler.requestPermissions();
+        await NativeAlarmScheduler.synchronizeAndScheduleAlarms();
       } catch (err) {
-        console.warn('[AlphaAlarmEngine] Error checking alarm conditions:', err);
+        console.warn('[GravityAlarmEngine] Failed to initialize native alarms:', err);
       }
     };
 
-    // Check immediately and poll every 10 seconds
-    checkAlarms();
-    const interval = setInterval(checkAlarms, 10000);
-    return () => clearInterval(interval);
+    setupNativeAlarms();
+
+    // 2. Listen for notifications received while app is running or waking up
+    const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
+      const data = notification.request.content.data;
+      if (data && data.isAlarm) {
+        const cat = (data.category as string || '').toUpperCase();
+        if (cat === 'WORKOUT') {
+          setActiveAlarmType('WORKOUT');
+        } else if (cat === 'NUTRITION' || cat === 'MEAL') {
+          setActiveAlarmType('MEAL_1');
+        }
+        setAlarmVisible(true);
+        try {
+          Vibration.vibrate([0, 1000, 500, 1000, 500, 1000]);
+        } catch {}
+      }
+    });
+
+    // 3. Listen for user taps or interactive notification actions (e.g. Snooze / Start / Log)
+    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
+      const actionIdentifier = response.actionIdentifier;
+      const data = response.notification.request.content.data;
+
+      if (actionIdentifier === 'START_WORKOUT') {
+        setActiveSubView('ACTIVE_WORKOUT');
+      } else if (actionIdentifier === 'LOG_MEAL') {
+        setActiveMealType('BREAKFAST');
+        setActiveSubView('ADD_FOOD');
+      } else if (actionIdentifier === 'SNOOZE_10') {
+        const reminderId = (data?.reminderId as string) || 'default_alarm';
+        NativeAlarmScheduler.scheduleSnoozeAlarm(reminderId, 10);
+      } else if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+        // User tapped the notification banner from background or lockscreen
+        if (data && data.isAlarm) {
+          const cat = (data.category as string || '').toUpperCase();
+          if (cat === 'WORKOUT') {
+            setActiveAlarmType('WORKOUT');
+          } else {
+            setActiveAlarmType('MEAL_1');
+          }
+          setAlarmVisible(true);
+        }
+      }
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
   }, [status]);
 
   // Android Hardware Back Button & Edge Swipe Gesture Handler
@@ -831,8 +828,9 @@ function MainNavigator() {
           setActiveMealType(mealType);
           setActiveSubView('ADD_FOOD');
         }}
-        onSnooze={(_mins) => {
+        onSnooze={(mins) => {
           setAlarmVisible(false);
+          NativeAlarmScheduler.scheduleSnoozeAlarm('in_app_alarm', mins, activeAlarmType === 'WORKOUT' ? 'Gym Session' : 'Meal Window');
         }}
       />
     </SafeAreaView>

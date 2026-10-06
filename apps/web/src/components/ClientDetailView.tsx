@@ -144,6 +144,105 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
     }
   };
 
+  // Smart Alarms & Schedule Management
+  const [isAddingReminder, setIsAddingReminder] = useState(false);
+  const [alarmTitle, setAlarmTitle] = useState('Morning Workout Alarm');
+  const [alarmCategory, setAlarmCategory] = useState<'WORKOUT' | 'NUTRITION' | 'HYDRATION' | 'RECOVERY'>('WORKOUT');
+  const [alarmTime, setAlarmTime] = useState('06:00');
+  const [alarmDays, setAlarmDays] = useState<number[]>([1, 2, 3, 4, 5, 6]);
+
+  const handleSaveReminder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('alpha_auth_token');
+      const payload = {
+        title: alarmTitle.trim(),
+        category: alarmCategory,
+        timeOfDay: alarmTime,
+        daysOfWeek: alarmDays,
+        isEnabled: true,
+      };
+      const res = await fetch(`/api/v1/admin/users/${dossier.overview.clientId}/reminders`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setDossier360((prev: any) => ({
+          ...prev,
+          reminders: [created, ...(prev?.reminders?.filter((r: any) => r.id !== created.id) || [])],
+        }));
+      } else {
+        // Optimistic fallback
+        const fallback = {
+          id: `rem_${Date.now()}`,
+          title: alarmTitle.trim(),
+          type: alarmCategory,
+          category: alarmCategory,
+          scheduledTime: alarmTime,
+          timeOfDay: alarmTime,
+          daysOfWeek: alarmDays,
+          isEnabled: true,
+        };
+        setDossier360((prev: any) => ({
+          ...prev,
+          reminders: [fallback, ...(prev?.reminders || [])],
+        }));
+      }
+      setIsAddingReminder(false);
+    } catch {
+      setIsAddingReminder(false);
+    }
+  };
+
+  const handleToggleReminder = async (reminder: any) => {
+    const updatedStatus = !reminder.isEnabled;
+    try {
+      const token = localStorage.getItem('alpha_auth_token');
+      await fetch(`/api/v1/admin/users/${dossier.overview.clientId}/reminders`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: reminder.id,
+          title: reminder.title || `${reminder.category || reminder.type} Alarm`,
+          timeOfDay: reminder.timeOfDay || reminder.scheduledTime,
+          category: reminder.category || reminder.type,
+          daysOfWeek: reminder.daysOfWeek || [1, 2, 3, 4, 5, 6, 7],
+          isEnabled: updatedStatus,
+        }),
+      });
+    } catch {}
+
+    setDossier360((prev: any) => ({
+      ...prev,
+      reminders: (prev?.reminders || []).map((r: any) =>
+        r.id === reminder.id ? { ...r, isEnabled: updatedStatus } : r
+      ),
+    }));
+  };
+
+  const handleDeleteReminder = async (reminderId: string) => {
+    try {
+      const token = localStorage.getItem('alpha_auth_token');
+      await fetch(`/api/v1/admin/users/reminders/${reminderId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch {}
+
+    setDossier360((prev: any) => ({
+      ...prev,
+      reminders: (prev?.reminders || []).filter((r: any) => r.id !== reminderId),
+    }));
+  };
+
   const { overview, profile, activeProgram, activeMealPlan, recentWorkouts, recentMetrics } = dossier;
   const canAssignWorkouts = currentRole !== UserRole.NUTRITIONIST;
   const isArchived = overview.status === ClientStatus.ARCHIVED;
@@ -1040,15 +1139,203 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
       {/* Reminders & Alarms Tab */}
       {activeTab === 'reminders' && (
         <div style={{ ...STITCH_THEME.styles.glassCard, padding: '24px' }}>
-          <div style={{ fontSize: '18px', fontWeight: 800, color: STITCH_THEME.colors.textPrimary, marginBottom: '4px' }}>
-            Client Alarms & Notification Preferences
-          </div>
-          <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted, marginBottom: '20px' }}>
-            Smart reminders programmed to trigger on the athlete's device.
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: STITCH_THEME.colors.textPrimary, marginBottom: '4px' }}>
+                Client Alarms & Native Schedule
+              </div>
+              <div style={{ fontSize: '12px', color: STITCH_THEME.colors.textMuted }}>
+                Smart alarms synchronized with athlete's mobile hardware (triggers even if app is closed).
+              </div>
+            </div>
+            <button
+              onClick={() => setIsAddingReminder(true)}
+              style={{
+                backgroundColor: STITCH_THEME.colors.accentCyan,
+                color: '#05070B',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <span>+</span> Schedule Alarm
+            </button>
           </div>
 
+          {/* Add Alarm Form Modal / Drawer */}
+          {isAddingReminder && (
+            <form
+              onSubmit={handleSaveReminder}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                border: `1px solid ${STITCH_THEME.colors.accentCyan}`,
+                borderRadius: '10px',
+                padding: '16px',
+                marginBottom: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              <div style={{ fontSize: '13px', fontWeight: 700, color: STITCH_THEME.colors.accentCyan }}>
+                Configure Mobile Smart Alarm
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, display: 'block', marginBottom: '4px' }}>
+                    Alarm Title
+                  </label>
+                  <input
+                    type="text"
+                    value={alarmTitle}
+                    onChange={(e) => setAlarmTitle(e.target.value)}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      backgroundColor: 'rgba(0,0,0,0.5)',
+                      border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                      color: '#FFF',
+                      fontSize: '12px',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, display: 'block', marginBottom: '4px' }}>
+                    Alarm Type / Category
+                  </label>
+                  <select
+                    value={alarmCategory}
+                    onChange={(e) => setAlarmCategory(e.target.value as any)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      backgroundColor: '#0F172A',
+                      border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                      color: '#FFF',
+                      fontSize: '12px',
+                    }}
+                  >
+                    <option value="WORKOUT">Workout Protocol</option>
+                    <option value="NUTRITION">Nutrition / Meal Check-in</option>
+                    <option value="HYDRATION">Hydration Milestone</option>
+                    <option value="RECOVERY">Recovery / Sleep Prep</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: '16px', alignItems: 'center' }}>
+                <div>
+                  <label style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, display: 'block', marginBottom: '4px' }}>
+                    Trigger Time (24h HH:mm)
+                  </label>
+                  <input
+                    type="time"
+                    value={alarmTime}
+                    onChange={(e) => setAlarmTime(e.target.value)}
+                    required
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      backgroundColor: 'rgba(0,0,0,0.5)',
+                      border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                      color: '#FFF',
+                      fontSize: '13px',
+                      width: '100%',
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted, display: 'block', marginBottom: '4px' }}>
+                    Active Days
+                  </label>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {[
+                      { day: 1, label: 'M' },
+                      { day: 2, label: 'T' },
+                      { day: 3, label: 'W' },
+                      { day: 4, label: 'T' },
+                      { day: 5, label: 'F' },
+                      { day: 6, label: 'S' },
+                      { day: 7, label: 'S' },
+                    ].map((d) => {
+                      const isSel = alarmDays.includes(d.day);
+                      return (
+                        <button
+                          key={d.day}
+                          type="button"
+                          onClick={() => {
+                            if (isSel) {
+                              setAlarmDays(alarmDays.filter((x) => x !== d.day));
+                            } else {
+                              setAlarmDays([...alarmDays, d.day].sort());
+                            }
+                          }}
+                          style={{
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '4px',
+                            border: 'none',
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            backgroundColor: isSel ? STITCH_THEME.colors.accentCyan : 'rgba(255, 255, 255, 0.05)',
+                            color: isSel ? '#000' : STITCH_THEME.colors.textMuted,
+                          }}
+                        >
+                          {d.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsAddingReminder(false)}
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: `1px solid ${STITCH_THEME.colors.borderSubtle}`,
+                    color: STITCH_THEME.colors.textMuted,
+                    borderRadius: '6px',
+                    padding: '6px 14px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    backgroundColor: STITCH_THEME.colors.accentCyan,
+                    border: 'none',
+                    color: '#05070B',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    padding: '6px 16px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Deploy Alarm Schedule
+                </button>
+              </div>
+            </form>
+          )}
+
           {dossier360?.reminders && dossier360.reminders.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '12px' }}>
               {dossier360.reminders.map((r: any) => (
                 <div
                   key={r.id}
@@ -1064,27 +1351,50 @@ export const ClientDetailView: React.FC<ClientDetailViewProps> = ({
                 >
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: 700, color: STITCH_THEME.colors.textPrimary }}>
-                      {r.type} REMINDER
+                      {r.title || `${r.category || r.type} Alarm`}
                     </div>
-                    <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>
-                      Scheduled for {r.scheduledTime}
+                    <div style={{ fontSize: '11px', color: STITCH_THEME.colors.accentCyan, marginTop: '2px', fontFamily: 'monospace' }}>
+                      ⏰ {r.timeOfDay || r.scheduledTime} IST · {r.category || r.type}
                     </div>
                   </div>
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      color: r.isEnabled ? STITCH_THEME.colors.accentEmerald : STITCH_THEME.colors.textMuted,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {r.isEnabled ? 'ACTIVE' : 'OFF'}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      onClick={() => handleToggleReminder(r)}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        backgroundColor: r.isEnabled ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                        color: r.isEnabled ? STITCH_THEME.colors.accentEmerald : STITCH_THEME.colors.textMuted,
+                      }}
+                    >
+                      {r.isEnabled ? 'ACTIVE' : 'MUTED'}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteReminder(r.id)}
+                      title="Remove Alarm"
+                      style={{
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        color: '#EF4444',
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '24px', color: STITCH_THEME.colors.textMuted, fontSize: '13px' }}>
-              System default notifications active: Workout Alarm at 06:00, Weekly Check-In Sundays at 09:00 IST.
+              No custom smart alarms set for this athlete yet. Default schedule active (Workout: 06:00, Review: Sun 09:00).
             </div>
           )}
         </div>

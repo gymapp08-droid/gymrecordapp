@@ -44,6 +44,12 @@
         "android.permission.health.READ_HEART_RATE",
         "android.permission.health.READ_SLEEP",
         "android.permission.POST_NOTIFICATIONS",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK",
+        "android.permission.USE_FULL_SCREEN_INTENT",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.CAMERA",
         "android.permission.READ_MEDIA_IMAGES"
@@ -55,6 +61,14 @@
       }
     },
     "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#00F0FF",
+          "sounds": []
+        }
+      ],
       [
         "expo-build-properties",
         {

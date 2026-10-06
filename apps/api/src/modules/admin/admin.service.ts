@@ -634,10 +634,14 @@ export class AdminService {
       // 10. Reminder Preferences
       reminders: user.reminders.map((r: any) => ({
         id: r.id,
-        type: r.type,
-        scheduledTime: r.scheduledTime,
-        daysOfWeek: r.daysOfWeek,
+        title: r.title,
+        type: r.category || 'WORKOUT',
+        category: r.category || 'WORKOUT',
+        scheduledTime: r.timeOfDay,
+        timeOfDay: r.timeOfDay,
+        daysOfWeek: r.daysOfWeek || [1, 2, 3, 4, 5, 6, 7],
         isEnabled: r.isEnabled,
+        metadata: r.metadata,
       })),
 
       // 11. Security & Account Status
@@ -705,6 +709,85 @@ export class AdminService {
     await this.prisma.trainerClientNote.delete({ where: { id: noteId } });
     await this.recordAuditLog(actorId, 'DELETE_CLIENT_NOTE', 'trainer_client_note', noteId);
     return { success: true, message: 'Note deleted' };
+  }
+
+  /**
+   * Set or upsert a smart alarm / reminder for an athlete from admin/trainer dashboard
+   */
+  async setClientReminder(
+    actorId: string,
+    clientId: string,
+    data: {
+      id?: string;
+      title: string;
+      timeOfDay: string;
+      daysOfWeek?: number[];
+      category?: string;
+      isEnabled?: boolean;
+      metadata?: any;
+    },
+  ) {
+    let reminder;
+    if (data.id) {
+      reminder = await this.prisma.reminder.update({
+        where: { id: data.id },
+        data: {
+          title: data.title,
+          timeOfDay: data.timeOfDay,
+          daysOfWeek: data.daysOfWeek || [1, 2, 3, 4, 5, 6, 7],
+          category: data.category || 'WORKOUT',
+          isEnabled: data.isEnabled !== undefined ? data.isEnabled : true,
+          metadata: data.metadata !== undefined ? data.metadata : undefined,
+        },
+      });
+    } else {
+      reminder = await this.prisma.reminder.create({
+        data: {
+          userId: clientId,
+          title: data.title,
+          timeOfDay: data.timeOfDay,
+          daysOfWeek: data.daysOfWeek || [1, 2, 3, 4, 5, 6, 7],
+          category: data.category || 'WORKOUT',
+          isEnabled: data.isEnabled !== undefined ? data.isEnabled : true,
+          metadata: data.metadata || undefined,
+        },
+      });
+    }
+
+    await this.recordAuditLog(actorId, 'SET_CLIENT_REMINDER', 'reminder', reminder.id, {
+      clientId,
+      title: reminder.title,
+      timeOfDay: reminder.timeOfDay,
+      category: reminder.category,
+      isEnabled: reminder.isEnabled,
+    });
+
+    return {
+      id: reminder.id,
+      userId: reminder.userId,
+      title: reminder.title,
+      type: reminder.category,
+      category: reminder.category,
+      scheduledTime: reminder.timeOfDay,
+      timeOfDay: reminder.timeOfDay,
+      daysOfWeek: reminder.daysOfWeek,
+      isEnabled: reminder.isEnabled,
+      metadata: reminder.metadata,
+      createdAt: reminder.createdAt.toISOString(),
+      updatedAt: reminder.updatedAt.toISOString(),
+    };
+  }
+
+  /**
+   * Delete a client reminder from admin dashboard
+   */
+  async deleteClientReminder(actorId: string, reminderId: string) {
+    const reminder = await this.prisma.reminder.findUnique({ where: { id: reminderId } });
+    if (!reminder) throw new NotFoundException({ code: 'REMINDER_NOT_FOUND', message: 'Reminder not found' });
+
+    await this.prisma.reminder.delete({ where: { id: reminderId } });
+    await this.recordAuditLog(actorId, 'DELETE_CLIENT_REMINDER', 'reminder', reminderId);
+    return { success: true, message: 'Reminder deleted' };
   }
 
   /**

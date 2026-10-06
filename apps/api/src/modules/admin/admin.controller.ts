@@ -80,6 +80,33 @@ export class AdminController {
     return this.adminService.deleteClientNote(user.id, noteId);
   }
 
+  // --- Client Smart Reminders & Alarms ---
+  @Post('users/:id/reminders')
+  async setClientReminder(
+    @CurrentUser() user: IAuthUser,
+    @Param('id') clientId: string,
+    @Body()
+    body: {
+      id?: string;
+      title: string;
+      timeOfDay: string;
+      daysOfWeek?: number[];
+      category?: string;
+      isEnabled?: boolean;
+      metadata?: any;
+    },
+  ) {
+    return this.adminService.setClientReminder(user.id, clientId, body);
+  }
+
+  @Delete('users/reminders/:reminderId')
+  async deleteClientReminder(
+    @CurrentUser() user: IAuthUser,
+    @Param('reminderId') reminderId: string,
+  ) {
+    return this.adminService.deleteClientReminder(user.id, reminderId);
+  }
+
   // --- Trainer & Assignment Management ---
   @Get('trainers')
   async listTrainers() {

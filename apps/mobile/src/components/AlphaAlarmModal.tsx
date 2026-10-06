@@ -267,7 +267,18 @@ export const AlphaAlarmModal: React.FC<AlphaAlarmModalProps> = ({
                 activeOpacity={0.7}
                 onPress={handleStopAlarm}
               >
-                <Text style={styles.stopAlarmText}>Stop Alarm / Dismiss</Text>
+                <Text style={styles.stopAlarmText}>Dismiss</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.snoozeBtn}
+                activeOpacity={0.7}
+                onPress={() => {
+                  handleStopAlarm();
+                  if (onSnooze) onSnooze(5);
+                }}
+              >
+                <Text style={styles.snoozeText}>+5m</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -278,7 +289,18 @@ export const AlphaAlarmModal: React.FC<AlphaAlarmModalProps> = ({
                   if (onSnooze) onSnooze(10);
                 }}
               >
-                <Text style={styles.snoozeText}>Snooze 10m</Text>
+                <Text style={styles.snoozeText}>+10m</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.snoozeBtn}
+                activeOpacity={0.7}
+                onPress={() => {
+                  handleStopAlarm();
+                  if (onSnooze) onSnooze(15);
+                }}
+              >
+                <Text style={styles.snoozeText}>+15m</Text>
               </TouchableOpacity>
             </View>
           </View>
