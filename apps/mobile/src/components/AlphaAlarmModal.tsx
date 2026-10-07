@@ -544,3 +544,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
+
+export const GravityAlarmModal = AlphaAlarmModal;

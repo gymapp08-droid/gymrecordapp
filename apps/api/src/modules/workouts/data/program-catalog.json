@@ -5,42 +5,42 @@
   "categories": [
     {
       "id": "cat-muscle-building",
-      "name": "Muscle Building",
+      "name": "Muscle Building Programs",
       "slug": "muscle-building",
       "displayOrder": 1,
       "description": "Programs focused on hypertrophy, muscle size, mass gain, and strength."
     },
     {
       "id": "cat-fat-loss",
-      "name": "Fat Loss",
+      "name": "Fat Loss Programs",
       "slug": "fat-loss",
       "displayOrder": 2,
       "description": "Programs engineered for fat reduction, definition, high metabolic conditioning, and shredding."
     },
     {
       "id": "cat-single-muscle",
-      "name": "Single Muscle Specialization",
+      "name": "Single Muscle Programs",
       "slug": "single-muscle",
       "displayOrder": 3,
       "description": "Targeted specialization programs for arms, chest, and specific muscle groups."
     },
     {
       "id": "cat-bodyweight",
-      "name": "Body Weight & Home Workouts",
+      "name": "Body Weight Workout Programs",
       "slug": "bodyweight",
       "displayOrder": 4,
       "description": "High-intensity bodyweight routines, home workouts, and calisthenics."
     },
     {
       "id": "cat-medical",
-      "name": "Medical Condition Diets",
+      "name": "Medical Condition Programs",
       "slug": "medical-conditions",
       "displayOrder": 5,
       "description": "Nutritional protocols tailored for cholesterol, diabetes, hypertension, and thyroid support."
     },
     {
       "id": "cat-family",
-      "name": "Kids & Family Nutrition",
+      "name": "Kids & Family Programs",
       "slug": "kids-family",
       "displayOrder": 6,
       "description": "Wholesome nutrition and foundational wellness protocols for children and families."

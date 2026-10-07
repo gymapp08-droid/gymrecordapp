@@ -67,6 +67,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     upNext,
     dailyNote,
     monthlyJourney,
+    activeProgramTitle,
+    currentProgramWeek,
+    lastCompletedWorkout,
     addWater,
     toggleUpNext,
     saveDailyNote,
@@ -161,6 +164,35 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        {/* 1B. ACTIVE PROGRAM HERO CARD (Section 13) */}
+        <View style={styles.activeProgramCard}>
+          <View style={styles.cardTopMetaRow}>
+            <Text style={styles.sectionLabel}>ACTIVE PROGRAM</Text>
+            <Text style={styles.activeProgramWeekText}>
+              WEEK {currentProgramWeek} · {workout.dayName.toUpperCase()}
+            </Text>
+          </View>
+          <View style={styles.activeProgramTitleRow}>
+            <View style={{ flex: 1, marginRight: 10 }}>
+              <Text style={styles.activeProgramName} numberOfLines={1}>
+                {activeProgramTitle}
+              </Text>
+              <Text style={styles.activeProgramMeta}>
+                {workout.category} · Scheduled Split
+              </Text>
+            </View>
+            {onOpenProgramCatalog && (
+              <TouchableOpacity
+                style={styles.switchProgramBadge}
+                onPress={onOpenProgramCatalog}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.switchProgramBadgeText}>CHANGE</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
         {/* 2. Today's Workout / Rest Day Hero Card (Sections 11, 12, 13) */}
         {workout.isRestDay ? (
           <View style={styles.workoutHeroCard}>
@@ -320,6 +352,66 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </TouchableOpacity>
             )}
           </View>
+        )}
+
+        {/* 2B. PREVIOUS PROGRESS CARD (Section 15 & 16) */}
+        {lastCompletedWorkout ? (
+          <TouchableOpacity
+            style={styles.previousProgressCard}
+            onPress={onOpenCalendarHistory}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Open previous workout history"
+          >
+            <View style={styles.cardTopMetaRow}>
+              <Text style={styles.sectionLabel}>PREVIOUS PROGRESS</Text>
+              <Text style={styles.metaTime}>{lastCompletedWorkout.date}</Text>
+            </View>
+            <Text style={styles.prevWorkoutTitle} numberOfLines={1}>
+              {lastCompletedWorkout.title}
+            </Text>
+            <View style={styles.prevMetricsRow}>
+              <View style={styles.prevMetricCol}>
+                <Text style={styles.prevMetricVal}>{lastCompletedWorkout.exercisesCount}</Text>
+                <Text style={styles.prevMetricSub}>exercises</Text>
+              </View>
+              <View style={styles.prevMetricCol}>
+                <Text style={styles.prevMetricVal}>{lastCompletedWorkout.setsCount}</Text>
+                <Text style={styles.prevMetricSub}>sets done</Text>
+              </View>
+              <View style={styles.prevMetricCol}>
+                <Text style={[styles.prevMetricVal, { color: Theme.colors.cyanGlow }]}>
+                  {lastCompletedWorkout.volumeKg.toLocaleString()} KG
+                </Text>
+                <Text style={styles.prevMetricSub}>volume lifted</Text>
+              </View>
+            </View>
+            <View style={styles.historyLinkRow}>
+              <Text style={styles.readOnlyNote}>📖 Read-Only Historical Ledger · Tap to View Calendar</Text>
+              <Text style={styles.historyArrow}>→</Text>
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.previousProgressCard}
+            onPress={onOpenCalendarHistory}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Open previous workout history"
+          >
+            <View style={styles.cardTopMetaRow}>
+              <Text style={styles.sectionLabel}>PREVIOUS PROGRESS</Text>
+              <Text style={styles.metaTime}>HISTORICAL LOG</Text>
+            </View>
+            <Text style={styles.prevWorkoutTitle}>NO PROGRESS YET</Text>
+            <Text style={styles.noProgressDesc}>
+              Complete today's prescribed workout session to begin recording verified volume, completed sets, and overload milestones.
+            </Text>
+            <View style={styles.historyLinkRow}>
+              <Text style={styles.readOnlyNote}>📖 View Historical Calendar & Past Records</Text>
+              <Text style={styles.historyArrow}>→</Text>
+            </View>
+          </TouchableOpacity>
         )}
 
         {/* 2B. Day-By-Day Exercise History & Reps/Sets Progression Breakdown (Collapsible on Home) */}
@@ -1044,6 +1136,116 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 8,
+  },
+  activeProgramCard: {
+    backgroundColor: '#0A0E17',
+    borderRadius: Theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 240, 255, 0.4)',
+    padding: 16,
+    gap: 8,
+  },
+  activeProgramWeekText: {
+    fontSize: 10,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  activeProgramTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  activeProgramName: {
+    fontSize: 18,
+    fontFamily: Theme.typography.display.fontFamily,
+    fontWeight: '900',
+    color: Theme.colors.textPrimary,
+  },
+  activeProgramMeta: {
+    fontSize: 11,
+    fontFamily: Theme.typography.body.fontFamily,
+    color: Theme.colors.textSecondary,
+    marginTop: 2,
+  },
+  switchProgramBadge: {
+    backgroundColor: 'rgba(0, 240, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: Theme.colors.cyanGlow,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: Theme.borderRadius.pill,
+  },
+  switchProgramBadgeText: {
+    fontSize: 10,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  previousProgressCard: {
+    backgroundColor: '#0A0E17',
+    borderRadius: Theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    padding: 16,
+    gap: 10,
+  },
+  prevWorkoutTitle: {
+    fontSize: 17,
+    fontFamily: Theme.typography.display.fontFamily,
+    fontWeight: '800',
+    color: Theme.colors.textPrimary,
+  },
+  prevMetricsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: Theme.borderRadius.md,
+    padding: 12,
+  },
+  prevMetricCol: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  prevMetricVal: {
+    fontSize: 16,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    fontWeight: '900',
+    color: Theme.colors.textPrimary,
+  },
+  prevMetricSub: {
+    fontSize: 9,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.textMuted,
+    textTransform: 'uppercase',
+    marginTop: 2,
+  },
+  noProgressDesc: {
+    fontSize: 12,
+    fontFamily: Theme.typography.body.fontFamily,
+    color: Theme.colors.textSecondary,
+    lineHeight: 18,
+  },
+  historyLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  readOnlyNote: {
+    fontSize: 10.5,
+    fontFamily: Theme.typography.telemetry.fontFamily,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '700',
+  },
+  historyArrow: {
+    fontSize: 14,
+    color: Theme.colors.cyanGlow,
+    fontWeight: '800',
   },
   workoutHeroCard: {
     backgroundColor: '#0A0E17',
