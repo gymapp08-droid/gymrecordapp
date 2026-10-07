@@ -613,10 +613,10 @@ export const ProgramAccessManagementView: React.FC<ProgramAccessManagementProps>
             </span>
           </div>
           <h3 style={{ fontSize: '15px', fontWeight: 700, margin: '0 0 4px 0', color: STITCH_THEME.colors.textPrimary }}>
-            Designed & Created by Guru Mann, USA
+            Designed & Created by GRAVITY Performance OS
           </h3>
           <p style={{ fontSize: '12px', color: STITCH_THEME.colors.textSecondary, margin: '0 0 8px 0', lineHeight: 1.4 }}>
-            Certified Advanced Fitness Trainer · Certified Nutrition Specialist · Sports Nutritionist & Strength Coach
+            Elite Conditioning Protocol · Certified Nutrition & Strength System
           </p>
           <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textMuted }}>
             Canonical source integrity verified: 68 source exercises, HIIC treadmill cardio protocol, and tempo prescriptions locked.

@@ -575,10 +575,10 @@ export const UserProgramDashboardView: React.FC<UserProgramDashboardProps> = ({
             Authoritative Program Source
           </div>
           <div style={{ fontSize: '14px', fontWeight: 700, color: STITCH_THEME.colors.textPrimary, marginTop: '2px' }}>
-            Designed & Created by Guru Mann, USA
+            Designed & Created by GRAVITY Performance OS
           </div>
           <div style={{ fontSize: '11px', color: STITCH_THEME.colors.textSecondary, marginTop: '2px' }}>
-            Certified Advanced Fitness Trainer · Certified Nutrition Specialist · Sports Nutritionist & Strength Coach
+            Elite Conditioning Protocol · Certified Nutrition & Strength System
           </div>
         </div>
         <div style={{ fontSize: '11px', fontFamily: STITCH_THEME.typography.fontMono, color: STITCH_THEME.colors.textMuted }}>
