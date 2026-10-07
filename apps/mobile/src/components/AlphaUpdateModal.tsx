@@ -403,3 +403,5 @@ const styles = StyleSheet.create({
     fontFamily: Theme.typography.fontBody,
   },
 });
+
+export const GravityUpdateModal = AlphaUpdateModal;

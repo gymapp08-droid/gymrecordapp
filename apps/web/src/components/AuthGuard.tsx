@@ -154,11 +154,11 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
             }}
           >
             Your account ({currentUser.email}) is registered as an <strong>Athlete / Standard User</strong>.
-            The Alpha Web Portal is strictly restricted to certified Trainers, Coaches, and System
+            The GRAVITY Web Portal is strictly restricted to certified Trainers, Coaches, and System
             Administrators.
             <br />
             <br />
-            Please open the <strong>Alpha Mobile Application</strong> to access your workouts, nutrition plans,
+            Please open the <strong>GRAVITY Mobile Application</strong> to access your workouts, nutrition plans,
             and personal performance dashboards.
           </p>
 

@@ -3,21 +3,24 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { AlphaScreen, AlphaHeader, PrimaryButton } from '../../components';
 import { Theme } from '../../theme/tokens';
 
-import programCatalogData from '../../data/program-catalog.json';
-
 interface GoalSelectionScreenProps {
   onBack: () => void;
   onNext: (selectedGoal: string) => void;
 }
 
-export const GoalSelectionScreen: React.FC<GoalSelectionScreenProps> = ({ onBack, onNext }) => {
-  const categories = (programCatalogData.categories || []).map((c: any) => ({
-    id: c.id,
-    title: c.name,
-    desc: c.description || 'Verified GRAVITY performance protocol',
-  }));
+const CANONICAL_CATEGORIES = [
+  { id: 'cat-muscle-building', title: '1. MUSCLE BUILDING PROGRAMS', desc: 'Hypertrophy, muscle mass, strength, and periodized volume splits' },
+  { id: 'cat-fat-loss', title: '2. FAT LOSS PROGRAMS', desc: 'High-metabolic conditioning, shredded body composition, and giant set protocols' },
+  { id: 'cat-single-muscle', title: '3. SINGLE MUSCLE PROGRAMS', desc: 'Targeted specialization programs for arms, chest, and priority muscle groups' },
+  { id: 'cat-bodyweight', title: '4. BODY WEIGHT WORKOUT PROGRAMS', desc: 'Calisthenics, functional bodyweight routines, and home fitness systems' },
+  { id: 'cat-medical', title: '5. MEDICAL CONDITION PROGRAMS', desc: 'Tailored nutritional regimens for cholesterol, diabetes, hypertension, and thyroid' },
+  { id: 'cat-family', title: '6. KIDS & FAMILY PROGRAMS', desc: 'Nutritional wellness blueprints for children and family health fundamentals' },
+];
 
-  const [selectedGoal, setSelectedGoal] = useState<string>(categories[0]?.id || 'cat-fat-loss');
+export const GoalSelectionScreen: React.FC<GoalSelectionScreenProps> = ({ onBack, onNext }) => {
+  const categories = CANONICAL_CATEGORIES;
+
+  const [selectedGoal, setSelectedGoal] = useState<string>(categories[1]?.id || 'cat-fat-loss');
 
   return (
     <AlphaScreen>

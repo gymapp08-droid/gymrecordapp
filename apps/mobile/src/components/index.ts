@@ -13,3 +13,4 @@ export * from './LoadingState';
 export * from './OfflineBanner';
 export * from './AlphaUpdateModal';
 export * from './AlphaLogo';
+export * from './AlphaAlarmModal';

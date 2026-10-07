@@ -133,3 +133,5 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
 });
+
+export const GravityLogo = AlphaLogo;

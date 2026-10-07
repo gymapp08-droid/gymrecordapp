@@ -118,6 +118,16 @@ export interface UpNextItem {
   isCompleted: boolean;
 }
 
+export interface LastWorkoutSummaryState {
+  date: string;
+  title: string;
+  exercisesCount: number;
+  setsCount: number;
+  volumeKg: number;
+  durationMinutes?: number;
+  prs?: string[];
+}
+
 interface PerformanceContextType {
   workout: TodayWorkoutState;
   nutrition: TodayNutritionState;
@@ -140,6 +150,7 @@ interface PerformanceContextType {
     prs: number;
     consistencyRate: string;
   };
+  lastCompletedWorkout: LastWorkoutSummaryState | null;
   recordWorkoutCompletion: (summary: {
     totalVolumeKg: number;
     totalSetsCompleted: number;
@@ -537,6 +548,8 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     label: '0',
   });
 
+  const [lastCompletedWorkout, setLastCompletedWorkout] = useState<LastWorkoutSummaryState | null>(null);
+
   const [weeklyMomentum, _setWeeklyMomentum] = useState<{
     days: MomentumDay[];
     completedCount: number;
@@ -665,7 +678,26 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       const savedNote = await SecureStorage.getItem('alpha_daily_note');
       if (savedNote) setDailyNote(savedNote);
 
-      // 3b. Restore active program selection
+      // 3a. Restore last completed workout summary for Previous Progress card
+      const savedSummary = await SecureStorage.getItem('gravity_last_workout_summary');
+      if (savedSummary) {
+        try {
+          setLastCompletedWorkout(JSON.parse(savedSummary));
+        } catch {}
+      }
+
+      // 3b. Calculate dynamic program week from actual program start date
+      const savedStartDate = await SecureStorage.getItem('gravity_program_start_date');
+      if (savedStartDate) {
+        const elapsedDays = Math.floor((Date.now() - new Date(savedStartDate).getTime()) / (1000 * 60 * 60 * 24));
+        const calcWeek = Math.max(1, Math.floor(elapsedDays / 7) + 1);
+        setCurrentProgramWeek(calcWeek);
+      } else {
+        await SecureStorage.setItem('gravity_program_start_date', new Date().toISOString());
+        setCurrentProgramWeek(1);
+      }
+
+      // 3c. Restore active program selection
       const savedProgId = (await SecureStorage.getItem('gravity_active_program_id')) || (await SecureStorage.getItem('alpha_active_program_id'));
       if (savedProgId) {
         setActiveProgramIdState(savedProgId);
@@ -795,6 +827,9 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     SecureStorage.setItem('gravity_active_program_id', programId);
     SecureStorage.setItem('alpha_active_program_id', programId);
+    const nowIso = new Date().toISOString();
+    SecureStorage.setItem('gravity_program_start_date', nowIso);
+    setCurrentProgramWeek(1);
 
     const sched = resolveScheduleForProgram(programId, todayDayOfWeek);
     setWorkout((prev) => ({
@@ -866,6 +901,18 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const todayIso = new Date().toISOString().split('T')[0];
     await SecureStorage.setItem('alpha_training_streak', String(newStreakDays));
     await SecureStorage.setItem('gravity_last_workout_date', String(todayIso));
+
+    // Save last completed workout summary for Previous Progress card
+    const summaryRecord: LastWorkoutSummaryState = {
+      date: new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
+      title: summary.sessionTitle || workout.name,
+      exercisesCount: summary.exercisesCompletedCount,
+      setsCount: summary.totalSetsCompleted,
+      volumeKg: summary.totalVolumeKg,
+      prs: summary.prsAchieved,
+    };
+    setLastCompletedWorkout(summaryRecord);
+    await SecureStorage.setItem('gravity_last_workout_summary', JSON.stringify(summaryRecord));
 
     // Update monthly metrics
     setMonthlyJourney((prev) => ({
@@ -989,6 +1036,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
         upNext,
         dailyNote,
         monthlyJourney,
+        lastCompletedWorkout,
         recordWorkoutCompletion,
         addWater,
         toggleUpNext,

@@ -32,3 +32,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: Theme.spacing.md,
   },
 });
+
+export const GravityScreen = AlphaScreen;

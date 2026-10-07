@@ -34,13 +34,13 @@ interface ProgramRecommendationScreenProps {
 }
 
 const CATEGORY_NAMES: Record<string, string> = {
-  'cat-fat-loss': 'Fat Loss',
-  'cat-muscle-building': 'Muscle Building',
-  'cat-single-muscle': 'Single Muscle',
-  'cat-bodyweight': 'Bodyweight',
-  'cat-medical': 'Clinical & Health',
-  'cat-family': 'Family & Kids',
-  'cat-specialized-nutrition': 'Specialized Diet',
+  'cat-muscle-building': 'Muscle Building Programs',
+  'cat-fat-loss': 'Fat Loss Programs',
+  'cat-single-muscle': 'Single Muscle Programs',
+  'cat-bodyweight': 'Body Weight Programs',
+  'cat-medical': 'Medical Condition Programs',
+  'cat-family': 'Kids & Family Programs',
+  'cat-specialized-nutrition': 'Specialized Nutrition',
 };
 
 export const ProgramRecommendationScreen: React.FC<ProgramRecommendationScreenProps> = ({

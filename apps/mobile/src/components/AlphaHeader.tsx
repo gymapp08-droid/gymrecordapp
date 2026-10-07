@@ -100,3 +100,5 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
 });
+
+export const GravityHeader = AlphaHeader;
