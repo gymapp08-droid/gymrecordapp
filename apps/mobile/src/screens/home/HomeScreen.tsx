@@ -967,7 +967,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </ScrollView>
 
       {/* Daily Note Modal */}
-      <Modal visible={noteModalVisible} transparent animationType="fade">
+      <Modal
+        visible={noteModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setNoteModalVisible(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalHeading}>DAILY PERFORMANCE NOTE</Text>

@@ -594,7 +594,7 @@ export class WorkoutsService {
   }
 
   async getActiveProgram(userId: string): Promise<StoredProgram> {
-    // Check if user has an assigned program, otherwise return the default ALPHA Hypertrophy protocol
+    // Check if user has an assigned program, otherwise return the default split
     const shreddedKey = `${userId}:${SIX_WEEK_SHREDDED_ID}`;
     if (this.assignedUsers.has(shreddedKey)) {
       return this.programs.get(SIX_WEEK_SHREDDED_ID)!;
