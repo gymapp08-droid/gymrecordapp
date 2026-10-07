@@ -699,6 +699,7 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
       // 3c. Restore active program selection
       const savedProgId = (await SecureStorage.getItem('gravity_active_program_id')) || (await SecureStorage.getItem('alpha_active_program_id'));
+      const currentActiveProgId = savedProgId || activeProgramId;
       if (savedProgId) {
         setActiveProgramIdState(savedProgId);
         const catalog: any = programCatalogData;
@@ -744,26 +745,36 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       // 4. Fetch user's active program from backend if authenticated
       const res = await ApiClient.get<any>('/workouts/program/active');
       if (res.success && res.data && res.data.days) {
-        const serverDays = res.data.days;
-        const matchingDay = serverDays.find((d: any) => d.dayOfWeek === todayDayOfWeek);
-        if (matchingDay && matchingDay.templates && matchingDay.templates.length > 0) {
-          const tpl = matchingDay.templates[0];
-          const exList: WorkoutExerciseSummary[] = (tpl.exercises || []).map((e: any, idx: number) => ({
-            number: String(idx + 1).padStart(2, '0'),
-            name: e.exerciseName,
-            prescription: `${e.targetSets} sets · ${e.targetReps} reps`,
-            isCompleted: false,
-          }));
+        // Guard: Only update workout from server if the server's program matches the user's active program selection
+        const serverProgId = res.data.id;
+        const isServerMatch =
+          serverProgId === currentActiveProgId ||
+          (is6WeekShreddedProgram(currentActiveProgId) && (serverProgId === '6_week_shredded_12w' || serverProgId === 'prog_6_week_shredded_12w'));
 
-          setWorkout((prev) => ({
-            ...prev,
-            name: matchingDay.title || tpl.name,
-            totalExercises: exList.length,
-            totalSets: exList.length * 3,
-            isRestDay: false,
-            status: 'NOT_STARTED',
-            exercises: exList,
-          }));
+        if (isServerMatch) {
+          const serverDays = res.data.days;
+          const matchingDay = serverDays.find((d: any) => d.dayOfWeek === todayDayOfWeek);
+          if (matchingDay && matchingDay.templates && matchingDay.templates.length > 0) {
+            const tpl = matchingDay.templates[0];
+            const exList: WorkoutExerciseSummary[] = (tpl.exercises || []).map((e: any, idx: number) => ({
+              number: String(idx + 1).padStart(2, '0'),
+              name: e.exerciseName,
+              prescription: `${e.targetSets} sets · ${e.targetReps} reps`,
+              isCompleted: false,
+            }));
+
+            if (exList.length > 0) {
+              setWorkout((prev) => ({
+                ...prev,
+                name: matchingDay.title || tpl.name,
+                totalExercises: exList.length,
+                totalSets: exList.length * 3,
+                isRestDay: false,
+                status: 'NOT_STARTED',
+                exercises: exList,
+              }));
+            }
+          }
         }
       }
     } catch {
@@ -857,6 +868,12 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       carbsTarget: totalC > 0 ? totalC : prev.carbsTarget,
       fatTarget: totalF > 0 ? totalF : prev.fatTarget,
     }));
+
+    // Synchronize program activation to backend if authenticated
+    const serverProgramId = is6WeekShreddedProgram(programId) ? '6_week_shredded_12w' : programId;
+    ApiClient.post(`/workouts/programs/${serverProgramId}/start`, {}).catch(() => {
+      // Graceful offline fallback
+    });
   };
 
   const refreshDayState = useCallback(() => {
@@ -869,6 +886,9 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       name: sched.name,
       category: sched.category,
       isRestDay: sched.isRest,
+      estimatedMinutes: sched.estimatedMinutes,
+      totalExercises: sched.exercises.length,
+      totalSets: sched.exercises.length * 3,
       status: sched.isRest ? 'REST_DAY' : 'NOT_STARTED',
       exercises: sched.exercises,
     }));

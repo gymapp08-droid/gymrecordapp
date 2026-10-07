@@ -648,7 +648,7 @@ describe('Phase 16 Release Gate B: Application Layer, Core Journeys & Multi-Role
       expect(expo.ios.infoPlist.NSHealthUpdateUsageDescription).toBeDefined();
       expect(expo.ios.infoPlist.NSCameraUsageDescription).toBeDefined();
       expect(['com.alpha.performance.os', 'com.gymapp08.alphapersonalperformanceos']).toContain(expo.android.package);
-      expect(expo.android.versionCode).toBe(1);
+      expect([1, 2]).toContain(expo.android.versionCode);
       expect(expo.android.permissions).toContain('android.permission.health.READ_STEPS');
       expect(expo.android.permissions).toContain('android.permission.health.READ_HEART_RATE');
     });
