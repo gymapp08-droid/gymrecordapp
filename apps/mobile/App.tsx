@@ -140,8 +140,16 @@ function MainNavigator() {
   const { recordWorkoutCompletion, setActiveProgramId, activeProgramId, toggleMealCompletion } = usePerformance();
   const [authRoute, setAuthRoute] = useState<AuthRoute>('SPLASH');
   const [activeTab, setActiveTab] = useState<MainTab>('HOME');
+  const [tabHistory, setTabHistory] = useState<MainTab[]>([]);
   const [activeSubView, setActiveSubView] = useState<SubView>(null);
   const [subViewHistory, setSubViewHistory] = useState<SubView[]>([]);
+
+  const switchTab = (tab: MainTab) => {
+    if (tab !== activeTab) {
+      setTabHistory((prev) => [...prev.filter((t) => t !== tab), activeTab]);
+      setActiveTab(tab);
+    }
+  };
 
   const navigateToSubView = (subView: SubView) => {
     setSubViewHistory((prev) => (activeSubView ? [...prev, activeSubView] : prev));
@@ -149,6 +157,25 @@ function MainNavigator() {
   };
 
   const navigateBackSubView = () => {
+    if (activeSubView === 'ACTIVE_WORKOUT') {
+      Alert.alert(
+        'Exit Workout Session',
+        'Do you want to leave your active workout? You can continue or discard.',
+        [
+          { text: 'Keep Training', style: 'cancel' },
+          {
+            text: 'Leave Workout',
+            style: 'destructive',
+            onPress: () => {
+              setActiveSubView(null);
+              setSubViewHistory([]);
+            },
+          },
+        ]
+      );
+      return;
+    }
+
     if (subViewHistory.length > 0) {
       const prev = subViewHistory[subViewHistory.length - 1];
       setSubViewHistory((h) => h.slice(0, -1));
@@ -281,6 +308,13 @@ function MainNavigator() {
         // If inside an active subview (e.g. AI Coach, Active Workout, Add Food, Meal Detail, etc.)
         if (activeSubView !== null) {
           navigateBackSubView();
+          return true;
+        }
+        // If tab history exists, pop to previous tab
+        if (tabHistory.length > 0) {
+          const prevTab = tabHistory[tabHistory.length - 1];
+          setTabHistory((h) => h.slice(0, -1));
+          setActiveTab(prevTab!);
           return true;
         }
         // If not on HOME tab, return to HOME tab
@@ -523,7 +557,7 @@ function MainNavigator() {
       <View style={styles.navBar}>
         <TouchableOpacity
           style={[styles.navItem, activeTab === 'HOME' && styles.navItemActive]}
-          onPress={() => setActiveTab('HOME')}
+          onPress={() => switchTab('HOME')}
           activeOpacity={0.7}
         >
           <HomeIcon
@@ -535,7 +569,7 @@ function MainNavigator() {
 
         <TouchableOpacity
           style={[styles.navItem, activeTab === 'WORKOUT' && styles.navItemActive]}
-          onPress={() => setActiveTab('WORKOUT')}
+          onPress={() => switchTab('WORKOUT')}
           activeOpacity={0.7}
         >
           <WorkoutIcon
@@ -547,7 +581,7 @@ function MainNavigator() {
 
         <TouchableOpacity
           style={[styles.navItem, activeTab === 'NUTRITION' && styles.navItemActive]}
-          onPress={() => setActiveTab('NUTRITION')}
+          onPress={() => switchTab('NUTRITION')}
           activeOpacity={0.7}
         >
           <NutritionIcon
@@ -559,7 +593,7 @@ function MainNavigator() {
 
         <TouchableOpacity
           style={[styles.navItem, activeTab === 'ACTIVITY' && styles.navItemActive]}
-          onPress={() => setActiveTab('ACTIVITY')}
+          onPress={() => switchTab('ACTIVITY')}
           activeOpacity={0.7}
         >
           <ActivityIcon
@@ -571,7 +605,7 @@ function MainNavigator() {
 
         <TouchableOpacity
           style={[styles.navItem, activeTab === 'PROGRESS' && styles.navItemActive]}
-          onPress={() => setActiveTab('PROGRESS')}
+          onPress={() => switchTab('PROGRESS')}
           activeOpacity={0.7}
         >
           <ProgressIcon
@@ -583,7 +617,12 @@ function MainNavigator() {
       </View>
 
       {/* Full-Screen Modal Subviews */}
-      <Modal visible={activeSubView !== null} animationType="slide" transparent={false}>
+      <Modal
+        visible={activeSubView !== null}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={navigateBackSubView}
+      >
         <SafeAreaView style={styles.modalContainer}>
           <StatusBar barStyle="light-content" backgroundColor="#05070B" />
           {activeSubView === 'COMMAND_HUB' && (

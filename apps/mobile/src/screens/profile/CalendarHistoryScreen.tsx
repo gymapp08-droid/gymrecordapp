@@ -677,7 +677,12 @@ export const CalendarHistoryScreen: React.FC<CalendarHistoryScreenProps> = ({ on
       </ScrollView>
 
       {/* Missed Day Journal Modal */}
-      <Modal visible={editingJournal !== null} transparent animationType="fade">
+      <Modal
+        visible={editingJournal !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditingJournal(null)}
+      >
         <View style={styles.modalBackdrop}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>LOG JOURNAL & VARIANCE REASON</Text>

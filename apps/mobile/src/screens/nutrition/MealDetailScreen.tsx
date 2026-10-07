@@ -558,7 +558,12 @@ export const MealDetailScreen: React.FC<MealDetailScreenProps> = ({
       </View>
 
       {/* Food Substitution Modal */}
-      <Modal visible={editingSubstituteItem !== null} transparent animationType="fade">
+      <Modal
+        visible={editingSubstituteItem !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditingSubstituteItem(null)}
+      >
         <View style={styles.modalBackdrop}>
           <View style={styles.substituteModal}>
             <View style={styles.subHeader}>

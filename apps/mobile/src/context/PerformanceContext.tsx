@@ -951,8 +951,9 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
       });
     }
 
-    // Clear active in-progress draft
-    await SecureStorage.removeItem('alpha_active_workout_draft');
+    // Clear active in-progress draft (both legacy and current keys)
+    await SecureStorage.removeItem('active_workout_draft').catch(() => {});
+    await SecureStorage.removeItem('alpha_active_workout_draft').catch(() => {});
   };
 
   const addWater = async (liters: number) => {

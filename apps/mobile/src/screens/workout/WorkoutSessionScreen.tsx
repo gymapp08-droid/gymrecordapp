@@ -1041,7 +1041,12 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
       </ScrollView>
 
       {/* Skip Exercise Reason Modal */}
-      <Modal visible={skipModalVisible} transparent animationType="fade">
+      <Modal
+        visible={skipModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSkipModalVisible(false)}
+      >
         <View style={styles.modalBackdrop}>
           <View style={styles.skipModalBox}>
             <Text style={styles.skipModalTitle}>Skip {currentExercise.name}?</Text>
@@ -1076,7 +1081,12 @@ export const WorkoutSessionScreen: React.FC<WorkoutSessionScreenProps> = ({
       </Modal>
 
       {/* Target Set Editor Modal */}
-      <Modal visible={editingTargetSet !== null} transparent animationType="fade">
+      <Modal
+        visible={editingTargetSet !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditingTargetSet(null)}
+      >
         <View style={styles.modalBackdrop}>
           <View style={styles.skipModalBox}>
             <Text style={styles.skipModalTitle}>CUSTOMIZE TARGET</Text>
